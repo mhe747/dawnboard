@@ -1,0 +1,16 @@
+# This file takes repo entries in the format
+# repo name,repo uri,repo branch,repo commit[,layers=layer1:layer2...:layern]
+
+bitbake,git://git.openembedded.org/bitbake,1.32,5f5e13bacde95a93633f621ec6b94a022c476a58,layers=
+meta-processor-sdk,git://arago-project.org/git/projects/meta-processor-sdk.git,master,eaac60268857bc56bf89625df93935a272b63341,layers=
+meta-ros,https://github.com/bmwcarit/meta-ros.git,master,e01c6ace0d4f9d700449edad3781e9cd505b5e10,layers=
+meta-arago,git://arago-project.org/git/meta-arago.git,morty,d34c861f846f35d089e1caf224ec43079be7b202,layers=meta-arago-distro:meta-arago-extras
+meta-browser,git://github.com/OSSystems/meta-browser.git,master,26d50665e2f7223c5f4ad7481a8d2431e7cb55fb,layers=
+meta-openamp,git://github.com/OpenAMP/meta-openamp.git,morty,8a214032bfb7e8124bc1485c70c69f7d60abb819,layers=
+meta-qt5,git://github.com/meta-qt5/meta-qt5.git,morty,2c9f0e4eb0e9097f6f872ec1e1d81768a8ab5f1b,layers=
+meta-openembedded,git://git.openembedded.org/meta-openembedded,morty,b40116cf457b88a2db14b86fda9627fb34d56ae6,layers=meta-networking:meta-ruby:meta-python:meta-oe:meta-gnome:meta-multimedia
+meta-ti,git://git.yoctoproject.org/meta-ti,morty,351ccf1928a18c2b69fd19b09b980c9aa3af2e26,layers=
+meta-linaro,git://git.linaro.org/openembedded/meta-linaro.git,morty,5d2cb685217794293ea2bab18d7e62019c329d06,layers=meta-linaro-toolchain:meta-optee
+oe-core,git://git.openembedded.org/openembedded-core,morty,1718f0a6c1de9c23660a9bebfd4420e3c4ed37e6,layers=meta
+OECORELAYERCONF=./sample-files/bblayers.conf.sample
+OECORELOCALCONF=./sample-files/local-processor-sdk-64.conf.sample

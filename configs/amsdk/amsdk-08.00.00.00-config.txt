@@ -1,0 +1,12 @@
+# This file takes repo entries in the format
+# repo name,repo uri,repo branch,repo commit[,layers=layer1:layer2...:layern]
+
+bitbake,git://git.openembedded.org/bitbake,1.22,8e386a710023e000a504e05c13da0106df0c7f3a,layers=
+meta-arago,git://arago-project.org/git/projects/meta-arago-amsdk.git,amsdk-08.00.00.00-integration,HEAD,layers=meta-arago-distro:meta-arago-extras
+meta-qt5,git://github.com/meta-qt5/meta-qt5.git,master,37e921db22689131144b453d53a8cce4a314aa48,layers=
+meta-openembedded,git://git.openembedded.org/meta-openembedded,daisy,d3d14d3fcca7fcde362cf0b31411dc4eea6d20aa,layers=toolchain-layer:meta-networking:meta-ruby:meta-oe
+meta-ti,git://arago-project.org/git/projects/meta-ti-amsdk.git,amsdk-08.00.00.00-integration,HEAD,layers=
+meta-linaro,git://git.linaro.org/openembedded/meta-linaro.git,daisy,bc63e777ad2748b8bfa7fa70ffd74700fa21a567,layers=meta-linaro-toolchain
+oe-core,git://git.openembedded.org/openembedded-core,daisy,f34de2175f1d6a443f219b8ceaaf796cfbc6efd5,layers=meta
+OECORELAYERCONF=./sample-files/bblayers.conf.sample
+OECORELOCALCONF=./sample-files/local-amsdk.conf.sample

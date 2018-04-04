@@ -1,0 +1,7 @@
+# This file takes repo entries in the format
+# repo name,repo uri,repo branch,repo commit[,layers=layer1:layer2...:layern]
+bitbake,git://git.openembedded.org/bitbake,1.36,HEAD,layers=
+meta-ti,git://git.yoctoproject.org/meta-ti,rocko,HEAD,layers=
+oe-core,git://git.openembedded.org/openembedded-core,rocko,HEAD,layers=meta
+OECORELAYERCONF=./sample-files/bblayers.conf.sample
+OECORELOCALCONF=./sample-files/local.conf.sample

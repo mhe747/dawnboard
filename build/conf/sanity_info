@@ -1,0 +1,4 @@
+SANITY_VERSION 1
+TMPDIR /home/osboxes/bbx15/tisdk/build/arago-tmp-external-linaro-toolchain
+SSTATE_DIR /home/osboxes/bbx15/tisdk/build/sstate-cache
+NATIVELSBSTRING Ubuntu-16.04

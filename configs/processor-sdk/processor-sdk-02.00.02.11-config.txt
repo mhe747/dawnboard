@@ -1,0 +1,13 @@
+# This file takes repo entries in the format
+# repo name,repo uri,repo branch,repo commit[,layers=layer1:layer2...:layern]
+
+bitbake,git://git.openembedded.org/bitbake,1.26,b09966906ef054834f0b465f0c5a2a937b4c4a4c,layers=
+meta-processor-sdk,git://arago-project.org/git/projects/meta-processor-sdk.git,master,80feff781e2a6c3b50a72655a627ca7d629c72ab,layers=
+meta-arago,git://arago-project.org/git/meta-arago.git,fido,e6bb433b399c1ad32e596b9c46571fbfe384a86e,layers=meta-arago-distro:meta-arago-extras
+meta-qt5,git://github.com/meta-qt5/meta-qt5.git,master,97ce05c0b2a81f05388d7f727741529fb9177775,layers=
+meta-openembedded,git://git.openembedded.org/meta-openembedded,fido,a7c1a2b0e6947740758136216e45ca6ca66321fc,layers=meta-networking:meta-ruby:meta-python:meta-oe
+meta-ti,git://arago-project.org/git/meta-ti.git,fido,c93678aa08bc0df0f1f36a84afe48723406de58e,layers=
+meta-linaro,git://git.linaro.org/openembedded/meta-linaro.git,fido,10b71bed9cfe76baa22c72806ff814cf85c2f73b,layers=meta-linaro-toolchain
+oe-core,git://git.openembedded.org/openembedded-core,fido,12520d7f729fe3d07c2f94b813994718edb2d987,layers=meta
+OECORELAYERCONF=./sample-files/bblayers.conf.sample
+OECORELOCALCONF=./sample-files/local-processor-sdk-64.conf.sample
