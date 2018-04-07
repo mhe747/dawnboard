@@ -11,5 +11,5 @@ This is my personal concept of a small add-on board with a FPGA connected to the
 	Linear Tech LTC6904 I2C 10kHz-68MHz programmable CMOS clock oscillator
 	I2C EEPROM
 	3.3V I2C port for off-board serial expansion.
-	JTAG port for FPGA development and debugging.
-	Diagnostic LEDs (2 User defined, 2 Configuration status).
+	JTAG port for FPGA development and debugging
+	Diagnostic LEDs (2 User defined, 2 Configuration status)
