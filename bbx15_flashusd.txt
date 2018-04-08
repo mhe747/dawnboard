@@ -1,0 +1,22 @@
+In tisdk/build/arago-tmp-external-linaro-toolchain/deploy/images/am57xx-evm :
+
+================================================================================
+|       FILE       |                  LOCATION                                 |
+================================================================================
+|    MLO           | boot partition
+|    u-boot.img    | boot partition
+|    uEnv.txt      | boot partition
+|    uImage        | /boot directory of the rootfs partition
+|    *.dtb         | /boot directory of the rootfs partition
+================================================================================
+
+By default the boot loaders are read from the first FAT partition, which is
+usually called the "boot" partition.  Then the bootloader will look for the
+uImage and DTB files in the /boot directory of the EXT partition, which is
+usually called the "rootfs" partition.
+
+execute these commands in your yocto workspace :
+
+cp tisdk/build/arago-tmp-external-linaro-toolchain/deploy/images/am57xx-evm/{MLO,u-boot.img,uImage} uEnv.txt /media/osboxes/boot; sync
+tar -Jxf tisdk/build/arago-tmp-external-linaro-toolchain/deploy/images/am57xx-evm/arago-base-tisdk-image-am57xx-evm.tar.xz -C /media/osboxes/rootfs; sync
+
