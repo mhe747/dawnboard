@@ -1,0 +1,3 @@
+# rename to /run/media/mmcblk0p1/uEnv.txt assumed that mount /dev/mmcblk0p1 on /run/media/mmcblk0p1 type vfat 
+# also changed the serverip 192.168.1.17 to real server ip 
+uenvcmd=setenv autoload no;dhcp;setenv bootfile zImage;setenv fdtfile uImage-am57xx-beagle-x15-revc.dtb;setenv serverip 192.168.1.17;setenv netloadfdt tftp ${fdtaddr} ${serverip}:${fdtfile};setenv netloadimage tftp ${loadaddr} ${serverip}:${bootfile};setenv rootpath /home/osboxes/ti-processor-sdk-linux-am57xx-evm-04.03.00.05/targetNFS;run netloadimage;run netloadfdt;run netargs;bootz ${loadaddr} - ${fdtaddr};
