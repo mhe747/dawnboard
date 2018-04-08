@@ -1,0 +1,28 @@
+# This uEnv.txt file comes from processor SDK 04.03.00.05/board-support/prebuilt-images
+# This uEnv.txt file can contain additional environment settings that you
+# want to set in U-Boot at boot time.  This can be simple variables such
+# as the serverip or custom variables.  The format of this file is:
+#    variable=value
+# NOTE: This file will be evaluated after the bootcmd is run and the
+#       bootcmd must be set to load this file if it exists (this is the
+#       default on all newer U-Boot images.  This also means that some
+#       variables such as bootdelay cannot be changed by this file since
+#       it is not evaluated until the bootcmd is run.
+
+# The environment is saved to eMMC, but we wish that a newly created SD card
+# will boot without any manual configuration. To do this we will reset the
+# environment upon the first boot, and then create a file in the boot partition
+# of the SD card to mark when the first-time setup has been done.
+
+psdk_setup_file=.psdk_setup
+check_psdk_setup=load mmc 0:1 ${loadaddr} ${psdk_setup_file}
+
+# Unfortunately, the following will be erased before it can be invoked
+# (See below in "uenvcmd")
+#mark_psdk_setup=mw .b ${loadaddr} 0 1; fatwrite mmc 0:1 ${loadaddr} ${psdk_setup_file} 1
+
+# Reset to the default environment
+do_psdk_setup=env default -f -a; saveenv
+
+# If not previously configured, then configure the environment and indicate this by writing a file
+uenvcmd=if run check_psdk_setup; then echo "Already setup."; else run do_psdk_setup; mw.b ${loadaddr} 0 1; fatwrite mmc 0:1 ${loadaddr} .psdk_setup 1; reset; fi
