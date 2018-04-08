@@ -1,4 +1,6 @@
 
+## Welcome to the github of the BeagleSDR add-on board for the famous beagleboard-x15
+
 ## all yocto arago project ipk packages sources for beagleboard-x15 based on processor-sdk-xx.xx.xx.xx-config
 
 	./oe-layertool-setup.sh -f configs/processor-sdk/processor-sdk-04.03.00.05-config.txt
