@@ -1,4 +1,5 @@
 
+
 # Welcome to the github of the BeagleSDR add-on board for the famous beagleboard-x15
 
 ## ALL yocto arago project ipk packages sources for beagleboard-x15 based on processor-sdk-xx.xx.xx.xx-config
@@ -13,6 +14,7 @@
 --------
 	$ export PATH=$HOME/gcc-linaro-6.2.1-2016.11-x86_64_arm-linux-gnueabihf/bin:$PATH
 	$ MACHINE=am57xx-evm  bitbake arago-core-tisdk-image
+	$ MACHINE=am57xx-evm  bitbake netcat
 
 --------
 ## SETUP the environment
@@ -42,3 +44,9 @@
 
 ------
 
+## CHECK linux kernel
+
+	in Target :
+	$ ls -l /dev/i2c*
+	$ ls -l /dev/spi*
+	if files are not present in /dev, it means you have to have to download some kernel patches to enable I2C and SPI.
