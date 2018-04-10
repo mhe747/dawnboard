@@ -49,4 +49,4 @@
 	in Target :
 	$ ls -l /dev/i2c*
 	$ ls -l /dev/spi*
-	if files are not present in /dev, it means you have to have to download some kernel patches to enable I2C and SPI.
+	if files are not present in /dev, it means you have to download required kernel patches and dtb file to enable I2C and SPI. Please contact kernel hackers to achieve the kernel adaptation.
