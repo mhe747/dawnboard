@@ -1,0 +1,14 @@
+
+# How to setup the NFS in order to use remote filesystem from Beagleboard-x15 :
+
+sudo cp tisdk/build/arago-tmp-external-linaro-toolchain/deploy/images/am57xx-evm/{MLO,u-boot.img,uImage,uImage-am57xx-beagle-x15-revc.dtb} /tftpboot; sync
+mkdir $HOME/targetNFS && cd $HOME/targetNFS 
+tar -Jxf tisdk/build/arago-tmp-external-linaro-toolchain/deploy/images/am57xx-evm/arago-base-tisdk-image-am57xx-evm.tar.xz; sync
+# then add this directory ($HOME/targetNFS) with absolute path into /etc/exports to be shared in NFS
+exportfs -a
+
+------
+# You can manually mount the NFS directory to check its availability by :
+
+mkdir /tmp/testnfs
+mount -t nfs serverip:$HOME/targetNFS /tmp/testnfs
