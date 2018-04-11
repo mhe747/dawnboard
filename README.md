@@ -3,7 +3,8 @@
 # Welcome to the github of the BeagleSDR add-on board for the famous beagleboard-x15
 
 ## ALL yocto arago project ipk packages sources for beagleboard-x15 based on processor-sdk-xx.xx.xx.xx-config
-        in PC :
+
+	in PC :
 	$ ./oe-layertool-setup.sh -f configs/processor-sdk/processor-sdk-04.03.00.05-config.txt
 	$ cd build
 	$ . conf/setenv
@@ -18,6 +19,7 @@
 
 --------
 ## SETUP the environment
+
 	in PC :
  	install lighttpd server as an open embedded ipk packages server with
         all yocto arago packages found inside tisdk/build/arago-tmp-external-linaro-toolchain/deploy/ipk
@@ -54,11 +56,11 @@
 
 ## SPI 
 
-	SPI had been specified as working at 48 Mhz.
-	Enabling spidev and the pin muxing in the kernel and dtb
+	SPI had been specified as working at 48 Mhz. Enable spidev and the pin muxing in the kernel and dtb.
 
-	In order to test SPI port, one has to strap MOSI and MISO wires
-	Using an oscilloscope, check the frequencies at 20 Mhz and the maximal frequency at 48 Mhz too
+	In order to test SPI port, one has to strap MOSI and MISO wires.
+	Using an oscilloscope, check the frequencies at 20 Mhz and the maximal frequency at 48 Mhz too.
+	
 	in Target :
 	$ ./spitest -D /dev/spidev4.0 -s 20000000
 	$ ./spitest -D /dev/spidev4.0 -s 48000000
@@ -69,12 +71,12 @@
 
 ## I2C
 
-	I2C4 of the Beagleboard-X15 is connected to BeagleSDR. We then assume using /dev/i2c4
-	try to detect devices on I2C4 bus
+	I2C4 of the Beagleboard-X15 is connected to BeagleSDR. We then assume using /dev/i2c4.
+	We try to detect devices on I2C4 bus.
+	
 	in Target :
 	$ i2cdetect -y -r 4
 	
-
 	    0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
 	00:          -- -- -- -- -- -- -- -- -- -- -- -- --
 	10: -- -- -- -- -- -- -- 17 -- -- -- -- -- -- -- --
@@ -89,7 +91,7 @@
 
 ## EEPROM 24Cxx / I2C
 	in Target :
-	We assume the EEPROM address is 0x50
+	We assume the EEPROM address is 0x50.
 
 	$ i2cget -y 4 0x50 0x0 
 
@@ -141,7 +143,7 @@
 
 ## LTC 6904 / I2C
 
-	Have an oscilloscope and solder wire to the clock pin according to the LTC 6904 datasheet
+	Have an oscilloscope and solder probe wire to the clock pin according to the LTC 6904 datasheet.
 	in Target :
 	$ i2cset -y 4 0x17 0x0
 	1 khz = per 1ms
