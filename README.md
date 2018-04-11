@@ -80,7 +80,7 @@
 	in Target :
 	$ i2cdetect -y -r 4
 	
-	    0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+	     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
 	00:          -- -- -- -- -- -- -- -- -- -- -- -- --
 	10: -- -- -- -- -- -- -- 17 -- -- -- -- -- -- -- --
 	20: 20 -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
@@ -93,6 +93,7 @@
 	
 
 ## EEPROM 24Cxx / I2C
+
 	in Target :
 	We assume the EEPROM address is 0x50.
 
@@ -132,7 +133,10 @@
 ------
 
 ## PCF8574_TS Expander / I2C
+
 	in Target :
+	We assume the PCF8574_TS Expander i2c address is 0x20.
+	
 	check PCF8574_TS4 P0 = 1, all other ports = 0 :
 	$ i2cset -y 4 0x20 1
 
@@ -148,6 +152,8 @@
 
 	Have an oscilloscope and solder probe wire to the clock pin according to the LTC 6904 datasheet.
 	in Target :
+	We assume the LTC 6904 prog. osc. i2c address is 0x17.
+	
 	$ i2cset -y 4 0x17 0x0
 	1 khz = per 1ms
 
