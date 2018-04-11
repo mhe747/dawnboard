@@ -5,10 +5,13 @@
 Using bfpga2, one can push a bitfile from Beagleboard-x15 to the BeagleSDR in order to reprogram the FPGA configuration bitfile through the SPI Bus to its internal memory. We would test the programmable clock oscillator and test the SPI control port before. The access library provides a low-level API for control of the I2C and SPI ports, as well as higher level functions for bitstream download and may be used to construct complex user-space applications for interaction with the FPGA design. Full sources are available here, forked from initial repository git://gitorious.org/bfpga_lib/bfpga2_lib.git
 however the newest updated Kernel is needed. MLO, U-boot and Linux Kernel driver with pin muxing support including I2C and SPI are required.
 
+------
+
 ## FPGA Design
 Synthesizing an FPGA design requires the Xilinx ISE 14.7 which is free downloadable from the Xilinx website.
 This suite of tools includes IMPACT the bitfile download tool through JTAG without Beagleboard-x15, as well as command-line applications that can be run under both Linux and Windows. Designs can be created with either Verilog or VHDL, or Xilinx Schematics.
 
+------
 
 ## Upload to BeagleSDR
 
@@ -43,7 +46,7 @@ To program the FPGA, one has to do :
     bfpga_open_bitfile: parsing header
     bfpga_open_bitfile: found header
     bfpga_open_bitfile: chunk a length 33 filename flash_prog.ncd;UserID=0xFFFFFFFF
-    bfpga_open_bitfile: chunk b length 12 device 3s500e
+    bfpga_open_bitfile: chunk b length 7 device 3s500e
     bfpga_open_bitfile: Device == 3s500e
     bfpga_open_bitfile: chunk c length 11 date 2018/02/21
     bfpga_open_bitfile: chunk d length 9 time 17:55:20
@@ -88,7 +91,7 @@ In order to have the FPGA to self-load its program at power up, we have to store
     bfpga_open_bitfile: parsing header
     bfpga_open_bitfile: found header
     bfpga_open_bitfile: chunk a length 27 filename test.ncd;UserID=0xFFFFFFFF
-    bfpga_open_bitfile: chunk b length 12 device 3s500e
+    bfpga_open_bitfile: chunk b length 7 device 3s500e
     bfpga_open_bitfile: Device == 3s500e
     bfpga_open_bitfile: chunk c length 11 date 2018/02/20
     bfpga_open_bitfile: chunk d length 9 time 16:55:35
