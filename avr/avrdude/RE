@@ -1,0 +1,7 @@
+
+
+  to cross compile avrdude into the target Beagleboard-x15 in PC:
+  
+  sudo apt-get install flex bison
+  CC=arm-linux-gnueabihf-gcc ./configure --host=armv5
+  make
