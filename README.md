@@ -16,6 +16,9 @@
 	$ export PATH=$HOME/gcc-linaro-6.2.1-2016.11-x86_64_arm-linux-gnueabihf/bin:$PATH
 	$ MACHINE=am57xx-evm  bitbake arago-core-tisdk-image
 	$ MACHINE=am57xx-evm  bitbake netcat
+	$ MACHINE=am57xx-evm  bitbake picocom
+	$ MACHINE=am57xx-evm  bitbake spitools
+	$ MACHINE=am57xx-evm  bitbake i2c-tools	
 
 --------
 ## SETUP the environment
