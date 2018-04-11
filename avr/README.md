@@ -18,8 +18,13 @@ Arduino bootloader can be uploaded using avrdude on the BeagleSDR's AVR through 
 
 Arduino sketches can be uploaded using avrdude on the BeagleSDR's AVR through UART8 :
 
-	$ avrdude -V -F -c usbasp -p m328 -P /dev/ttyS1 -b 57600 -U flash:w:main.hex
+	$ avrdude -V -F -c usbasp -p atmega328 -P /dev/ttyS1 -b 57600 -U flash:w:main.hex
 
+avrdude can read the avr program stored in BeagleSDR's AVR :
+
+	$ avrdude -c usbasp -p atmega328 -U flash:r:toto.hex:r
+	$ hexdump -C toto.hex -n 32638
+	
 ------
 	
 	Each of the 14 digital pins on the AVR microcontroller can be used as an input or output, 
