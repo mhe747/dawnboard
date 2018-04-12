@@ -8,8 +8,8 @@ however the newest updated Kernel is needed. MLO, U-boot and Linux Kernel driver
 ------
 
 ## FPGA Design
-Synthesizing an FPGA design requires the Xilinx ISE 14.7 which is free downloadable from the Xilinx website.
-This suite of tools includes IMPACT the bitfile download tool through JTAG without Beagleboard-x15, as well as command-line applications that can be run under both Linux and Windows. Designs can be created with either Verilog or VHDL, or Xilinx Schematics.
+Synthesizing an FPGA design requires the Xilinx ISE 14.7 which is free downloadable from the Xilinx website. Also, you can make a design using Matlab HDL Coder with Xilinx System Generator that makes Xilinx FPGAs bitfile.
+This suite of tools includes IMPACT the bitfile download tool through JTAG without Beagleboard-x15, as well as command-line applications that can be run under both Linux and Windows. Designs can be created with either Verilog or VHDL, or Xilinx Schematics. IMPACT provides the possibility to convert a bitfile to the corresponding mcs file, so you can store it into the non-volatile flash memory.
 
 ------
 
