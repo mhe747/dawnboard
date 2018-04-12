@@ -158,7 +158,7 @@
 	1 khz = per 1ms
 
 	$ i2cset -y 4 0x17 0x20
-	10 khz = per 1ms
+	10 khz = per 100 us
 
 	$ i2cset -y 4 0x17 0x50
 	33 khz = per 30 us
@@ -191,4 +191,4 @@
 ------
 
 	Great, all checks had been tested, if no error, you are ready to program the AVR and the FPGA. 
-	Now, go to sub-directory to follow further steps.
+	Now, go to sub-directory avr, bfpga2 to follow further steps.
