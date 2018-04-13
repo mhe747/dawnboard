@@ -44,8 +44,7 @@
 	$ echo "abc123" | nc 192.168.1.16 6600
 
 	in Target :
-	$ opkg install netcat..ipk
-	$ netcat -l -p 6600 > test_nc.txt
+	$ opkg install netcat..ipk	$ netcat -l -p 6600 > test_nc.txt
 
 ------
 
@@ -54,7 +53,8 @@
 	in Target :
 	$ ls -l /dev/i2c*
 	$ ls -l /dev/spi*
-	if files are not present in /dev, it means you have to download required kernel patches and dtb file to enable I2C and SPI. Please contact kernel hackers to achieve the kernel adaptation.
+	$ ls -l /dev/ttyS*
+	if files are not present in /dev, it means you have to download required kernel patches and dtb file to enable I2C and SPI,  UART... Read BeagleSDR_KernelHack.md
 	
 
 ## SPI 
@@ -65,8 +65,8 @@
 	Using an oscilloscope, check the frequencies at 20 Mhz and the maximal frequency at 48 Mhz too.
 	
 	in Target :
-	$ ./spitest -D /dev/spidev4.0 -s 20000000
-	$ ./spitest -D /dev/spidev4.0 -s 48000000
+	$ ./spitest -D /dev/spidev2.0 -s 20000000
+	$ ./spitest -D /dev/spidev2.0 -s 48000000
 	
 	check the message has been looped back
 
@@ -78,7 +78,7 @@
 	We try to detect devices on I2C4 bus.
 	
 	in Target :
-	$ i2cdetect -y -r 4
+	$ i2cdetect -y -r 3
 	
 	     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
 	00:          -- -- -- -- -- -- -- -- -- -- -- -- --
@@ -97,27 +97,27 @@
 	in Target :
 	We assume the EEPROM address is 0x50.
 
-	$ i2cget -y 4 0x50 0x0 
+	$ i2cget -y 3 0x50 0x0 
 
 	set fpga id :
-	$ i2cset -y 4 0x50 0x0 0
-	$ i2cset -y 4 0x50 0x1 0x6
-	$ i2cset -y 4 0x50 0x2 0
-	$ i2cset -y 4 0x50 0x3 0x1
-	$ i2cset -y 4 0x50 0x4 0
-	$ i2cset -y 4 0x50 0x5 0
+	$ i2cset -y 3 0x50 0x0 0
+	$ i2cset -y 3 0x50 0x1 0x6
+	$ i2cset -y 3 0x50 0x2 0
+	$ i2cset -y 3 0x50 0x3 0x1
+	$ i2cset -y 3 0x50 0x4 0
+	$ i2cset -y 3 0x50 0x5 0
 
 	at offset 0x0 write byte 0:
-	$ i2cset -y 4 0x50 0x0 0
+	$ i2cset -y 3 0x50 0x0 0
 
 	at offset 0x10 write byte 0:
-	$ i2cset -y 4 0x50 0x10 0
+	$ i2cset -y 3 0x50 0x10 0
 
 	at offset 0x1 write word 0:
-	$ i2cset -y 4 0x50 0x1 0000 w
+	$ i2cset -y 3 0x50 0x1 0000 w
 
 	read eeprom entire page 128 bytes :
-	$ i2cdump -y 4 0x50
+	$ i2cdump -y 3 0x50
 	
 	read eeprom to eeprom.dat:
 	$ eeprom -d /dev/i2c-4 -f eeprom.dat
@@ -138,13 +138,13 @@
 	We assume the PCF8574_TS Expander i2c address is 0x20.
 	
 	check PCF8574_TS4 P0 = 1, all other ports = 0 :
-	$ i2cset -y 4 0x20 1
+	$ i2cset -y 3 0x20 1
 
 	check PCF8574_TS4 P1 = 1, all other ports = 0 :
-	$ i2cset -y 4 0x20 2
+	$ i2cset -y 3 0x20 2
 
 	check PCF8574_TS4 P1, P2 = 1, all other ports = 0 :
-	$ i2cset -y 4 0x20 6
+	$ i2cset -y 3 0x20 6
 
 ------
 
@@ -154,33 +154,33 @@
 	in Target :
 	We assume the LTC 6904 prog. osc. i2c address is 0x17.
 	
-	$ i2cset -y 4 0x17 0x0
+	$ i2cset -y 3 0x17 0x0
 	1 khz = per 1ms
 
-	$ i2cset -y 4 0x17 0x20
+	$ i2cset -y 3 0x17 0x20
 	10 khz = per 100 us
 
-	$ i2cset -y 4 0x17 0x50
+	$ i2cset -y 3 0x17 0x50
 	33 khz = per 30 us
 
-	$ i2cset -y 4 0x17 0x80
+	$ i2cset -y 3 0x17 0x80
 	260 khz = per 3.8 us
 
-	$ i2cset -y 4 0x17 0xA0
+	$ i2cset -y 3 0x17 0xA0
 	1 Mhz  = 1 us
 
-	$ i2cset -y 4 0x17 0xB0
+	$ i2cset -y 3 0x17 0xB0
 	2 Mhz  = 0.5 us
 
-	$ i2cset -y 4 0x17 0xC0
+	$ i2cset -y 3 0x17 0xC0
 	4.16 Mhz  = 240 ns
 
-	$ i2cset -y 4 0x17 0xD0
+	$ i2cset -y 3 0x17 0xD0
 	10 Mhz  = 120 ns
 
-	$ i2cset -y 4 0x17 0xff
+	$ i2cset -y 3 0x17 0xff
 	50 Mhz = per 20 ns
-
+	
 ------
 
 ## UART
