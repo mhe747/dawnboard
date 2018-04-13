@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 		switch (argv[1+flags][1])
 		{
 		case 'f':
-			if (2+flags < argc)
+		if (2+flags < argc)
 				freq = atoi(argv[flags+2]);
 			flags++;
 			break;
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 	}
 
 	/* open up hardware */
-	if((bs = bfpga2_init(2, 4, 0, verbose)) == NULL)
+	if((bs = bfpga2_init(3, 2, 0, verbose)) == NULL)
 	{
 		fprintf(stderr, "Couldn't access hardware\n");
 		exit(2);
