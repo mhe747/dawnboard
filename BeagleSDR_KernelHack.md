@@ -10,7 +10,7 @@ in am57xx-beagle-x15-revc.dts, add following devices:
 
 	&i2c4 {
 		status = "okay";
-		clock-frequency = <480000>;
+		clock-frequency = <400000>;
 	};
 
 	&uart8 {
@@ -45,7 +45,8 @@ in am57xx-beagle-x15-revc.dts, add following devices:
 
 ------
 
-according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.dtsi, change and add SPI pin mux
+according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.dtsi, change SPI pin mux configuration
+
 
 	&dra7_pmx_core {
 
@@ -82,8 +83,12 @@ compiled with "ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make dtbs" :
 
 	load the zImage and dtb file into /tftpboot (assume you are using tftpboot + nfs)
 
-after 15 seconds of reboot, now you have to do a check in target :
+	$ ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make dtbs && cp arch/arm/boot/dts/am57xx-beagle-x15-revc.dtb /tftpboot/uImage-am57xx-beagle-x15-revc.dtb
 
+------
+after 15 seconds of reboot, now you have to do a check in target :
+	
+	In target :
 	$ ls /sys/devices/platform/44000000.ocp
 	drwxr-xr-x    4 root     root             0 Apr  1 11:23 4807a000.i2c    ** i2c4 = "/ocp/i2c@4807a000";
 	drwxr-xr-x    4 root     root             0 Apr  1 11:23 480b8000.spi    ** mcspi3 = "/ocp/spi@480b8000";
