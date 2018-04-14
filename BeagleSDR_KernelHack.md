@@ -68,20 +68,16 @@ according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.d
 		     >;
 	};
 
-
-
-
-check SPIDEV in your kernel
+Enable SPIDEV in your kernel, go to your beagleboard-x15 kernel source directory
+	$ ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make menuconfig 
 	$ grep SPIDEV .config
 	CONFIG_SPI_SPIDEV=y
 
-otherwise recompile your kernel with option SPIDEV :
+recompile your kernel with option SPIDEV :
 
-	"ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make"
+	$ ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make
 
-compiled with "ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make dtbs" :
-
-	load the zImage and dtb file into /tftpboot (assume you are using tftpboot + nfs)
+load the zImage and dtb file into /tftpboot (assume you are using tftpboot + nfs)
 
 	$ ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make dtbs && cp arch/arm/boot/dts/am57xx-beagle-x15-revc.dtb /tftpboot/uImage-am57xx-beagle-x15-revc.dtb
 
@@ -106,7 +102,7 @@ after 15 seconds of reboot, now you have to do a check in target :
 	root@am57xx-evm:~# dmesg | grep i2c
 	[    0.939269] omap_i2c 48070000.i2c: bus 0 rev0.12 at 400 kHz
 	[    0.939868] omap_i2c 48060000.i2c: bus 2 rev0.12 at 400 kHz
-	[    0.940289] omap_i2c 4807a000.i2c: bus 3 rev0.12 at 480 kHz
+	[    0.940289] omap_i2c 4807a000.i2c: bus 3 rev0.12 at 400 kHz
 
 	root@am57xx-evm:~# dmesg | grep serial
 	[    2.108010] 48020000.serial: ttyS2 at MMIO 0x48020000 (irq = 301, base_baud = 3000000) is a 8250
