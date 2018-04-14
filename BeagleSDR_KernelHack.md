@@ -1,52 +1,53 @@
 Firstable in your target, dump the device tree
-$ dtc -I fs /proc/device-tree > mydt4988.txt
-    check all aliases in device tree showed in mydt4988.txt, especially uart, i2c, mcspi
+
+	$ dtc -I fs /proc/device-tree > mydt4988.txt
+	    check all aliases in device tree showed in mydt4988.txt, especially uart, i2c, mcspi
 
 Now go to your kernel directory, find dts files in arch/arm/boot/dts/
 we are going to change dts file to have BeagleSDR loaded with correct configurations.
 
 in am57xx-beagle-x15-revc.dts, add following devices:
-&i2c4 {
-	status = "okay";
-	clock-frequency = <480000>;
-};
 
-&uart8 {
-	status = "okay";
-};
+	&i2c4 {
+		status = "okay";
+		clock-frequency = <480000>;
+	};
 
-&uart9 {
-	status = "okay";
-};
+	&uart8 {
+		status = "okay";
+	};
 
-&mcspi3 { 
-       status = "okay";
-       pinctrl-names = "default";
-       pinctrl-0 = <&mcspi3_pins>;
-       spidev@3 { 
-              spi-max-frequency = <48000000>;
-              reg = <0>; 
-              compatible = "rohm,dh2228fv";
-       };
-};
+	&uart9 {
+		status = "okay";
+	};
 
-&mcspi4 { 
-       status = "okay";
-       pinctrl-names = "default";
-       pinctrl-0 = <&mcspi4_pins>;
-       spidev@4 { 
-              spi-max-frequency = <48000000>;
-              reg = <0>; 
-              compatible = "rohm,dh2228fv";
-       };
-};
+	&mcspi3 { 
+	       status = "okay";
+	       pinctrl-names = "default";
+	       pinctrl-0 = <&mcspi3_pins>;
+	       spidev@3 { 
+		      spi-max-frequency = <48000000>;
+		      reg = <0>; 
+		      compatible = "rohm,dh2228fv";
+	       };
+	};
+
+	&mcspi4 { 
+	       status = "okay";
+	       pinctrl-names = "default";
+	       pinctrl-0 = <&mcspi4_pins>;
+	       spidev@4 { 
+		      spi-max-frequency = <48000000>;
+		      reg = <0>; 
+		      compatible = "rohm,dh2228fv";
+	       };
+	};
 
 ------
 
-in dra74x-mmc-iodelay.dtsi, change and add SPI pin mux
-&dra7_pmx_core {
+according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.dtsi, change and add SPI pin mux
 
-/*am5728.pdf - page 105,106*/
+	&dra7_pmx_core {
 
 	mcspi3_pins: mcspi3_pins {
 		     pinctrl-single,pins = <
@@ -70,77 +71,80 @@ in dra74x-mmc-iodelay.dtsi, change and add SPI pin mux
 
 
 check SPIDEV in your kernel
-$ grep SPIDEV .config
-CONFIG_SPI_SPIDEV=y
+	$ grep SPIDEV .config
+	CONFIG_SPI_SPIDEV=y
 
 otherwise recompile your kernel with option SPIDEV :
-"ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make"
 
-compiled with "ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make dtbs"
-load the zImage and dtb file into /tftpboot (assume you are using tftpboot + nfs)
+	"ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make"
 
-after 15 seconds of boot, now you have to do a check in target :
+compiled with "ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make dtbs" :
 
-$ ls /sys/devices/platform/44000000.ocp
-drwxr-xr-x    4 root     root             0 Apr  1 11:23 4807a000.i2c    ** i2c4 = "/ocp/i2c@4807a000";
-drwxr-xr-x    4 root     root             0 Apr  1 11:23 480b8000.spi    ** mcspi3 = "/ocp/spi@480b8000";
-drwxr-xr-x    4 root     root             0 Apr  1 11:23 480ba000.spi    ** mcspi4 = "/ocp/spi@480ba000";
-drwxr-xr-x    4 root     root             0 Apr  1 11:23 48422000.serial ** uart8 = "/ocp/serial@48422000";
-drwxr-xr-x    4 root     root             0 Apr  1 11:23 48424000.serial ** uart9 = "/ocp/serial@48424000";
+	load the zImage and dtb file into /tftpboot (assume you are using tftpboot + nfs)
 
-$ cat /proc/devices    
-Character devices:
-  4 ttyS
- 89 i2c
-153 spi
-...
+after 15 seconds of reboot, now you have to do a check in target :
 
-root@am57xx-evm:~# dmesg | grep i2c
-[    0.939269] omap_i2c 48070000.i2c: bus 0 rev0.12 at 400 kHz
-[    0.939868] omap_i2c 48060000.i2c: bus 2 rev0.12 at 400 kHz
-[    0.940289] omap_i2c 4807a000.i2c: bus 3 rev0.12 at 480 kHz
+	$ ls /sys/devices/platform/44000000.ocp
+	drwxr-xr-x    4 root     root             0 Apr  1 11:23 4807a000.i2c    ** i2c4 = "/ocp/i2c@4807a000";
+	drwxr-xr-x    4 root     root             0 Apr  1 11:23 480b8000.spi    ** mcspi3 = "/ocp/spi@480b8000";
+	drwxr-xr-x    4 root     root             0 Apr  1 11:23 480ba000.spi    ** mcspi4 = "/ocp/spi@480ba000";
+	drwxr-xr-x    4 root     root             0 Apr  1 11:23 48422000.serial ** uart8 = "/ocp/serial@48422000";
+	drwxr-xr-x    4 root     root             0 Apr  1 11:23 48424000.serial ** uart9 = "/ocp/serial@48424000";
 
-root@am57xx-evm:~# dmesg | grep serial
-[    2.108010] 48020000.serial: ttyS2 at MMIO 0x48020000 (irq = 301, base_baud = 3000000) is a 8250
-[    3.224910] 48422000.serial: ttyS0 at MMIO 0x48422000 (irq = 302, base_baud = 3000000) is a 8250 <-- this is UART8
-[    3.234412] 48424000.serial: ttyS1 at MMIO 0x48424000 (irq = 303, base_baud = 3000000) is a 8250 <-- this is UART9
+	$ cat /proc/devices    
+	Character devices:
+	  4 ttyS
+	 89 i2c
+	153 spi
+	...
 
-root@am57xx-evm:~# dmesg | grep spi
-[    3.412919] pinctrl-single 4a003400.pinmux: could not add functions for mcspi3_pins 4294954880x  ** SPI3
-[    3.430787] pinctrl-single 4a003400.pinmux: could not add functions for mcspi4_pins 4294954900x  ** SPI4
+	root@am57xx-evm:~# dmesg | grep i2c
+	[    0.939269] omap_i2c 48070000.i2c: bus 0 rev0.12 at 400 kHz
+	[    0.939868] omap_i2c 48060000.i2c: bus 2 rev0.12 at 400 kHz
+	[    0.940289] omap_i2c 4807a000.i2c: bus 3 rev0.12 at 480 kHz
 
-root@am57xx-evm:~# ll /dev/i2c* 
-crw-------    1 root     root       89,   0 Apr  1 12:55 /dev/i2c-0
-crw-------    1 root     root       89,   2 Apr  1 12:55 /dev/i2c-2
-crw-------    1 root     root       89,   3 Apr  1 12:55 /dev/i2c-3   ** this is i2c4
+	root@am57xx-evm:~# dmesg | grep serial
+	[    2.108010] 48020000.serial: ttyS2 at MMIO 0x48020000 (irq = 301, base_baud = 3000000) is a 8250
+	[    3.224910] 48422000.serial: ttyS0 at MMIO 0x48422000 (irq = 302, base_baud = 3000000) is a 8250 <-- this is UART8
+	[    3.234412] 48424000.serial: ttyS1 at MMIO 0x48424000 (irq = 303, base_baud = 3000000) is a 8250 <-- this is UART9
 
-root@am57xx-evm:~# ll /dev/ttyS*
-crw-rw----    1 root     dialout     4,  64 Apr  1 12:55 /dev/ttyS0   ** this is uart8
-crw-rw----    1 root     dialout     4,  65 Apr  1 12:55 /dev/ttyS1   ** this is uart9
-crw-------    1 root     tty         4,  66 Apr  1 13:14 /dev/ttyS2
+	root@am57xx-evm:~# dmesg | grep spi
+	[    3.412919] pinctrl-single 4a003400.pinmux: could not add functions for mcspi3_pins 4294954880x  ** SPI3
+	[    3.430787] pinctrl-single 4a003400.pinmux: could not add functions for mcspi4_pins 4294954900x  ** SPI4
 
+	root@am57xx-evm:~# ll /dev/i2c* 
+	crw-------    1 root     root       89,   0 Apr  1 12:55 /dev/i2c-0
+	crw-------    1 root     root       89,   2 Apr  1 12:55 /dev/i2c-2
+	crw-------    1 root     root       89,   3 Apr  1 12:55 /dev/i2c-3   ** this is i2c4
 
-root@am57xx-evm:~# ll /dev/spi*
-crw-------    1 root     root      153,   0 Apr  1 12:55 /dev/spidev1.0   ** this is SPI3
-crw-------    1 root     root      153,   1 Apr  1 12:55 /dev/spidev2.0   ** this is SPI4
-
-in case you'd like to add permissions :
-chmod a+rw /dev/ttyS*
-chmod a+rw /dev/i2c*
-chmod a+rw /dev/spi*
+	root@am57xx-evm:~# ll /dev/ttyS*
+	crw-rw----    1 root     dialout     4,  64 Apr  1 12:55 /dev/ttyS0   ** this is uart8
+	crw-rw----    1 root     dialout     4,  65 Apr  1 12:55 /dev/ttyS1   ** this is uart9
+	crw-------    1 root     tty         4,  66 Apr  1 13:14 /dev/ttyS2
 
 
-root@am57xx-evm:~# i2cdetect -y -r 3
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
-10: -- -- -- -- -- -- -- 17 -- -- -- -- -- -- -- -- 
-20: 20 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-50: 50 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-70: -- -- -- -- -- -- -- --    
+	root@am57xx-evm:~# ll /dev/spi*
+	crw-------    1 root     root      153,   0 Apr  1 12:55 /dev/spidev1.0   ** this is SPI3
+	crw-------    1 root     root      153,   1 Apr  1 12:55 /dev/spidev2.0   ** this is SPI4
 
+	in case you'd like to add permissions :
+	chmod a+rw /dev/ttyS*
+	chmod a+rw /dev/i2c*
+	chmod a+rw /dev/spi*
+
+
+	root@am57xx-evm:~# i2cdetect -y -r 3
+	     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+	00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+	10: -- -- -- -- -- -- -- 17 -- -- -- -- -- -- -- -- 
+	20: 20 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+	30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+	40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+	50: 50 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+	60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+	70: -- -- -- -- -- -- -- --    
+
+------
 
 according to spi :
 http://e2e.ti.com/support/arm/sitara_arm/f/791/t/496527
