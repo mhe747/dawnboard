@@ -56,7 +56,7 @@ according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.d
 		               DRA7XX_CORE_IOPAD(0x1784, PIN_INPUT_PULLUP | MUX_MODE1) /*mmc3_dat0.spi3_d1*/
 		               DRA7XX_CORE_IOPAD(0x1788, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat1.spi3_d0*/
 		               DRA7XX_CORE_IOPAD(0x178C, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat2.spi3_cs0*/
-		     >;
+		>;
 	};
 
 	mcspi4_pins: mcspi4_pins {
@@ -65,10 +65,11 @@ according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.d
 		               DRA7XX_CORE_IOPAD(0x1798, PIN_INPUT_PULLUP | MUX_MODE1) /*mmc3_dat5.spi4_d1*/
 		               DRA7XX_CORE_IOPAD(0x179C, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat6.spi4_d0*/
 		               DRA7XX_CORE_IOPAD(0x17A0, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat7.spi4_cs0*/
-		     >;
+		>;
 	};
 
-Enable SPIDEV in your kernel, go to your beagleboard-x15 kernel source directory
+go to your beagleboard-x15 kernel source directory and enable SPIDEV in your kernel :
+
 	$ ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make menuconfig 
 	$ grep SPIDEV .config
 	CONFIG_SPI_SPIDEV=y
