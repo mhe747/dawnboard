@@ -102,16 +102,22 @@ Now we go through bitbaking...
 
 ------
 
-	in PC :
-	MACHINE=am57xx-evm bitbake netcat
-	install the netcat package in the target (copy to the target the ipk packages through NFS or microSD) 
-        and do a test of file transfer between 2 linux hosts
+	in PC, build the netcat package for your remote target :
+	$ MACHINE=am57xx-evm bitbake netcat	
+	install the netcat package into the target (copy to the target ipk package through NFS or microSD) 
+        
+	Now do a test of file transfer between 2 linux hosts
+	
+	in Target :
 	$ opkg install netcat_0.7.1-r3_armv7ahf-neon.ipk
+	    or
+	$ opkg install netcat
+	Target should at first wait for incoming connection
+	$ netcat -l -p 6600 > test_nc.txt
+
+	in PC :
 	$ echo "abc123" | nc 192.168.1.16 6600
 
-	in Target :
-	$ opkg install netcat
-	$ netcat -l -p 6600 > test_nc.txt
 
 ------
 
