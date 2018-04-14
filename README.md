@@ -120,10 +120,10 @@
 	$ i2cdump -y 3 0x50
 	
 	read eeprom to eeprom.dat:
-	$ eeprom -d /dev/i2c-4 -f eeprom.dat
+	$ eeprom -d /dev/i2c-3 -f eeprom.dat
 
 	write eeprom.dat to eeprom:
-	$ eeprom -d /dev/i2c-4 -f eeprom.dat -w
+	$ eeprom -d /dev/i2c-3 -f eeprom.dat -w
 
 	if write failed, check if the EEPROM WR jumper JP101 is connected = Write enable ?
 	if failed again, check eeprom reference datasheet vcc, is it working at 3.3v or 1.8v ?
