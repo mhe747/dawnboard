@@ -1,5 +1,4 @@
 
-
 # Welcome to the github of the BeagleSDR add-on board for the famous beagleboard-x15
 
 ## ALL yocto arago project ipk packages sources for beagleboard-x15 based on processor-sdk-xx.xx.xx.xx-config
@@ -12,8 +11,14 @@
 ## GET the cross compiler 
 	$ wget https://releases.linaro.org/components/toolchain/binaries/6.2-2016.11/arm-linux-gnueabihf/gcc-linaro-6.2.1-2016.11-x86_64_arm-linux-gnueabihf.tar.xz
 	$ tar -Jxvf gcc-linaro-6.2.1-2016.11-x86_64_arm-linux-gnueabihf.tar.xz -C $HOME
---------
+
+set the cross-compiler in $PATH
+
 	$ export PATH=$HOME/gcc-linaro-6.2.1-2016.11-x86_64_arm-linux-gnueabihf/bin:$PATH
+	
+-------
+Now we go through bitbaking...
+
 	$ MACHINE=am57xx-evm  bitbake arago-core-tisdk-image
 	$ MACHINE=am57xx-evm  bitbake netcat
 	$ MACHINE=am57xx-evm  bitbake picocom
@@ -24,15 +29,68 @@
 ## SETUP the environment
 
 	in PC :
- 	install lighttpd server as an open embedded ipk packages server with
+ 	install lighttpd server as an open embedded ipk packages server with Ubuntu
+	$ sudo apt-get install lighttpd
         all yocto arago packages found inside tisdk/build/arago-tmp-external-linaro-toolchain/deploy/ipk
+	
+	this is how I configured my lighttpd server :
+	add these following lines in $TISDK/build/arago-tmp-external-linaro-toolchain/deploy/lighttpd.conf
+	
+	------
+
+	server.document-root = "/home/osboxes/bbx15/tisdk/build/arago-tmp-external-linaro-toolchain/deploy/"
+
+	server.port = 8000
+
+	server.username = "www-data"
+	server.groupname = "www-data"
+
+	mimetype.assign = (
+	  ".html" => "text/html",
+	  ".txt" => "text/plain",
+	  ".jpg" => "image/jpeg",
+	  ".png" => "image/png"
+	)
+
+	$HTTP["url"] =~ "^/ipk" {
+	    dir-listing.activate = "enable"
+	}
+
+	static-file.exclude-extensions = ( ".fcgi", ".php", ".rb", "~", ".inc" )
+	index-file.names = ( "index.html" )
+
+	------
+
+	one use to start the http server with this command :
+	$ lighttpd -D -f /home/osboxes/bbx15/tisdk/build/arago-tmp-external-linaro-toolchain/deploy/lighttpd.conf
+	then check to browse the server address http://192.168.1.17:8000/ipk/
+
+	you should see something like : 
+
+	Index of /ipk/
+	Name	Last Modified	Size	
+	all/	2018-Apr-07 23:26:36 -
+	am57xx_evm/	2018-Apr-08 00:18:40 -
+	armv7ahf-neon/	2018-Apr-13 22:16:16 -
+	x86_64-nativesdk/	2018-Apr-07 23:26:37 -
+	Packages	2018-Apr-01 22:05:36	0.0K
+
 
 	in Target :
- 	add local LAN network the http server links in
- 	$ vi /etc/opkg/base-feeds.conf
-        add these 2 lines
-  	src/gz armv7ahf-neon http://.../armv7ahf-neon
-  	src/gz am57xx_evm http://.../am57xx_evm
+ 	add local http server links with server address 192.168.1.17:8000/ipk
+
+	$ vi /etc/opkg/base-feeds.conf
+	src/gz all http://192.168.1.17:8000/ipk/all
+	src/gz am57xx_evm http://192.168.1.17:8000/ipk/am57xx_evm
+	src/gz armv7ahf-neon http://192.168.1.17:8000/ipk/armv7ahf-neon
+
+	$ opkg update
+	Downloading http://192.168.1.17:8000/ipk/all/Packages.gz.
+	Updated source 'all'.
+	Downloading http://192.168.1.17:8000/ipk/am57xx_evm/Packages.gz.
+	Updated source 'am57xx_evm'.
+	Downloading http://192.168.1.17:8000/ipk/armv7ahf-neon/Packages.gz.
+	Updated source 'armv7ahf-neon'.
 
 ------
 
@@ -74,8 +132,8 @@
 
 ## I2C
 
-	I2C4 of the Beagleboard-X15 is connected to BeagleSDR. We then assume using /dev/i2c4.
-	We try to detect devices on I2C4 bus.
+	I2C4 of the Beagleboard-X15 is connected to BeagleSDR. WWe then assume using i2c4, which in Linux is /dev/i2c-3
+	We try to detect all connected devices on I2C4 bus.
 	
 	in Target :
 	$ i2cdetect -y -r 3
