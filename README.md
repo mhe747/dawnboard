@@ -19,11 +19,18 @@ set the cross-compiler in $PATH
 -------
 Now we go through bitbaking...
 
-	$ MACHINE=am57xx-evm  bitbake arago-core-tisdk-image
-	$ MACHINE=am57xx-evm  bitbake netcat
-	$ MACHINE=am57xx-evm  bitbake picocom
-	$ MACHINE=am57xx-evm  bitbake spitools
-	$ MACHINE=am57xx-evm  bitbake i2c-tools	
+	$ MACHINE=am57xx-evm bitbake arago-core-tisdk-image
+	$ MACHINE=am57xx-evm bitbake netcat
+	$ MACHINE=am57xx-evm bitbake picocom
+	$ MACHINE=am57xx-evm bitbake spitools
+	$ MACHINE=am57xx-evm bitbake i2c-tools	
+	
+	Check package version and after re-generation, build the new package index in repository : 
+	$ MACHINE=am57xx-evm bitbake -s
+	$ MACHINE=am57xx-evm bitbake package-index 
+
+	Ref. 	https://www.openembedded.org/wiki/Bitbake_cheat_sheet 
+		http://wiki.kaeilos.com/index.php/Bitbake_options
 
 --------
 ## SETUP the environment
@@ -103,7 +110,8 @@ Now we go through bitbaking...
 	$ echo "abc123" | nc 192.168.1.16 6600
 
 	in Target :
-	$ opkg install netcat..ipk	$ netcat -l -p 6600 > test_nc.txt
+	$ opkg install netcat
+	$ netcat -l -p 6600 > test_nc.txt
 
 ------
 
@@ -117,7 +125,9 @@ Now we go through bitbaking...
 	
 
 ## SPI 
-
+	in Target :
+	$ opkg install spitools
+	
 	SPI had been specified as working at 48 Mhz. Enable spidev and the pin muxing in the kernel and dtb.
 
 	In order to test SPI port, one has to strap MOSI and MISO wires.
@@ -132,6 +142,8 @@ Now we go through bitbaking...
 ------
 
 ## I2C
+	in Target :
+	$ opkg install i2c-tools
 
 	I2C4 of the Beagleboard-X15 is connected to BeagleSDR. WWe then assume using i2c4, which in Linux is /dev/i2c-3
 	We try to detect all connected devices on I2C4 bus.
