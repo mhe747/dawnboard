@@ -35,10 +35,11 @@ Now we go through bitbaking...
 	
 	this is how I configured my lighttpd server :
 	add these following lines in $TISDK/build/arago-tmp-external-linaro-toolchain/deploy/lighttpd.conf
-	
+	in lighttpd.conf, maybe it has to use absolute path, so just replace $TISDK with right path
+	be sure the port 8000 is available too.
 	------
 
-	server.document-root = "/home/osboxes/bbx15/tisdk/build/arago-tmp-external-linaro-toolchain/deploy/"
+	server.document-root = "$TISDK/build/arago-tmp-external-linaro-toolchain/deploy/"
 
 	server.port = 8000
 
@@ -61,18 +62,18 @@ Now we go through bitbaking...
 
 	------
 
-	one use to start the http server with this command :
+	start the http server with this command in your PC server :
 	$ lighttpd -D -f /home/osboxes/bbx15/tisdk/build/arago-tmp-external-linaro-toolchain/deploy/lighttpd.conf
 	then check to browse the server address http://192.168.1.17:8000/ipk/
 
 	you should see something like : 
 
 	Index of /ipk/
-	Name	Last Modified	Size	
-	all/	2018-Apr-07 23:26:36 -
+	Name	        Last Modified	    Size	
+	all/	        2018-Apr-07 23:26:36 -
 	am57xx_evm/	2018-Apr-08 00:18:40 -
 	armv7ahf-neon/	2018-Apr-13 22:16:16 -
-	x86_64-nativesdk/	2018-Apr-07 23:26:37 -
+	x86_64-nativesdk/ 2018-Apr-07 23:26:37 -
 	Packages	2018-Apr-01 22:05:36	0.0K
 
 
