@@ -1,9 +1,9 @@
-Firstable in your target, dump the device tree
+ Firstable in your target, dump the device tree
 
 	$ dtc -I fs /proc/device-tree > mydt4988.txt
 	    check all aliases in device tree showed in mydt4988.txt, especially uart, i2c, mcspi
 
-Now go to your kernel directory, find dts files in arch/arm/boot/dts/
+Now go to your kernel directory in $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/build, find dts files in arch/arm/boot/dts/
 we are going to change dts file to have BeagleSDR loaded with correct configurations.
 
 in am57xx-beagle-x15-revc.dts, add following devices:
@@ -68,19 +68,23 @@ according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.d
 		>;
 	};
 
-go to your beagleboard-x15 kernel source directory and enable SPIDEV in your kernel :
+------
+
+Now go to your beagleboard-x15 kernel source directory and enable SPIDEV in your kernel :
 
 	$ ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make menuconfig 
 	$ grep SPIDEV .config
 	CONFIG_SPI_SPIDEV=y
 
-recompile your kernel with option SPIDEV :
+recompile your kernel with option CONFIG_SPI_SPIDEV :
 
 	$ ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make
 
 load the zImage and dtb file into /tftpboot (assume you are using tftpboot + nfs)
 
-	$ ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make dtbs && cp arch/arm/boot/dts/am57xx-beagle-x15-revc.dtb /tftpboot/uImage-am57xx-beagle-x15-revc.dtb
+	$ ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make dtbs
+	$ cp arch/arm/boot/dts/am57xx-beagle-x15-revc.dtb /tftpboot/uImage-am57xx-beagle-x15-revc.dtb
+	$ cp arch/arm/boot/zImage /tftpboot
 
 ------
 after 15 seconds of reboot, now you have to do a check in target :
