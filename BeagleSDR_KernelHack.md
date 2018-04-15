@@ -1,4 +1,10 @@
- Firstable in your target, dump the device tree
+ 
+ I personnaly recommand this version of kernel https://github.com/RobertCNelson/ti-linux-kernel-dev/tree/ti-linux-4.9.y
+ 
+ 	to build the kernel :
+ 	$ ./build_kernel.sh
+	
+ Then, boot to Beagleboard-x15, inside of your target, dump the device tree
 
 	$ dtc -I fs /proc/device-tree > mydt4988.txt
 	    check all aliases in device tree showed in mydt4988.txt, especially uart, i2c, mcspi
