@@ -13,11 +13,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: fileio.c 929 2010-01-18 20:40:15Z joerg_wunsch $ */
+/* $Id: fileio.c 1338 2014-10-15 20:01:12Z joerg_wunsch $ */
 
 #include "ac_cfg.h"
 
@@ -27,10 +26,19 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
+#include <stdint.h>
+
+#ifdef HAVE_LIBELF
+#ifdef HAVE_LIBELF_H
+#include <libelf.h>
+#elif defined(HAVE_LIBELF_LIBELF_H)
+#include <libelf/libelf.h>
+#endif
+#define EM_AVR32 0x18ad         /* inofficial */
+#endif
 
 #include "avrdude.h"
-#include "avr.h"
-#include "fileio.h"
+#include "libavrdude.h"
 
 
 #define IHEX_MAXDATA 256
@@ -52,30 +60,40 @@ static int b2ihex(unsigned char * inbuf, int bufsize,
              char * outfile, FILE * outf);
 
 static int ihex2b(char * infile, FILE * inf,
-             unsigned char * outbuf, int bufsize);
+             AVRMEM * mem, int bufsize, unsigned int fileoffset);
 
 static int b2srec(unsigned char * inbuf, int bufsize, 
            int recsize, int startaddr,
            char * outfile, FILE * outf);
 
 static int srec2b(char * infile, FILE * inf,
-             unsigned char * outbuf, int bufsize);
+             AVRMEM * mem, int bufsize, unsigned int fileoffset);
 
 static int ihex_readrec(struct ihexrec * ihex, char * rec);
 
 static int srec_readrec(struct ihexrec * srec, char * rec);
 
 static int fileio_rbin(struct fioparms * fio,
-                  char * filename, FILE * f, unsigned char * buf, int size);
+                  char * filename, FILE * f, AVRMEM * mem, int size);
 
 static int fileio_ihex(struct fioparms * fio, 
-                  char * filename, FILE * f, unsigned char * buf, int size);
+                  char * filename, FILE * f, AVRMEM * mem, int size);
 
 static int fileio_srec(struct fioparms * fio,
-                  char * filename, FILE * f, unsigned char * buf, int size);
+                  char * filename, FILE * f, AVRMEM * mem, int size);
+
+#ifdef HAVE_LIBELF
+static int elf2b(char * infile, FILE * inf,
+                 AVRMEM * mem, struct avrpart * p,
+                 int bufsize, unsigned int fileoffset);
+
+static int fileio_elf(struct fioparms * fio,
+                      char * filename, FILE * f, AVRMEM * mem,
+                      struct avrpart * p, int size);
+#endif
 
 static int fileio_num(struct fioparms * fio,
-		char * filename, FILE * f, unsigned char * buf, int size,
+		char * filename, FILE * f, AVRMEM * mem, int size,
 		FILEFMT fmt);
 
 static int fmt_autodetect(char * fname);
@@ -89,6 +107,7 @@ char * fmtstr(FILEFMT format)
     case FMT_SREC : return "Motorola S-Record"; break;
     case FMT_IHEX : return "Intel Hex"; break;
     case FMT_RBIN : return "raw binary"; break;
+    case FMT_ELF  : return "ELF"; break;
     default       : return "invalid format"; break;
   };
 }
@@ -106,7 +125,7 @@ static int b2ihex(unsigned char * inbuf, int bufsize,
   unsigned char cksum;
 
   if (recsize > 255) {
-    fprintf(stderr, "%s: recsize=%d, must be < 256\n",
+    avrdude_message(MSG_INFO, "%s: recsize=%d, must be < 256\n",
               progname, recsize);
     return -1;
   }
@@ -262,23 +281,20 @@ static int ihex_readrec(struct ihexrec * ihex, char * rec)
  *
  * */
 static int ihex2b(char * infile, FILE * inf,
-             unsigned char * outbuf, int bufsize)
+             AVRMEM * mem, int bufsize, unsigned int fileoffset)
 {
   char buffer [ MAX_LINE_LEN ];
-  unsigned char * buf;
-  unsigned int nextaddr, baseaddr, maxaddr, offsetaddr;
+  unsigned int nextaddr, baseaddr, maxaddr;
   int i;
   int lineno;
   int len;
   struct ihexrec ihex;
   int rc;
 
-  lineno      = 0;
-  buf         = outbuf;
-  baseaddr    = 0;
-  maxaddr     = 0;
-  offsetaddr  = 0;
-  nextaddr    = 0;
+  lineno   = 0;
+  baseaddr = 0;
+  maxaddr  = 0;
+  nextaddr = 0;
 
   while (fgets((char *)buffer,MAX_LINE_LEN,inf)!=NULL) {
     lineno++;
@@ -289,36 +305,41 @@ static int ihex2b(char * infile, FILE * inf,
       continue;
     rc = ihex_readrec(&ihex, buffer);
     if (rc < 0) {
-      fprintf(stderr, "%s: invalid record at line %d of \"%s\"\n",
+      avrdude_message(MSG_INFO, "%s: invalid record at line %d of \"%s\"\n",
               progname, lineno, infile);
       return -1;
     }
     else if (rc != ihex.cksum) {
-      fprintf(stderr, "%s: ERROR: checksum mismatch at line %d of \"%s\"\n",
+      avrdude_message(MSG_INFO, "%s: ERROR: checksum mismatch at line %d of \"%s\"\n",
               progname, lineno, infile);
-      fprintf(stderr, "%s: checksum=0x%02x, computed checksum=0x%02x\n",
+      avrdude_message(MSG_INFO, "%s: checksum=0x%02x, computed checksum=0x%02x\n",
               progname, ihex.cksum, rc);
       return -1;
     }
 
     switch (ihex.rectyp) {
       case 0: /* data record */
-        nextaddr = ihex.loadofs + baseaddr;
-        if ((nextaddr + ihex.reclen) > (bufsize+offsetaddr)) {
-          fprintf(stderr, 
-                  "%s: ERROR: address 0x%04x out of range at line %d of %s\n",
-                  progname, nextaddr+ihex.reclen, lineno, infile);
+        if (fileoffset != 0 && baseaddr < fileoffset) {
+          avrdude_message(MSG_INFO, "%s: ERROR: address 0x%04x out of range (below fileoffset 0x%x) at line %d of %s\n",
+                          progname, baseaddr, fileoffset, lineno, infile);
+          return -1;
+        }
+        nextaddr = ihex.loadofs + baseaddr - fileoffset;
+        if (nextaddr + ihex.reclen > bufsize) {
+          avrdude_message(MSG_INFO, "%s: ERROR: address 0x%04x out of range at line %d of %s\n",
+                          progname, nextaddr+ihex.reclen, lineno, infile);
           return -1;
         }
         for (i=0; i<ihex.reclen; i++) {
-          buf[nextaddr+i-offsetaddr] = ihex.data[i];
+          mem->buf[nextaddr+i] = ihex.data[i];
+          mem->tags[nextaddr+i] = TAG_ALLOCATED;
         }
         if (nextaddr+ihex.reclen > maxaddr)
           maxaddr = nextaddr+ihex.reclen;
         break;
 
       case 1: /* end of file record */
-        return maxaddr-offsetaddr;
+        return maxaddr;
         break;
 
       case 2: /* extended segment address record */
@@ -331,7 +352,6 @@ static int ihex2b(char * infile, FILE * inf,
 
       case 4: /* extended linear address record */
         baseaddr = (ihex.data[0] << 8 | ihex.data[1]) << 16;
-        if(nextaddr == 0) offsetaddr = baseaddr;	// if provided before any data, then remember it
         break;
 
       case 5: /* start linear address record */
@@ -339,22 +359,29 @@ static int ihex2b(char * infile, FILE * inf,
         break;
 
       default:
-        fprintf(stderr, 
-                "%s: don't know how to deal with rectype=%d " 
-                "at line %d of %s\n",
-                progname, ihex.rectyp, lineno, infile);
+        avrdude_message(MSG_INFO, "%s: don't know how to deal with rectype=%d "
+                        "at line %d of %s\n",
+                        progname, ihex.rectyp, lineno, infile);
         return -1;
         break;
     }
 
   } /* while */
 
-  fprintf(stderr, 
-          "%s: WARNING: no end of file record found for Intel Hex "
-          "file \"%s\"\n",
-          progname, infile);
+  if (maxaddr == 0) {
+    avrdude_message(MSG_INFO, "%s: ERROR: No valid record found in Intel Hex "
+                    "file \"%s\"\n",
+                    progname, infile);
 
-  return maxaddr-offsetaddr;
+    return -1;
+  }
+  else {
+    avrdude_message(MSG_INFO, "%s: WARNING: no end of file record found for Intel Hex "
+                    "file \"%s\"\n",
+                    progname, infile);
+
+    return maxaddr;
+  }
 }
 
 static int b2srec(unsigned char * inbuf, int bufsize, 
@@ -370,7 +397,7 @@ static int b2srec(unsigned char * inbuf, int bufsize,
   char * tmpl=0;
 
   if (recsize > 255) {
-    fprintf(stderr, "%s: ERROR: recsize=%d, must be < 256\n",
+    avrdude_message(MSG_INFO, "%s: ERROR: recsize=%d, must be < 256\n",
             progname, recsize);
     return -1;
   }
@@ -403,12 +430,12 @@ static int b2srec(unsigned char * inbuf, int bufsize,
         tmpl="S3%02X%08X";
       }
       else {
-        fprintf(stderr, "%s: ERROR: address=%d, out of range\n",
+        avrdude_message(MSG_INFO, "%s: ERROR: address=%d, out of range\n",
                 progname, nextaddr);
         return -1;
       }
 
-      fprintf(outf, tmpl, n + addr_width + 1, nextaddr);		
+      fprintf(outf, tmpl, n + addr_width + 1, nextaddr);
 
       cksum += n + addr_width + 1;
 
@@ -540,11 +567,10 @@ static int srec_readrec(struct ihexrec * srec, char * rec)
 
 
 static int srec2b(char * infile, FILE * inf,
-           unsigned char * outbuf, int bufsize)
+           AVRMEM * mem, int bufsize, unsigned int fileoffset)
 {
   char buffer [ MAX_LINE_LEN ];
-  unsigned char * buf;
-  unsigned int nextaddr, baseaddr, maxaddr;
+  unsigned int nextaddr, maxaddr;
   int i;
   int lineno;
   int len;
@@ -556,8 +582,6 @@ static int srec2b(char * infile, FILE * inf,
   char * msg = 0;
 
   lineno   = 0;
-  buf      = outbuf;
-  baseaddr = 0;
   maxaddr  = 0;
   reccount = 0;
 
@@ -571,19 +595,19 @@ static int srec2b(char * infile, FILE * inf,
     rc = srec_readrec(&srec, buffer);
 
     if (rc < 0) {
-      fprintf(stderr, "%s: ERROR: invalid record at line %d of \"%s\"\n",
+      avrdude_message(MSG_INFO, "%s: ERROR: invalid record at line %d of \"%s\"\n",
               progname, lineno, infile);
       return -1;
     }
     else if (rc != srec.cksum) {
-      fprintf(stderr, "%s: ERROR: checksum mismatch at line %d of \"%s\"\n",
+      avrdude_message(MSG_INFO, "%s: ERROR: checksum mismatch at line %d of \"%s\"\n",
               progname, lineno, infile);
-      fprintf(stderr, "%s: checksum=0x%02x, computed checksum=0x%02x\n",
+      avrdude_message(MSG_INFO, "%s: checksum=0x%02x, computed checksum=0x%02x\n",
               progname, srec.cksum, rc);
       return -1;
     }
 
-    datarec=0;	
+    datarec=0; 
     switch (srec.rectyp) {
       case 0x30: /* S0 - header record*/
         /* skip */
@@ -591,32 +615,30 @@ static int srec2b(char * infile, FILE * inf,
 
       case 0x31: /* S1 - 16 bit address data record */
         datarec=1;
-        msg="%s: ERROR: address 0x%04x out of range at line %d of %s\n";    
+        msg="%s: ERROR: address 0x%04x out of range %sat line %d of %s\n";
         break;
 
       case 0x32: /* S2 - 24 bit address data record */
         datarec=1;
-        msg="%s: ERROR: address 0x%06x out of range at line %d of %s\n";
+        msg="%s: ERROR: address 0x%06x out of range %sat line %d of %s\n";
         break;
 
       case 0x33: /* S3 - 32 bit address data record */
         datarec=1;
-        msg="%s: ERROR: address 0x%08x out of range at line %d of %s\n";
+        msg="%s: ERROR: address 0x%08x out of range %sat line %d of %s\n";
         break;
 
       case 0x34: /* S4 - symbol record (LSI extension) */
-        fprintf(stderr, 
-                "%s: ERROR: not supported record at line %d of %s\n",
-                progname, lineno, infile);
+        avrdude_message(MSG_INFO, "%s: ERROR: not supported record at line %d of %s\n",
+                        progname, lineno, infile);
         return -1;
 
       case 0x35: /* S5 - count of S1,S2 and S3 records previously tx'd */
         if (srec.loadofs != reccount){
-          fprintf(stderr, 
-                  "%s: ERROR: count of transmitted data records mismatch "
-                  "at line %d of \"%s\"\n",
-                  progname, lineno, infile);
-          fprintf(stderr, "%s: transmitted data records= %d, expected "
+          avrdude_message(MSG_INFO, "%s: ERROR: count of transmitted data records mismatch "
+                          "at line %d of \"%s\"\n",
+                          progname, lineno, infile);
+          avrdude_message(MSG_INFO, "%s: transmitted data records= %d, expected "
                   "value= %d\n",
                   progname, reccount, srec.loadofs);
           return -1;
@@ -629,35 +651,386 @@ static int srec2b(char * infile, FILE * inf,
         return maxaddr;
 
       default:
-        fprintf(stderr, 
-                "%s: ERROR: don't know how to deal with rectype S%d " 
-                "at line %d of %s\n",
-                progname, srec.rectyp, lineno, infile);
+        avrdude_message(MSG_INFO, "%s: ERROR: don't know how to deal with rectype S%d "
+                        "at line %d of %s\n",
+                        progname, srec.rectyp, lineno, infile);
         return -1;
     }
 
     if (datarec == 1) {
-      nextaddr = srec.loadofs + baseaddr;
-      if (nextaddr + srec.reclen > bufsize) {
-        fprintf(stderr, msg, progname, nextaddr+srec.reclen, lineno, infile);
+      nextaddr = srec.loadofs;
+      if (nextaddr < fileoffset) {
+        avrdude_message(MSG_INFO, msg, progname, nextaddr,
+                "(below fileoffset) ",
+                lineno, infile);
         return -1;
       }
-      for (i=0; i<srec.reclen; i++) 
-        buf[nextaddr+i] = srec.data[i];
+      nextaddr -= fileoffset;
+      if (nextaddr + srec.reclen > bufsize) {
+        avrdude_message(MSG_INFO, msg, progname, nextaddr+srec.reclen, "",
+                lineno, infile);
+        return -1;
+      }
+      for (i=0; i<srec.reclen; i++) {
+        mem->buf[nextaddr+i] = srec.data[i];
+        mem->tags[nextaddr+i] = TAG_ALLOCATED;
+      }
       if (nextaddr+srec.reclen > maxaddr)
         maxaddr = nextaddr+srec.reclen;
-      reccount++;	
+      reccount++;      
     }
 
-  } 
+  }
 
-  fprintf(stderr, 
-          "%s: WARNING: no end of file record found for Motorola S-Records "
-          "file \"%s\"\n",
-          progname, infile);
+  avrdude_message(MSG_INFO, "%s: WARNING: no end of file record found for Motorola S-Records "
+                  "file \"%s\"\n",
+                  progname, infile);
 
   return maxaddr;
 }
+
+#ifdef HAVE_LIBELF
+/*
+ * Determine whether the ELF file section pointed to by `sh' fits
+ * completely into the program header segment pointed to by `ph'.
+ *
+ * Assumes the section has been checked already before to actually
+ * contain data (SHF_ALLOC, SHT_PROGBITS, sh_size > 0).
+ *
+ * Sometimes, program header segments might be larger than the actual
+ * file sections.  On VM architectures, this is used to allow mmapping
+ * the entire ELF file "as is" (including things like the program
+ * header table itself).
+ */
+static inline
+int is_section_in_segment(Elf32_Shdr *sh, Elf32_Phdr *ph)
+{
+    if (sh->sh_offset < ph->p_offset)
+        return 0;
+    if (sh->sh_offset + sh->sh_size > ph->p_offset + ph->p_filesz)
+        return 0;
+    return 1;
+}
+
+/*
+ * Return the ELF section descriptor that corresponds to program
+ * header `ph'.  The program header is expected to be of p_type
+ * PT_LOAD, and to have a nonzero p_filesz.  (PT_LOAD sections with a
+ * zero p_filesz are typically RAM sections that are not initialized
+ * by file data, e.g. ".bss".)
+ */
+static Elf_Scn *elf_get_scn(Elf *e, Elf32_Phdr *ph, Elf32_Shdr **shptr)
+{
+  Elf_Scn *s = NULL;
+
+  while ((s = elf_nextscn(e, s)) != NULL) {
+    Elf32_Shdr *sh;
+    size_t ndx = elf_ndxscn(s);
+    if ((sh = elf32_getshdr(s)) == NULL) {
+      avrdude_message(MSG_INFO, "%s: ERROR: Error reading section #%u header: %s\n",
+                      progname, (unsigned int)ndx, elf_errmsg(-1));
+      continue;
+    }
+    if ((sh->sh_flags & SHF_ALLOC) == 0 ||
+        sh->sh_type != SHT_PROGBITS)
+      /* we are only interested in PROGBITS, ALLOC sections */
+      continue;
+    if (sh->sh_size == 0)
+      /* we are not interested in empty sections */
+      continue;
+    if (is_section_in_segment(sh, ph)) {
+      /* yeah, we found it */
+      *shptr = sh;
+      return s;
+    }
+  }
+
+  avrdude_message(MSG_INFO, "%s: ERROR: Cannot find a matching section for "
+                  "program header entry @p_vaddr 0x%x\n",
+                  progname, ph->p_vaddr);
+  return NULL;
+}
+
+static int elf_mem_limits(AVRMEM *mem, struct avrpart * p,
+                          unsigned int *lowbound,
+                          unsigned int *highbound,
+                          unsigned int *fileoff)
+{
+  int rv = 0;
+
+  if (p->flags & AVRPART_AVR32) {
+    if (strcmp(mem->desc, "flash") == 0) {
+      *lowbound = 0x80000000;
+      *highbound = 0xffffffff;
+      *fileoff = 0;
+    } else {
+      rv = -1;
+    }
+  } else {
+    if (strcmp(mem->desc, "flash") == 0 ||
+        strcmp(mem->desc, "boot") == 0 ||
+        strcmp(mem->desc, "application") == 0 ||
+        strcmp(mem->desc, "apptable") == 0) {
+      *lowbound = 0;
+      *highbound = 0x7ffff;       /* max 8 MiB */
+      *fileoff = 0;
+    } else if (strcmp(mem->desc, "eeprom") == 0) {
+      *lowbound = 0x810000;
+      *highbound = 0x81ffff;      /* max 64 KiB */
+      *fileoff = 0;
+    } else if (strcmp(mem->desc, "lfuse") == 0) {
+      *lowbound = 0x820000;
+      *highbound = 0x82ffff;
+      *fileoff = 0;
+    } else if (strcmp(mem->desc, "hfuse") == 0) {
+      *lowbound = 0x820000;
+      *highbound = 0x82ffff;
+      *fileoff = 1;
+    } else if (strcmp(mem->desc, "efuse") == 0) {
+      *lowbound = 0x820000;
+      *highbound = 0x82ffff;
+      *fileoff = 2;
+    } else if (strncmp(mem->desc, "fuse", 4) == 0 &&
+               (mem->desc[4] >= '0' && mem->desc[4] <= '9')) {
+      /* Xmega fuseN */
+      *lowbound = 0x820000;
+      *highbound = 0x82ffff;
+      *fileoff = mem->desc[4] - '0';
+    } else if (strncmp(mem->desc, "lock", 4) == 0) {
+      *lowbound = 0x830000;
+      *highbound = 0x83ffff;
+      *fileoff = 0;
+    } else {
+      rv = -1;
+    }
+  }
+
+  return rv;
+}
+
+
+static int elf2b(char * infile, FILE * inf,
+                 AVRMEM * mem, struct avrpart * p,
+                 int bufsize, unsigned int fileoffset)
+{
+  Elf *e;
+  int rv = -1;
+  unsigned int low, high, foff;
+
+  if (elf_mem_limits(mem, p, &low, &high, &foff) != 0) {
+    avrdude_message(MSG_INFO, "%s: ERROR: Cannot handle \"%s\" memory region from ELF file\n",
+                    progname, mem->desc);
+    return -1;
+  }
+
+  /*
+   * The Xmega memory regions for "boot", "application", and
+   * "apptable" are actually sub-regions of "flash".  Refine the
+   * applicable limits.  This allows to select only the appropriate
+   * sections out of an ELF file that contains section data for more
+   * than one sub-segment.
+   */
+  if ((p->flags & AVRPART_HAS_PDI) != 0 &&
+      (strcmp(mem->desc, "boot") == 0 ||
+       strcmp(mem->desc, "application") == 0 ||
+       strcmp(mem->desc, "apptable") == 0)) {
+    AVRMEM *flashmem = avr_locate_mem(p, "flash");
+    if (flashmem == NULL) {
+      avrdude_message(MSG_INFO, "%s: ERROR: No \"flash\" memory region found, "
+                      "cannot compute bounds of \"%s\" sub-region.\n",
+                      progname, mem->desc);
+      return -1;
+    }
+    /* The config file offsets are PDI offsets, rebase to 0. */
+    low = mem->offset - flashmem->offset;
+    high = low + mem->size - 1;
+  }
+
+  if (elf_version(EV_CURRENT) == EV_NONE) {
+    avrdude_message(MSG_INFO, "%s: ERROR: ELF library initialization failed: %s\n",
+                    progname, elf_errmsg(-1));
+    return -1;
+  }
+  if ((e = elf_begin(fileno(inf), ELF_C_READ, NULL)) == NULL) {
+    avrdude_message(MSG_INFO, "%s: ERROR: Cannot open \"%s\" as an ELF file: %s\n",
+                    progname, infile, elf_errmsg(-1));
+    return -1;
+  }
+  if (elf_kind(e) != ELF_K_ELF) {
+    avrdude_message(MSG_INFO, "%s: ERROR: Cannot use \"%s\" as an ELF input file\n",
+                    progname, infile);
+    goto done;
+  }
+
+  size_t i, isize;
+  const char *id = elf_getident(e, &isize);
+
+  if (id == NULL) {
+    avrdude_message(MSG_INFO, "%s: ERROR: Error reading ident area of \"%s\": %s\n",
+                    progname, infile, elf_errmsg(-1));
+    goto done;
+  }
+
+  const char *endianname;
+  unsigned char endianess;
+  if (p->flags & AVRPART_AVR32) {
+    endianess = ELFDATA2MSB;
+    endianname = "little";
+  } else {
+    endianess = ELFDATA2LSB;
+    endianname = "big";
+  }
+  if (id[EI_CLASS] != ELFCLASS32 ||
+      id[EI_DATA] != endianess) {
+    avrdude_message(MSG_INFO, "%s: ERROR: ELF file \"%s\" is not a "
+                    "32-bit, %s-endian file that was expected\n",
+                    progname, infile, endianname);
+    goto done;
+  }
+
+  Elf32_Ehdr *eh;
+  if ((eh = elf32_getehdr(e)) == NULL) {
+    avrdude_message(MSG_INFO, "%s: ERROR: Error reading ehdr of \"%s\": %s\n",
+                    progname, infile, elf_errmsg(-1));
+    goto done;
+  }
+
+  if (eh->e_type != ET_EXEC) {
+    avrdude_message(MSG_INFO, "%s: ERROR: ELF file \"%s\" is not an executable file\n",
+                    progname, infile);
+    goto done;
+  }
+
+  const char *mname;
+  uint16_t machine;
+  if (p->flags & AVRPART_AVR32) {
+    machine = EM_AVR32;
+    mname = "AVR32";
+  } else {
+    machine = EM_AVR;
+    mname = "AVR";
+  }
+  if (eh->e_machine != machine) {
+    avrdude_message(MSG_INFO, "%s: ERROR: ELF file \"%s\" is not for machine %s\n",
+                    progname, infile, mname);
+    goto done;
+  }
+  if (eh->e_phnum == 0xffff /* PN_XNUM */) {
+    avrdude_message(MSG_INFO, "%s: ERROR: ELF file \"%s\" uses extended "
+                    "program header numbers which are not expected\n",
+                    progname, infile);
+    goto done;
+  }
+
+  Elf32_Phdr *ph;
+  if ((ph = elf32_getphdr(e)) == NULL) {
+    avrdude_message(MSG_INFO, "%s: ERROR: Error reading program header table of \"%s\": %s\n",
+                    progname, infile, elf_errmsg(-1));
+    goto done;
+  }
+
+  size_t sndx;
+  if (elf_getshdrstrndx(e, &sndx) != 0) {
+    avrdude_message(MSG_INFO, "%s: ERROR: Error obtaining section name string table: %s\n",
+                    progname, elf_errmsg(-1));
+    sndx = 0;
+  }
+
+  /*
+   * Walk the program header table, pick up entries that are of type
+   * PT_LOAD, and have a non-zero p_filesz.
+   */
+  for (i = 0; i < eh->e_phnum; i++) {
+    if (ph[i].p_type != PT_LOAD ||
+        ph[i].p_filesz == 0)
+      continue;
+
+    avrdude_message(MSG_NOTICE2, "%s: Considering PT_LOAD program header entry #%d:\n"
+                    "    p_vaddr 0x%x, p_paddr 0x%x, p_filesz %d\n",
+                    progname, i, ph[i].p_vaddr, ph[i].p_paddr, ph[i].p_filesz);
+
+    Elf32_Shdr *sh;
+    Elf_Scn *s = elf_get_scn(e, ph + i, &sh);
+    if (s == NULL)
+      continue;
+
+    if ((sh->sh_flags & SHF_ALLOC) && sh->sh_size) {
+      const char *sname;
+
+      if (sndx != 0) {
+        sname = elf_strptr(e, sndx, sh->sh_name);
+      } else {
+        sname = "*unknown*";
+      }
+
+      unsigned int lma;
+      lma = ph[i].p_paddr + sh->sh_offset - ph[i].p_offset;
+
+      avrdude_message(MSG_NOTICE2, "%s: Found section \"%s\", LMA 0x%x, sh_size %u\n",
+                      progname, sname, lma, sh->sh_size);
+
+      if (lma >= low &&
+          lma + sh->sh_size < high) {
+        /* OK */
+      } else {
+        avrdude_message(MSG_NOTICE2, "    => skipping, inappropriate for \"%s\" memory region\n",
+                        mem->desc);
+        continue;
+      }
+      /*
+       * 1-byte sized memory regions are special: they are used for fuse
+       * bits, where multiple regions (in the config file) map to a
+       * single, larger region in the ELF file (e.g. "lfuse", "hfuse",
+       * and "efuse" all map to ".fuse").  We silently accept a larger
+       * ELF file region for these, and extract the actual byte to write
+       * from it, using the "foff" offset obtained above.
+       */
+      if (mem->size != 1 &&
+          sh->sh_size > mem->size) {
+        avrdude_message(MSG_INFO, "%s: ERROR: section \"%s\" does not fit into \"%s\" memory:\n"
+                        "    0x%x + %u > %u\n",
+                        progname, sname, mem->desc,
+                        lma, sh->sh_size, mem->size);
+        continue;
+      }
+
+      Elf_Data *d = NULL;
+      while ((d = elf_getdata(s, d)) != NULL) {
+        avrdude_message(MSG_NOTICE2, "    Data block: d_buf %p, d_off 0x%x, d_size %d\n",
+                        d->d_buf, (unsigned int)d->d_off, d->d_size);
+        if (mem->size == 1) {
+          if (d->d_off != 0) {
+            avrdude_message(MSG_INFO, "%s: ERROR: unexpected data block at offset != 0\n",
+                            progname);
+          } else if (foff >= d->d_size) {
+            avrdude_message(MSG_INFO, "%s: ERROR: ELF file section does not contain byte at offset %d\n",
+                            progname, foff);
+          } else {
+            avrdude_message(MSG_NOTICE2, "    Extracting one byte from file offset %d\n",
+                            foff);
+            mem->buf[0] = ((unsigned char *)d->d_buf)[foff];
+            mem->tags[0] = TAG_ALLOCATED;
+            rv = 1;
+          }
+        } else {
+          unsigned int idx;
+
+          idx = lma - low + d->d_off;
+          if ((int)(idx + d->d_size) > rv)
+            rv = idx + d->d_size;
+          avrdude_message(MSG_DEBUG, "    Writing %d bytes to mem offset 0x%x\n",
+                          d->d_size, idx);
+          memcpy(mem->buf + idx, d->d_buf, d->d_size);
+          memset(mem->tags + idx, TAG_ALLOCATED, d->d_size);
+        }
+      }
+    }
+  }
+done:
+  (void)elf_end(e);
+  return rv;
+}
+#endif  /* HAVE_LIBELF */
 
 /*
  * Simple itoa() implementation.  Caller needs to allocate enough
@@ -700,28 +1073,30 @@ static char *itoa_simple(int n, char *buf, int base)
 
 
 static int fileio_rbin(struct fioparms * fio,
-                  char * filename, FILE * f, unsigned char * buf, int size)
+                  char * filename, FILE * f, AVRMEM * mem, int size)
 {
   int rc;
+  unsigned char *buf = mem->buf;
 
   switch (fio->op) {
     case FIO_READ:
       rc = fread(buf, 1, size, f);
+      if (rc > 0)
+        memset(mem->tags, TAG_ALLOCATED, rc);
       break;
     case FIO_WRITE:
       rc = fwrite(buf, 1, size, f);
       break;
     default:
-      fprintf(stderr, "%s: fileio: invalid operation=%d\n",
+      avrdude_message(MSG_INFO, "%s: fileio: invalid operation=%d\n",
               progname, fio->op);
       return -1;
   }
 
   if (rc < 0 || (fio->op == FIO_WRITE && rc < size)) {
-    fprintf(stderr, 
-            "%s: %s error %s %s: %s; %s %d of the expected %d bytes\n", 
-            progname, fio->iodesc, fio->dir, filename, strerror(errno),
-            fio->rw, rc, size);
+    avrdude_message(MSG_INFO, "%s: %s error %s %s: %s; %s %d of the expected %d bytes\n",
+                    progname, fio->iodesc, fio->dir, filename, strerror(errno),
+                    fio->rw, rc, size);
     return -1;
   }
 
@@ -730,7 +1105,7 @@ static int fileio_rbin(struct fioparms * fio,
 
 
 static int fileio_imm(struct fioparms * fio,
-               char * filename, FILE * f, unsigned char * buf, int size)
+               char * filename, FILE * f, AVRMEM * mem, int size)
 {
   int rc = 0;
   char * e, * p;
@@ -748,27 +1123,26 @@ static int fileio_imm(struct fioparms * fio,
 	    strtoul (p, &e, 0):
 	    strtoul (p + 2, &e, 2);
         if (*e != 0) {
-          fprintf(stderr,
-                  "%s: invalid byte value (%s) specified for immediate mode\n",
-                  progname, p);
+          avrdude_message(MSG_INFO, "%s: invalid byte value (%s) specified for immediate mode\n",
+                          progname, p);
           return -1;
         }
-        buf[loc++] = b;
+        mem->buf[loc] = b;
+        mem->tags[loc++] = TAG_ALLOCATED;
         p = strtok(NULL, " ,");
         rc = loc;
       }
       break;
     default:
-      fprintf(stderr, "%s: fileio: invalid operation=%d\n",
+      avrdude_message(MSG_INFO, "%s: fileio: invalid operation=%d\n",
               progname, fio->op);
       return -1;
   }
 
   if (rc < 0 || (fio->op == FIO_WRITE && rc < size)) {
-    fprintf(stderr, 
-            "%s: %s error %s %s: %s; %s %d of the expected %d bytes\n", 
-            progname, fio->iodesc, fio->dir, filename, strerror(errno),
-            fio->rw, rc, size);
+    avrdude_message(MSG_INFO, "%s: %s error %s %s: %s; %s %d of the expected %d bytes\n",
+                    progname, fio->iodesc, fio->dir, filename, strerror(errno),
+                    fio->rw, rc, size);
     return -1;
   }
 
@@ -777,26 +1151,26 @@ static int fileio_imm(struct fioparms * fio,
 
 
 static int fileio_ihex(struct fioparms * fio, 
-                  char * filename, FILE * f, unsigned char * buf, int size)
+                  char * filename, FILE * f, AVRMEM * mem, int size)
 {
   int rc;
 
   switch (fio->op) {
     case FIO_WRITE:
-      rc = b2ihex(buf, size, 32, 0, filename, f);
+      rc = b2ihex(mem->buf, size, 32, fio->fileoffset, filename, f);
       if (rc < 0) {
         return -1;
       }
       break;
 
     case FIO_READ:
-      rc = ihex2b(filename, f, buf, size);
+      rc = ihex2b(filename, f, mem, size, fio->fileoffset);
       if (rc < 0)
         return -1;
       break;
 
     default:
-      fprintf(stderr, "%s: invalid Intex Hex file I/O operation=%d\n",
+      avrdude_message(MSG_INFO, "%s: invalid Intex Hex file I/O operation=%d\n",
               progname, fio->op);
       return -1;
       break;
@@ -807,26 +1181,26 @@ static int fileio_ihex(struct fioparms * fio,
 
 
 static int fileio_srec(struct fioparms * fio,
-                  char * filename, FILE * f, unsigned char * buf, int size)
+                  char * filename, FILE * f, AVRMEM * mem, int size)
 {
   int rc;
 
   switch (fio->op) {
     case FIO_WRITE:
-      rc = b2srec(buf, size, 32, 0, filename, f);
+      rc = b2srec(mem->buf, size, 32, fio->fileoffset, filename, f);
       if (rc < 0) {
         return -1;
       }
       break;
 
     case FIO_READ:
-      rc = srec2b(filename, f, buf, size);
+      rc = srec2b(filename, f, mem, size, fio->fileoffset);
       if (rc < 0)
         return -1;
       break;
 
     default:
-      fprintf(stderr, "%s: ERROR: invalid Motorola S-Records file I/O "
+      avrdude_message(MSG_INFO, "%s: ERROR: invalid Motorola S-Records file I/O "
               "operation=%d\n",
               progname, fio->op);
       return -1;
@@ -837,8 +1211,38 @@ static int fileio_srec(struct fioparms * fio,
 }
 
 
+#ifdef HAVE_LIBELF
+static int fileio_elf(struct fioparms * fio,
+                      char * filename, FILE * f, AVRMEM * mem,
+                      struct avrpart * p, int size)
+{
+  int rc;
+
+  switch (fio->op) {
+    case FIO_WRITE:
+      avrdude_message(MSG_INFO, "%s: ERROR: write operation not (yet) "
+              "supported for ELF\n",
+              progname);
+      return -1;
+      break;
+
+    case FIO_READ:
+      rc = elf2b(filename, f, mem, p, size, fio->fileoffset);
+      return rc;
+
+    default:
+      avrdude_message(MSG_INFO, "%s: ERROR: invalid ELF file I/O "
+              "operation=%d\n",
+              progname, fio->op);
+      return -1;
+      break;
+  }
+}
+
+#endif
+
 static int fileio_num(struct fioparms * fio,
-	       char * filename, FILE * f, unsigned char * buf, int size,
+	       char * filename, FILE * f, AVRMEM * mem, int size,
 	       FILEFMT fmt)
 {
   const char *prefix;
@@ -873,7 +1277,7 @@ static int fileio_num(struct fioparms * fio,
     case FIO_WRITE:
       break;
     default:
-      fprintf(stderr, "%s: fileio: invalid operation=%d\n",
+      avrdude_message(MSG_INFO, "%s: fileio: invalid operation=%d\n",
               progname, fio->op);
       return -1;
   }
@@ -883,7 +1287,7 @@ static int fileio_num(struct fioparms * fio,
       if (putc(',', f) == EOF)
 	goto writeerr;
     }
-    num = (unsigned int)buf[i];
+    num = (unsigned int)(mem->buf[i]);
     /*
      * For a base of 8 and a value < 8 to convert, don't write the
      * prefix.  The conversion will be indistinguishable from a
@@ -903,13 +1307,14 @@ static int fileio_num(struct fioparms * fio,
   return 0;
 
  writeerr:
-  fprintf(stderr, "%s: error writing to %s: %s\n",
+  avrdude_message(MSG_INFO, "%s: error writing to %s: %s\n",
 	  progname, filename, strerror(errno));
   return -1;
 }
 
 
-int fileio_setparms(int op, struct fioparms * fp)
+int fileio_setparms(int op, struct fioparms * fp,
+                    struct avrpart * p, AVRMEM * m)
 {
   fp->op = op;
 
@@ -929,10 +1334,23 @@ int fileio_setparms(int op, struct fioparms * fp)
       break;
 
     default:
-      fprintf(stderr, "%s: invalid I/O operation %d\n",
+      avrdude_message(MSG_INFO, "%s: invalid I/O operation %d\n",
               progname, op);
       return -1;
       break;
+  }
+
+  /*
+   * AVR32 devices maintain their load offset within the file itself,
+   * but AVRDUDE maintains all memory images 0-based.
+   */
+  if ((p->flags & AVRPART_AVR32) != 0)
+  {
+    fp->fileoffset = m->offset;
+  }
+  else
+  {
+    fp->fileoffset = 0;
   }
 
   return 0;
@@ -947,15 +1365,28 @@ static int fmt_autodetect(char * fname)
   int i;
   int len;
   int found;
+  int first = 1;
 
+#if defined(WIN32NATIVE)
   f = fopen(fname, "r");
+#else
+  f = fopen(fname, "rb");
+#endif
   if (f == NULL) {
-    fprintf(stderr, "%s: error opening %s: %s\n",
+    avrdude_message(MSG_INFO, "%s: error opening %s: %s\n",
             progname, fname, strerror(errno));
     return -1;
   }
 
   while (fgets((char *)buf, MAX_LINE_LEN, f)!=NULL) {
+    /* check for ELF file */
+    if (first &&
+        (buf[0] == 0177 && buf[1] == 'E' &&
+         buf[2] == 'L' && buf[3] == 'F')) {
+      fclose(f);
+      return FMT_ELF;
+    }
+
     buf[MAX_LINE_LEN-1] = 0;
     len = strlen((char *)buf);
     if (buf[len-1] == '\n')
@@ -1003,6 +1434,8 @@ static int fmt_autodetect(char * fname)
         return FMT_SREC;
       }
     }
+
+    first = 0;
   }
 
   fclose(f);
@@ -1017,47 +1450,29 @@ int fileio(int op, char * filename, FILEFMT format,
   int rc;
   FILE * f;
   char * fname;
-  unsigned char * buf;
   struct fioparms fio;
   AVRMEM * mem;
   int using_stdio;
 
   mem = avr_locate_mem(p, memtype);
   if (mem == NULL) {
-    fprintf(stderr, 
-            "fileio(): memory type \"%s\" not configured for device \"%s\"\n",
-            memtype, p->desc);
+    avrdude_message(MSG_INFO, "fileio(): memory type \"%s\" not configured for device \"%s\"\n",
+                    memtype, p->desc);
     return -1;
   }
 
-  rc = fileio_setparms(op, &fio);
+  rc = fileio_setparms(op, &fio, p, mem);
   if (rc < 0)
     return -1;
 
-#if defined(WIN32NATIVE)
-  /* Open Raw Binary format in binary mode on Windows.*/
-  if(format == FMT_RBIN)
-  {
-      if(fio.op == FIO_READ)
-      {
-          fio.mode = "rb";
-      }
-      if(fio.op == FIO_WRITE)
-      {
-          fio.mode = "wb";
-      }
-  }
-#endif
-
-  /* point at the requested memory buffer */
-  buf = mem->buf;
   if (fio.op == FIO_READ)
     size = mem->size;
 
   if (fio.op == FIO_READ) {
     /* 0xff fill unspecified memory */
-    memset(buf, 0xff, size);
+    memset(mem->buf, 0xff, size);
   }
+  memset(mem->tags, 0, size);
 
   using_stdio = 0;
 
@@ -1078,33 +1493,49 @@ int fileio(int op, char * filename, FILEFMT format,
   }
 
   if (format == FMT_AUTO) {
-    if (using_stdio) {
-      fprintf(stderr, 
-              "%s: can't auto detect file format when using stdin/out.\n"
-              "     Please specify a file format using the -f option and try again.\n", 
-              progname);
-      exit(1);
-    }
+    int format_detect;
 
-    format = fmt_autodetect(fname);
-    if (format < 0) {
-      fprintf(stderr, 
-              "%s: can't determine file format for %s, specify explicitly\n",
-              progname, fname);
+    if (using_stdio) {
+      avrdude_message(MSG_INFO, "%s: can't auto detect file format when using stdin/out.\n"
+                      "%s  Please specify a file format and try again.\n",
+                      progname, progbuf);
       return -1;
     }
 
+    format_detect = fmt_autodetect(fname);
+    if (format_detect < 0) {
+      avrdude_message(MSG_INFO, "%s: can't determine file format for %s, specify explicitly\n",
+                      progname, fname);
+      return -1;
+    }
+    format = format_detect;
+
     if (quell_progress < 2) {
-      fprintf(stderr, "%s: %s file %s auto detected as %s\n", 
+      avrdude_message(MSG_INFO, "%s: %s file %s auto detected as %s\n",
               progname, fio.iodesc, fname, fmtstr(format));
     }
   }
+
+#if defined(WIN32NATIVE)
+  /* Open Raw Binary and ELF format in binary mode on Windows.*/
+  if(format == FMT_RBIN || format == FMT_ELF)
+  {
+      if(fio.op == FIO_READ)
+      {
+          fio.mode = "rb";
+      }
+      if(fio.op == FIO_WRITE)
+      {
+          fio.mode = "wb";
+      }
+  }
+#endif
 
   if (format != FMT_IMM) {
     if (!using_stdio) {
       f = fopen(fname, fio.mode);
       if (f == NULL) {
-        fprintf(stderr, "%s: can't open %s file %s: %s\n",
+        avrdude_message(MSG_INFO, "%s: can't open %s file %s: %s\n",
                 progname, fio.iodesc, fname, strerror(errno));
         return -1;
       }
@@ -1113,36 +1544,50 @@ int fileio(int op, char * filename, FILEFMT format,
 
   switch (format) {
     case FMT_IHEX:
-      rc = fileio_ihex(&fio, fname, f, buf, size);
+      rc = fileio_ihex(&fio, fname, f, mem, size);
       break;
 
     case FMT_SREC:
-      rc = fileio_srec(&fio, fname, f, buf, size);
+      rc = fileio_srec(&fio, fname, f, mem, size);
       break;
 
     case FMT_RBIN:
-      rc = fileio_rbin(&fio, fname, f, buf, size);
+      rc = fileio_rbin(&fio, fname, f, mem, size);
+      break;
+
+    case FMT_ELF:
+#ifdef HAVE_LIBELF
+      rc = fileio_elf(&fio, fname, f, mem, p, size);
+#else
+      avrdude_message(MSG_INFO, "%s: can't handle ELF file %s, "
+                      "ELF file support was not compiled in\n",
+                      progname, fname);
+      rc = -1;
+#endif
       break;
 
     case FMT_IMM:
-      rc = fileio_imm(&fio, fname, f, buf, size);
+      rc = fileio_imm(&fio, fname, f, mem, size);
       break;
 
     case FMT_HEX:
     case FMT_DEC:
     case FMT_OCT:
     case FMT_BIN:
-      rc = fileio_num(&fio, fname, f, buf, size, format);
+      rc = fileio_num(&fio, fname, f, mem, size, format);
       break;
 
     default:
-      fprintf(stderr, "%s: invalid %s file format: %d\n",
+      avrdude_message(MSG_INFO, "%s: invalid %s file format: %d\n",
               progname, fio.iodesc, format);
       return -1;
   }
 
   if (rc > 0) {
-    if ((op == FIO_READ) && (strcasecmp(mem->desc, "flash") == 0)) {
+    if ((op == FIO_READ) && (strcasecmp(mem->desc, "flash") == 0 ||
+                             strcasecmp(mem->desc, "application") == 0 ||
+                             strcasecmp(mem->desc, "apptable") == 0 ||
+                             strcasecmp(mem->desc, "boot") == 0)) {
       /*
        * if we are reading flash, just mark the size as being the
        * highest non-0xff byte

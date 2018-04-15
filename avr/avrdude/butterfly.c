@@ -14,11 +14,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: butterfly.c 772 2008-06-07 21:03:41Z joerg_wunsch $ */
+/* $Id: butterfly.c 1321 2014-06-13 20:07:40Z awachtler $ */
 
 /*
  * avrdude interface for the serial programming mode of the Atmel butterfly
@@ -43,12 +42,12 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
+#include <unistd.h>
 
 #include "avrdude.h"
-#include "avr.h"
-#include "pgm.h"
+#include "libavrdude.h"
+
 #include "butterfly.h"
-#include "serial.h"
 
 /*
  * Private data for this programmer.
@@ -64,9 +63,8 @@ struct pdata
 static void butterfly_setup(PROGRAMMER * pgm)
 {
   if ((pgm->cookie = malloc(sizeof(struct pdata))) == 0) {
-    fprintf(stderr,
-	    "%s: butterfly_setup(): Out of memory allocating private data\n",
-	    progname);
+    avrdude_message(MSG_INFO, "%s: butterfly_setup(): Out of memory allocating private data\n",
+                    progname);
     exit(1);
   }
   memset(pgm->cookie, 0, sizeof(struct pdata));
@@ -89,10 +87,9 @@ static int butterfly_recv(PROGRAMMER * pgm, char * buf, size_t len)
 
   rv = serial_recv(&pgm->fd, (unsigned char *)buf, len);
   if (rv < 0) {
-    fprintf(stderr,
-	    "%s: butterfly_recv(): programmer is not responding\n",
-	    progname);
-    exit(1);
+    avrdude_message(MSG_INFO, "%s: butterfly_recv(): programmer is not responding\n",
+                    progname);
+    return -1;
   }
   return 0;
 }
@@ -104,16 +101,17 @@ static int butterfly_drain(PROGRAMMER * pgm, int display)
 }
 
 
-static void butterfly_vfy_cmd_sent(PROGRAMMER * pgm, char * errmsg)
+static int butterfly_vfy_cmd_sent(PROGRAMMER * pgm, char * errmsg)
 {
   char c;
 
   butterfly_recv(pgm, &c, 1);
   if (c != '\r') {
-    fprintf(stderr, "%s: error: programmer did not respond to command: %s\n",
+    avrdude_message(MSG_INFO, "%s: error: programmer did not respond to command: %s\n",
             progname, errmsg);
-    exit(1);
+    return -1;
   }
+  return 0;
 }
 
 
@@ -155,7 +153,8 @@ static int butterfly_vfy_led(PROGRAMMER * pgm, int value)
 static int butterfly_chip_erase(PROGRAMMER * pgm, AVRPART * p)
 {
   butterfly_send(pgm, "e", 1);
-  butterfly_vfy_cmd_sent(pgm, "chip erase");
+  if (butterfly_vfy_cmd_sent(pgm, "chip erase") < 0)
+      return -1;
 
   return 0;
 }
@@ -205,6 +204,7 @@ static void butterfly_powerdown(PROGRAMMER * pgm)
   return;
 }
 
+#define IS_BUTTERFLY_MK 0x0001
 
 /*
  * initialize the AVR device and prepare it to accept commands
@@ -222,27 +222,62 @@ static int butterfly_initialize(PROGRAMMER * pgm, AVRPART * p)
    * Send some ESC to activate butterfly bootloader.  This is not needed
    * for plain avr109 bootloaders but does not harm there either.
    */
-  fprintf(stderr, "Connecting to programmer: ");
-  do {
-    putc('.', stderr);
-    butterfly_send(pgm, "\033", 1);
-    butterfly_drain(pgm, 0);
-    butterfly_send(pgm, "S", 1);
-    butterfly_recv(pgm, &c, 1);
-    if (c != '?') {
-        putc('\n', stderr);
-        /*
-         * Got a useful response, continue getting the programmer
-         * identifier. Programmer returns exactly 7 chars _without_
-         * the null.
-         */
-      id[0] = c;
-      butterfly_recv(pgm, &id[1], sizeof(id)-2);
-      id[sizeof(id)-1] = '\0';
+  avrdude_message(MSG_INFO, "Connecting to programmer: ");
+  if (pgm->flag & IS_BUTTERFLY_MK)
+    {
+      char mk_reset_cmd[6] = {"#aR@S\r"};
+      unsigned char mk_timeout = 0;
+
+      putc('.', stderr);
+      butterfly_send(pgm, mk_reset_cmd, sizeof(mk_reset_cmd));
+      usleep(20000); 
+
+      do
+	{
+	  c = 27; 
+	  butterfly_send(pgm, &c, 1);
+	  usleep(20000);
+	  c = 0xaa;
+	  usleep(80000);
+	  butterfly_send(pgm, &c, 1);
+	  if (mk_timeout % 10 == 0) putc('.', stderr);
+	} while (mk_timeout++ < 10);
+
+      butterfly_recv(pgm, &c, 1);
+      if ( c != 'M' && c != '?')
+        {
+          avrdude_message(MSG_INFO, "\nConnection FAILED.");
+          return -1;
+        }
+      else
+        {
+	  id[0] = 'M'; id[1] = 'K'; id[2] = '2'; id[3] = 0;
+	}
     }
-  } while (c == '?');
+  else
+    {
+      do {
+	putc('.', stderr);
+	butterfly_send(pgm, "\033", 1);
+	butterfly_drain(pgm, 0);
+	butterfly_send(pgm, "S", 1);
+	butterfly_recv(pgm, &c, 1);
+	if (c != '?') {
+	    putc('\n', stderr);
+	    /*
+	     * Got a useful response, continue getting the programmer
+	     * identifier. Programmer returns exactly 7 chars _without_
+	     * the null.
+	     */
+	  id[0] = c;
+	  butterfly_recv(pgm, &id[1], sizeof(id)-2);
+	  id[sizeof(id)-1] = '\0';
+	}
+      } while (c == '?');
+    }
 
   /* Get the HW and SW versions to see if the programmer is present. */
+  butterfly_drain(pgm, 0);
 
   butterfly_send(pgm, "V", 1);
   butterfly_recv(pgm, sw, sizeof(sw));
@@ -258,12 +293,12 @@ static int butterfly_initialize(PROGRAMMER * pgm, AVRPART * p)
   butterfly_send(pgm, "p", 1);
   butterfly_recv(pgm, &type, 1);
 
-  fprintf(stderr, "Found programmer: Id = \"%s\"; type = %c\n", id, type);
-  fprintf(stderr, "    Software Version = %c.%c; ", sw[0], sw[1]);
+  avrdude_message(MSG_INFO, "Found programmer: Id = \"%s\"; type = %c\n", id, type);
+  avrdude_message(MSG_INFO, "    Software Version = %c.%c; ", sw[0], sw[1]);
   if (hw[0]=='?') {
-    fprintf(stderr, "No Hardware Version given.\n");
+    avrdude_message(MSG_INFO, "No Hardware Version given.\n");
   } else {
-    fprintf(stderr, "Hardware Version = %c.%c\n", hw[0], hw[1]);
+    avrdude_message(MSG_INFO, "Hardware Version = %c.%c\n", hw[0], hw[1]);
   };
 
   /* See if programmer supports autoincrement of address. */
@@ -271,30 +306,28 @@ static int butterfly_initialize(PROGRAMMER * pgm, AVRPART * p)
   butterfly_send(pgm, "a", 1);
   butterfly_recv(pgm, &PDATA(pgm)->has_auto_incr_addr, 1);
   if (PDATA(pgm)->has_auto_incr_addr == 'Y')
-      fprintf(stderr, "Programmer supports auto addr increment.\n");
+      avrdude_message(MSG_INFO, "Programmer supports auto addr increment.\n");
 
   /* Check support for buffered memory access, abort if not available */
 
   butterfly_send(pgm, "b", 1);
   butterfly_recv(pgm, &c, 1);
   if (c != 'Y') {
-    fprintf(stderr,
-            "%s: error: buffered memory access not supported. Maybe it isn't\n"\
-            "a butterfly/AVR109 but a AVR910 device?\n", progname);
-    exit(1);
+    avrdude_message(MSG_INFO, "%s: error: buffered memory access not supported. Maybe it isn't\n"\
+                    "a butterfly/AVR109 but a AVR910 device?\n", progname);
+    return -1;
   };
   butterfly_recv(pgm, &c, 1);
   PDATA(pgm)->buffersize = (unsigned int)(unsigned char)c<<8;
   butterfly_recv(pgm, &c, 1);
   PDATA(pgm)->buffersize += (unsigned int)(unsigned char)c;
-  fprintf(stderr,
-    "Programmer supports buffered memory access with buffersize=%i bytes.\n",
-     PDATA(pgm)->buffersize);
+  avrdude_message(MSG_INFO, "Programmer supports buffered memory access with buffersize=%i bytes.\n",
+                  PDATA(pgm)->buffersize);
 
   /* Get list of devices that the programmer supports. */
 
   butterfly_send(pgm, "t", 1);
-  fprintf(stderr, "\nProgrammer supports the following devices:\n");
+  avrdude_message(MSG_INFO, "\nProgrammer supports the following devices:\n");
   devtype_1st = 0;
   while (1) {
     butterfly_recv(pgm, &c, 1);
@@ -303,9 +336,9 @@ static int butterfly_initialize(PROGRAMMER * pgm, AVRPART * p)
 
     if (c == 0)
       break;
-    fprintf(stderr, "    Device code: 0x%02x\n", (unsigned int)(unsigned char)c);
+    avrdude_message(MSG_INFO, "    Device code: 0x%02x\n", (unsigned int)(unsigned char)c);
   };
-  fprintf(stderr,"\n");
+  avrdude_message(MSG_INFO, "\n");
 
   /* Tell the programmer which part we selected.
      According to the AVR109 code, this is ignored by the bootloader.  As
@@ -319,14 +352,15 @@ static int butterfly_initialize(PROGRAMMER * pgm, AVRPART * p)
   buf[1] = devtype_1st;
 
   butterfly_send(pgm, buf, 2);
-  butterfly_vfy_cmd_sent(pgm, "select device");
+  if (butterfly_vfy_cmd_sent(pgm, "select device") < 0)
+      return -1;
 
   if (verbose)
-    fprintf(stderr,
-	    "%s: devcode selected: 0x%02x\n",
-	    progname, (unsigned)buf[1]);
+    avrdude_message(MSG_INFO, "%s: devcode selected: 0x%02x\n",
+                    progname, (unsigned)buf[1]);
 
   butterfly_enter_prog_mode(pgm);
+  butterfly_drain(pgm, 0);
 
   return 0;
 }
@@ -349,6 +383,7 @@ static void butterfly_enable(PROGRAMMER * pgm)
 
 static int butterfly_open(PROGRAMMER * pgm, char * port)
 {
+  union pinfo pinfo;
   strcpy(pgm->port, port);
   /*
    *  If baudrate was not specified use 19200 Baud
@@ -356,7 +391,10 @@ static int butterfly_open(PROGRAMMER * pgm, char * port)
   if(pgm->baudrate == 0) {
     pgm->baudrate = 19200;
   }
-  serial_open(port, pgm->baudrate, &pgm->fd);
+  pinfo.baud = pgm->baudrate;
+  if (serial_open(port, pinfo, &pgm->fd)==-1) {
+    return -1;
+  }
 
   /*
    * drain any extraneous input
@@ -423,7 +461,7 @@ static int butterfly_write_byte(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m,
   {
     cmd[0] = 'B';
     cmd[1] = 0;
-    if ((cmd[3] = toupper(m->desc[0])) == 'E') {	/* write to eeprom */
+    if ((cmd[3] = toupper((int)(m->desc[0]))) == 'E') {	/* write to eeprom */
       cmd[2] = 1;
       cmd[4] = value;
       size = 5;
@@ -449,7 +487,8 @@ static int butterfly_write_byte(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m,
     return -1;
 
   butterfly_send(pgm, cmd, size);
-  butterfly_vfy_cmd_sent(pgm, "write byte");
+  if (butterfly_vfy_cmd_sent(pgm, "write byte") < 0)
+      return -1;
 
   return 0;
 }
@@ -482,13 +521,13 @@ static int butterfly_read_byte_flash(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m,
     butterfly_recv(pgm, buf, sizeof(buf));
 
     if ((addr & 0x01) == 0) {
-      *value = buf[1];
+      *value = buf[0];
       cached = 1;
-      cvalue = buf[0];
+      cvalue = buf[1];
       caddr = addr;
     }
     else {
-      *value = buf[0];
+      *value = buf[1];
     }
   }
 
@@ -505,6 +544,16 @@ static int butterfly_read_byte_eeprom(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m,
   return 0;
 }
 
+static int butterfly_page_erase(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m, unsigned int addr)
+{
+  if (strcmp(m->desc, "flash") == 0)
+    return -1;            /* not supported */
+  if (strcmp(m->desc, "eeprom") == 0)
+    return 0;             /* nothing to do */
+  avrdude_message(MSG_INFO, "%s: butterfly_page_erase() called on memory type \"%s\"\n",
+                  progname, m->desc);
+  return -1;
+}
 
 static int butterfly_read_byte(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m,
                             unsigned long addr, unsigned char * value)
@@ -542,37 +591,39 @@ static int butterfly_read_byte(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m,
 
 
 
-static int butterfly_paged_write(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m, 
-                              int page_size, int n_bytes)
+static int butterfly_paged_write(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m,
+                                 unsigned int page_size,
+                                 unsigned int addr, unsigned int n_bytes)
 {
-  unsigned int addr = 0;
-  unsigned int max_addr = n_bytes;
+  unsigned int max_addr = addr + n_bytes;
   char *cmd;
   unsigned int blocksize = PDATA(pgm)->buffersize;
   int use_ext_addr = m->op[AVR_OP_LOAD_EXT_ADDR] != NULL;
+  unsigned int wr_size = 2;
 
-  if (strcmp(m->desc, "flash") && strcmp(m->desc, "eeprom")) 
+  if (strcmp(m->desc, "flash") && strcmp(m->desc, "eeprom"))
     return -2;
 
   if (m->desc[0] == 'e')
-    blocksize = 1;		/* Write to eeprom single bytes only */
+    wr_size = blocksize = 1;		/* Write to eeprom single bytes only */
 
   if (use_ext_addr) {
-    butterfly_set_extaddr(pgm, addr);
+    butterfly_set_extaddr(pgm, addr / wr_size);
   } else {
-    butterfly_set_addr(pgm, addr);
+    butterfly_set_addr(pgm, addr / wr_size);
   }
 
 #if 0
   usleep(1000000);
   butterfly_send(pgm, "y", 1);
-  butterfly_vfy_cmd_sent(pgm, "clear LED");
+  if (butterfly_vfy_cmd_sent(pgm, "clear LED") < 0)
+    return -1;
 #endif
 
   cmd = malloc(4+blocksize);
   if (!cmd) return -1;
   cmd[0] = 'B';
-  cmd[3] = toupper(m->desc[0]);
+  cmd[3] = toupper((int)(m->desc[0]));
 
   while (addr < max_addr) {
     if ((max_addr - addr) < blocksize) {
@@ -583,11 +634,10 @@ static int butterfly_paged_write(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m,
     cmd[2] = blocksize & 0xff;
 
     butterfly_send(pgm, cmd, 4+blocksize);
-    butterfly_vfy_cmd_sent(pgm, "write block");
+    if (butterfly_vfy_cmd_sent(pgm, "write block") < 0)
+      return -1;
 
     addr += blocksize;
-
-    report_progress (addr, max_addr, NULL);
   } /* while */
   free(cmd);
 
@@ -596,29 +646,32 @@ static int butterfly_paged_write(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m,
 
 
 
-static int butterfly_paged_load(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m, 
-                             int page_size, int n_bytes)
+static int butterfly_paged_load(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m,
+                                unsigned int page_size,
+                                unsigned int addr, unsigned int n_bytes)
 {
-  unsigned int addr = 0;
-  unsigned int max_addr = n_bytes;
-  int rd_size = 1;
+  unsigned int max_addr = addr + n_bytes;
+  int rd_size = 2;
+  int blocksize = PDATA(pgm)->buffersize;
   int use_ext_addr = m->op[AVR_OP_LOAD_EXT_ADDR] != NULL;
 
   /* check parameter syntax: only "flash" or "eeprom" is allowed */
-  if (strcmp(m->desc, "flash") && strcmp(m->desc, "eeprom")) 
+  if (strcmp(m->desc, "flash") && strcmp(m->desc, "eeprom"))
     return -2;
+
+  if (m->desc[0] == 'e')
+    rd_size = blocksize = 1;		/* Read from eeprom single bytes only */
 
   {		/* use buffered mode */
     char cmd[4];
-    int blocksize = PDATA(pgm)->buffersize;
 
     cmd[0] = 'g';
-    cmd[3] = toupper(m->desc[0]);
+    cmd[3] = toupper((int)(m->desc[0]));
 
     if (use_ext_addr) {
-      butterfly_set_extaddr(pgm, addr);
+      butterfly_set_extaddr(pgm, addr / rd_size);
     } else {
-      butterfly_set_addr(pgm, addr);
+      butterfly_set_addr(pgm, addr / rd_size);
     }
     while (addr < max_addr) {
       if ((max_addr - addr) < blocksize) {
@@ -631,8 +684,6 @@ static int butterfly_paged_load(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m,
       butterfly_recv(pgm, (char *)&m->buf[addr], blocksize);
 
       addr += blocksize;
-
-      report_progress (addr, max_addr, NULL);
     } /* while */
   }
 
@@ -646,7 +697,7 @@ static int butterfly_read_sig_bytes(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m)
   unsigned char tmp;
 
   if (m->size < 3) {
-    fprintf(stderr, "%s: memsize too small for sig byte read", progname);
+    avrdude_message(MSG_INFO, "%s: memsize too small for sig byte read", progname);
     return -1;
   }
 
@@ -660,10 +711,11 @@ static int butterfly_read_sig_bytes(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m)
   return 3;
 }
 
+const char butterfly_desc[] = "Atmel Butterfly evaluation board; Atmel AppNotes AVR109, AVR911";
 
 void butterfly_initpgm(PROGRAMMER * pgm)
 {
-  strcpy(pgm->type, "avr910");
+  strcpy(pgm->type, "butterfly");
 
   /*
    * mandatory functions
@@ -689,6 +741,7 @@ void butterfly_initpgm(PROGRAMMER * pgm)
    * optional functions
    */
 
+  pgm->page_erase = butterfly_page_erase;
   pgm->paged_write = butterfly_paged_write;
   pgm->paged_load = butterfly_paged_load;
 
@@ -696,4 +749,14 @@ void butterfly_initpgm(PROGRAMMER * pgm)
 
   pgm->setup          = butterfly_setup;
   pgm->teardown       = butterfly_teardown;
+  pgm->flag = 0;
+}
+
+const char butterfly_mk_desc[] = "Mikrokopter.de Butterfly";
+
+void butterfly_mk_initpgm(PROGRAMMER * pgm)
+{
+  butterfly_initpgm(pgm);
+  strcpy(pgm->type, "butterfly_mk");
+  pgm->flag = IS_BUTTERFLY_MK;
 }

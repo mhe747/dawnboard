@@ -13,12 +13,11 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
 #
-# $Id: Makefile.am 878 2009-11-04 23:42:16Z mludvig $
+# $Id: Makefile.am 1357 2015-10-30 23:11:22Z joerg_wunsch $
 #
 
 EXTRA_DIST   = \
@@ -27,6 +26,13 @@ EXTRA_DIST   = \
 	ChangeLog-2002 \
 	ChangeLog-2003 \
 	ChangeLog-2004-2006 \
+	ChangeLog-2007 \
+	ChangeLog-2008 \
+	ChangeLog-2009 \
+	ChangeLog-2010 \
+	ChangeLog-2011 \
+	ChangeLog-2012 \
+	ChangeLog-2013 \
 	avrdude.1 \
 	avrdude.spec \
 	bootstrap
@@ -36,10 +42,15 @@ CLEANFILES = \
 	config_gram.h \
 	lexer.c
 
+BUILT_SOURCES = $(CLEANFILES)
+
 #SUBDIRS      = doc @WINDOWS_DIRS@
 #DIST_SUBDIRS = doc windows
 
-SUBDIRS = @SUBDIRS_AC@
+# . lets build this directory before the following in SUBDIRS
+SUBDIRS = .
+# doc comes here, and we want to use the built avrdude to generate the parts list
+SUBDIRS += @SUBDIRS_AC@
 SUBDIRS += @WINDOWS_DIRS@
 DIST_SUBDIRS = @DIST_SUBDIRS_AC@
 
@@ -48,16 +59,19 @@ AM_YFLAGS    = -d
 avrdude_CPPFLAGS = -DCONFIG_DIR=\"$(sysconfdir)\"
 
 libavrdude_a_CPPFLAGS = -DCONFIG_DIR=\"$(sysconfdir)\"
+libavrdude_la_CPPFLAGS = $(libavrdude_a_CPPFLAGS)
 
 avrdude_CFLAGS   = @ENABLE_WARNINGS@
 
 libavrdude_a_CFLAGS   = @ENABLE_WARNINGS@
+libavrdude_la_CFLAGS  = $(libavrdude_a_CFLAGS)
 
-avrdude_LDADD  = $(top_builddir)/$(noinst_LIBRARIES) @LIBUSB@ @LIBHID@ -lm
+avrdude_LDADD  = $(top_builddir)/$(noinst_LIBRARIES) @LIBUSB_1_0@ @LIBUSB@ @LIBFTDI1@ @LIBFTDI@ @LIBHID@ @LIBELF@ @LIBPTHREAD@ -lm
 
 bin_PROGRAMS = avrdude
 
 noinst_LIBRARIES = libavrdude.a
+lib_LTLIBRARIES = libavrdude.la
 
 # automake thinks these generated files should be in the distribution,
 # but this might cause trouble for some users, so we rather don't want
@@ -80,12 +94,15 @@ libavrdude_a_SOURCES = \
 	arduino.h \
 	arduino.c \
 	avr.c \
-	avr.h \
 	avr910.c \
 	avr910.h \
 	avrdude.h \
+	avrftdi.c \
+	avrftdi.h \
+	avrftdi_private.h \
+	avrftdi_tpi.c \
+	avrftdi_tpi.h \
 	avrpart.c \
-	avrpart.h \
 	bitbang.c \
 	bitbang.h \
 	buspirate.c \
@@ -95,33 +112,44 @@ libavrdude_a_SOURCES = \
 	config.c \
 	config.h \
 	confwin.c \
-	confwin.h \
 	crc16.c \
 	crc16.h \
+	dfu.c \
+	dfu.h \
 	fileio.c \
-	fileio.h \
+	flip1.c \
+	flip1.h \
+	flip2.c \
+	flip2.h \
 	freebsd_ppi.h \
+	ft245r.c \
+	ft245r.h \
 	jtagmkI.c \
 	jtagmkI.h \
 	jtagmkI_private.h \
 	jtagmkII.c \
 	jtagmkII.h \
 	jtagmkII_private.h \
+	jtag3.c \
+	jtag3.h \
+	jtag3_private.h \
+	libavrdude.h \
+	linuxgpio.c \
+	linuxgpio.h \
 	linux_ppdev.h \
 	lists.c \
-	lists.h \
 	my_ddk_hidsdi.h \
 	par.c \
 	par.h \
 	pgm.c \
-	pgm.h \
-	pindefs.h \
+	pgm_type.c \
+	pickit2.c \
+	pickit2.h \
+	pindefs.c \
 	ppi.c \
 	ppi.h \
 	ppiwin.c \
 	safemode.c \
-	safemode.h \
-	serial.h \
 	serbb.h \
 	serbb_posix.c \
 	serbb_win32.c \
@@ -137,14 +165,20 @@ libavrdude_a_SOURCES = \
 	stk500v2_private.h \
 	stk500generic.c \
 	stk500generic.h \
+	tpi.h \
 	usbasp.c \
 	usbasp.h \
 	usbdevs.h \
 	usb_libusb.c \
 	usbtiny.h \
 	usbtiny.c \
-	update.h \
-	update.c
+	update.c \
+	wiring.h \
+	wiring.c
+libavrdude_la_SOURCES = $(libavrdude_a_SOURCES)
+libavrdude_la_LDFLAGS = -version-info 1:0
+
+include_HEADERS = libavrdude.h
 
 avrdude_SOURCES = \
 	main.c \
@@ -167,3 +201,5 @@ backup-avrdude-conf:
 		cp -pR ${DESTDIR}${sysconfdir}/avrdude.conf \
 			${DESTDIR}${sysconfdir}/avrdude.conf.bak; \
 	fi
+
+ACLOCAL_AMFLAGS = -I m4

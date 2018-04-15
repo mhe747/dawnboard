@@ -14,11 +14,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: pgm.c 797 2009-02-17 15:31:27Z joerg_wunsch $ */
+/* $Id: pgm.c 1322 2014-06-17 20:08:28Z rliebscher $ */
 
 #include "ac_cfg.h"
 
@@ -27,7 +26,7 @@
 #include <string.h>
 
 #include "avrdude.h"
-#include "pgm.h"
+#include "libavrdude.h"
 
 static int  pgm_default_2 (struct programmer_t *, AVRPART *);
 static int  pgm_default_3 (struct programmer_t * pgm, AVRPART * p, AVRMEM * mem,
@@ -40,9 +39,9 @@ static void pgm_default_6 (struct programmer_t *, const char *);
 
 static int pgm_default_open (struct programmer_t *pgm, char * name)
 {
-  fprintf (stderr, "\n%s: Fatal error: Programmer does not support open()",
+  avrdude_message(MSG_INFO, "\n%s: Fatal error: Programmer does not support open()",
                progname);
-  exit(1);
+  return -1;
 }
 
 static int  pgm_default_led (struct programmer_t * pgm, int value)
@@ -69,22 +68,26 @@ PROGRAMMER * pgm_new(void)
 
   pgm = (PROGRAMMER *)malloc(sizeof(*pgm));
   if (pgm == NULL) {
-    fprintf(stderr, "%s: out of memory allocating programmer structure\n",
+    avrdude_message(MSG_INFO, "%s: out of memory allocating programmer structure\n",
             progname);
-    exit(1);
+    return NULL;
   }
 
   memset(pgm, 0, sizeof(*pgm));
 
   pgm->id = lcreat(NULL, 0);
+  pgm->usbpid = lcreat(NULL, 0);
   pgm->desc[0] = 0;
   pgm->type[0] = 0;
   pgm->config_file[0] = 0;
   pgm->lineno = 0;
   pgm->baudrate = 0;
+  pgm->initpgm = NULL;
 
-  for (i=0; i<N_PINS; i++)
+  for (i=0; i<N_PINS; i++) {
     pgm->pinno[i] = 0;
+    pin_clear_all(&(pgm->pin[i]));
+  }
 
   /*
    * mandatory functions - these are called without checking to see
@@ -118,6 +121,7 @@ PROGRAMMER * pgm_new(void)
    * assigned before they are called
    */
   pgm->cmd            = NULL;
+  pgm->cmd_tpi        = NULL;
   pgm->spi            = NULL;
   pgm->paged_write    = NULL;
   pgm->paged_load     = NULL;
@@ -134,10 +138,55 @@ PROGRAMMER * pgm_new(void)
   return pgm;
 }
 
+void pgm_free(PROGRAMMER * const p)
+{
+  ldestroy_cb(p->id, free);
+  ldestroy_cb(p->usbpid, free);
+  p->id = NULL;
+  p->usbpid = NULL;
+  /* this is done by pgm_teardown, but usually cookie is not set to NULL */
+  /* if (p->cookie !=NULL) {
+    free(p->cookie);
+    p->cookie = NULL;
+  }*/
+  free(p);
+}
+
+PROGRAMMER * pgm_dup(const PROGRAMMER * const src)
+{
+  PROGRAMMER * pgm;
+  LNODEID ln;
+
+  pgm = (PROGRAMMER *)malloc(sizeof(*pgm));
+  if (pgm == NULL) {
+    avrdude_message(MSG_INFO, "%s: out of memory allocating programmer structure\n",
+            progname);
+    return NULL;
+  }
+
+  memcpy(pgm, src, sizeof(*pgm));
+
+  pgm->id = lcreat(NULL, 0);
+  pgm->usbpid = lcreat(NULL, 0);
+
+  for (ln = lfirst(src->usbpid); ln; ln = lnext(ln)) {
+    int *ip = malloc(sizeof(int));
+    if (ip == NULL) {
+      avrdude_message(MSG_INFO, "%s: out of memory allocating programmer structure\n",
+              progname);
+      exit(1);
+    }
+    *ip = *(int *) ldata(ln);
+    ladd(pgm->usbpid, ip);
+  }
+
+  return pgm;
+}
+
 
 static void pgm_default(void)
 {
-  fprintf(stderr, "%s: programmer operation not supported\n", progname);
+  avrdude_message(MSG_INFO, "%s: programmer operation not supported\n", progname);
 }
 
 
@@ -174,10 +223,40 @@ static void pgm_default_6 (struct programmer_t * pgm, const char * p)
 
 void programmer_display(PROGRAMMER * pgm, const char * p)
 {
-  fprintf(stderr, "%sProgrammer Type : %s\n", p, pgm->type);
-  fprintf(stderr, "%sDescription     : %s\n", p, pgm->desc);
+  avrdude_message(MSG_INFO, "%sProgrammer Type : %s\n", p, pgm->type);
+  avrdude_message(MSG_INFO, "%sDescription     : %s\n", p, pgm->desc);
 
   pgm->display(pgm, p);
+}
+
+
+void pgm_display_generic_mask(PROGRAMMER * pgm, const char * p, unsigned int show)
+{
+  if(show & (1<<PPI_AVR_VCC)) 
+    avrdude_message(MSG_INFO, "%s  VCC     = %s\n", p, pins_to_str(&pgm->pin[PPI_AVR_VCC]));
+  if(show & (1<<PPI_AVR_BUFF))
+    avrdude_message(MSG_INFO, "%s  BUFF    = %s\n", p, pins_to_str(&pgm->pin[PPI_AVR_BUFF]));
+  if(show & (1<<PIN_AVR_RESET))
+    avrdude_message(MSG_INFO, "%s  RESET   = %s\n", p, pins_to_str(&pgm->pin[PIN_AVR_RESET]));
+  if(show & (1<<PIN_AVR_SCK))
+    avrdude_message(MSG_INFO, "%s  SCK     = %s\n", p, pins_to_str(&pgm->pin[PIN_AVR_SCK]));
+  if(show & (1<<PIN_AVR_MOSI))
+    avrdude_message(MSG_INFO, "%s  MOSI    = %s\n", p, pins_to_str(&pgm->pin[PIN_AVR_MOSI]));
+  if(show & (1<<PIN_AVR_MISO))
+    avrdude_message(MSG_INFO, "%s  MISO    = %s\n", p, pins_to_str(&pgm->pin[PIN_AVR_MISO]));
+  if(show & (1<<PIN_LED_ERR))
+    avrdude_message(MSG_INFO, "%s  ERR LED = %s\n", p, pins_to_str(&pgm->pin[PIN_LED_ERR]));
+  if(show & (1<<PIN_LED_RDY))
+    avrdude_message(MSG_INFO, "%s  RDY LED = %s\n", p, pins_to_str(&pgm->pin[PIN_LED_RDY]));
+  if(show & (1<<PIN_LED_PGM))
+    avrdude_message(MSG_INFO, "%s  PGM LED = %s\n", p, pins_to_str(&pgm->pin[PIN_LED_PGM]));
+  if(show & (1<<PIN_LED_VFY))
+    avrdude_message(MSG_INFO, "%s  VFY LED = %s\n", p, pins_to_str(&pgm->pin[PIN_LED_VFY]));
+}
+
+void pgm_display_generic(PROGRAMMER * pgm, const char * p)
+{
+  pgm_display_generic_mask(pgm, p, SHOW_ALL_PINS);
 }
 
 PROGRAMMER * locate_programmer(LISTID programmers, const char * configid)
@@ -217,11 +296,37 @@ PROGRAMMER * locate_programmer(LISTID programmers, const char * configid)
 void walk_programmers(LISTID programmers, walk_programmers_cb cb, void *cookie)
 {
   LNODEID ln1;
+  LNODEID ln2;
   PROGRAMMER * p;
 
   for (ln1 = lfirst(programmers); ln1; ln1 = lnext(ln1)) {
     p = ldata(ln1);
-    cb((char *)ldata(lfirst(p->id)), p->desc, p->config_file, p->lineno, cookie);
+    for (ln2=lfirst(p->id); ln2; ln2=lnext(ln2)) {
+      cb(ldata(ln2), p->desc, p->config_file, p->lineno, cookie);
+    }
   }
+}
+
+/*
+ * Compare function to sort the list of programmers
+ */
+static int sort_programmer_compare(PROGRAMMER * p1,PROGRAMMER * p2)
+{
+  char* id1;
+  char* id2;
+  if(p1 == NULL || p2 == NULL) {
+    return 0;
+  }
+  id1 = ldata(lfirst(p1->id));
+  id2 = ldata(lfirst(p2->id));
+  return strncasecmp(id1,id2,AVR_IDLEN);
+}
+
+/*
+ * Sort the list of programmers given as "programmers"
+ */
+void sort_programmers(LISTID programmers)
+{
+  lsort(programmers,(int (*)(void*, void*)) sort_programmer_compare);
 }
 

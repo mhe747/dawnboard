@@ -13,11 +13,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: ppi.c 925 2010-01-17 16:58:06Z joerg_wunsch $ */
+/* $Id: ppi.c 1321 2014-06-13 20:07:40Z awachtler $ */
 
 
 #if !defined(WIN32NATIVE)
@@ -42,9 +41,8 @@
 #endif
 
 #include "avrdude.h"
-#include "avr.h"
-#include "pindefs.h"
-#include "pgm.h"
+#include "libavrdude.h"
+
 #include "ppi.h"
 
 enum {
@@ -70,7 +68,7 @@ static int ppi_shadow_access(union filedescriptor *fdp, int reg,
       shadow_num = 2;
       break;
     default:
-      fprintf(stderr, "%s: avr_set(): invalid register=%d\n",
+      avrdude_message(MSG_INFO, "%s: avr_set(): invalid register=%d\n",
               progname, reg);
       return -1;
       break;
@@ -207,7 +205,7 @@ void ppi_open(char * port, union filedescriptor *fdp)
 
   fd = open(port, O_RDWR);
   if (fd < 0) {
-    fprintf(stderr, "%s: can't open device \"%s\": %s\n",
+    avrdude_message(MSG_INFO, "%s: can't open device \"%s\": %s\n",
               progname, port, strerror(errno));
     fdp->ifd = -1;
     return;

@@ -15,18 +15,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: avrpart.c 772 2008-06-07 21:03:41Z joerg_wunsch $ */
+/* $Id: avrpart.c 1332 2014-08-18 21:43:08Z rliebscher $ */
 
 #include <stdlib.h>
 #include <string.h>
 
 #include "avrdude.h"
-#include "avrpart.h"
-#include "pindefs.h"
+#include "libavrdude.h"
 
 /***
  *** Elementary functions dealing with OPCODE structures
@@ -38,7 +36,7 @@ OPCODE * avr_new_opcode(void)
 
   m = (OPCODE *)malloc(sizeof(*m));
   if (m == NULL) {
-    fprintf(stderr, "avr_new_opcode(): out of memory\n");
+    avrdude_message(MSG_INFO, "avr_new_opcode(): out of memory\n");
     exit(1);
   }
 
@@ -47,6 +45,30 @@ OPCODE * avr_new_opcode(void)
   return m;
 }
 
+static OPCODE * avr_dup_opcode(OPCODE * op)
+{
+  OPCODE * m;
+  
+  /* this makes life easier */
+  if (op == NULL) {
+    return NULL;
+  }
+
+  m = (OPCODE *)malloc(sizeof(*m));
+  if (m == NULL) {
+    avrdude_message(MSG_INFO, "avr_dup_opcode(): out of memory\n");
+    exit(1);
+  }
+
+  memcpy(m, op, sizeof(*m));
+
+  return m;
+}
+
+void avr_free_opcode(OPCODE * op)
+{
+  free(op);
+}
 
 /*
  * avr_set_bits()
@@ -162,6 +184,27 @@ int avr_get_output(OPCODE * op, unsigned char * res, unsigned char * data)
 }
 
 
+/*
+ * avr_get_output_index()
+ *
+ * Calculate the byte number of the output data based on the
+ * opcode data.
+ */
+int avr_get_output_index(OPCODE * op)
+{
+  int i, j;
+
+  for (i=0; i<32; i++) {
+    if (op->bit[i].type == AVR_CMDBIT_OUTPUT) {
+      j = 3 - i / 8;
+      return j;
+    }
+  }
+
+  return -1;
+}
+
+
 static char * avr_op_str(int op)
 {
   switch (op) {
@@ -206,7 +249,7 @@ AVRMEM * avr_new_memtype(void)
 
   m = (AVRMEM *)malloc(sizeof(*m));
   if (m == NULL) {
-    fprintf(stderr, "avr_new_memtype(): out of memory\n");
+    avrdude_message(MSG_INFO, "avr_new_memtype(): out of memory\n");
     exit(1);
   }
 
@@ -229,7 +272,13 @@ int avr_initmem(AVRPART * p)
     m = ldata(ln);
     m->buf = (unsigned char *) malloc(m->size);
     if (m->buf == NULL) {
-      fprintf(stderr, "%s: can't alloc buffer for %s size of %d bytes\n",
+      avrdude_message(MSG_INFO, "%s: can't alloc buffer for %s size of %d bytes\n",
+              progname, m->desc, m->size);
+      return -1;
+    }
+    m->tags = (unsigned char *) malloc(m->size);
+    if (m->tags == NULL) {
+      avrdude_message(MSG_INFO, "%s: can't alloc buffer for %s size of %d bytes\n",
               progname, m->desc, m->size);
       return -1;
     }
@@ -242,23 +291,60 @@ int avr_initmem(AVRPART * p)
 AVRMEM * avr_dup_mem(AVRMEM * m)
 {
   AVRMEM * n;
+  int i;
 
   n = avr_new_memtype();
 
   *n = *m;
 
-  n->buf = (unsigned char *)malloc(n->size);
-  if (n->buf == NULL) {
-    fprintf(stderr,
-            "avr_dup_mem(): out of memory (memsize=%d)\n",
-            n->size);
-    exit(1);
+  if (m->buf != NULL) {
+    n->buf = (unsigned char *)malloc(n->size);
+    if (n->buf == NULL) {
+      avrdude_message(MSG_INFO, "avr_dup_mem(): out of memory (memsize=%d)\n",
+                      n->size);
+      exit(1);
+    }
+    memcpy(n->buf, m->buf, n->size);
   }
-  memset(n->buf, 0, n->size);
+
+  if (m->tags != NULL) {
+    n->tags = (unsigned char *)malloc(n->size);
+    if (n->tags == NULL) {
+      avrdude_message(MSG_INFO, "avr_dup_mem(): out of memory (memsize=%d)\n",
+                      n->size);
+      exit(1);
+    }
+    memcpy(n->tags, m->tags, n->size);
+  }
+
+  for (i = 0; i < AVR_OP_MAX; i++) {
+    n->op[i] = avr_dup_opcode(n->op[i]);
+  }
 
   return n;
 }
 
+void avr_free_mem(AVRMEM * m)
+{
+    int i;
+    if (m->buf != NULL) {
+      free(m->buf);
+      m->buf = NULL;
+    }
+    if (m->tags != NULL) {
+      free(m->tags);
+      m->tags = NULL;
+    }
+    for(i=0;i<sizeof(m->op)/sizeof(m->op[0]);i++)
+    {
+      if (m->op[i] != NULL)
+      {
+        avr_free_opcode(m->op[i]);
+        m->op[i] = NULL;
+      }
+    }
+    free(m);
+}
 
 AVRMEM * avr_locate_mem(AVRPART * p, char * desc)
 {
@@ -318,11 +404,10 @@ void avr_mem_display(const char * prefix, FILE * f, AVRMEM * m, int type,
             m->readback[0],
             m->readback[1]);
     if (verbose > 4) {
-      fprintf(stderr,
-              "%s  Memory Ops:\n"
-              "%s    Oeration     Inst Bit  Bit Type  Bitno  Value\n"
-              "%s    -----------  --------  --------  -----  -----\n",
-              prefix, prefix, prefix);
+      avrdude_message(MSG_TRACE2, "%s  Memory Ops:\n"
+                      "%s    Oeration     Inst Bit  Bit Type  Bitno  Value\n"
+                      "%s    -----------  --------  --------  -----  -----\n",
+                      prefix, prefix, prefix);
       for (i=0; i<AVR_OP_MAX; i++) {
         if (m->op[i]) {
           for (j=31; j>=0; j--) {
@@ -356,7 +441,7 @@ AVRPART * avr_new_part(void)
 
   p = (AVRPART *)malloc(sizeof(AVRPART));
   if (p == NULL) {
-    fprintf(stderr, "new_part(): out of memory\n");
+    avrdude_message(MSG_INFO, "new_part(): out of memory\n");
     exit(1);
   }
 
@@ -371,6 +456,7 @@ AVRPART * avr_new_part(void)
   p->lineno = 0;
   memset(p->signature, 0xFF, 3);
   p->ctl_stack_type = CTL_STACK_NONE;
+  p->ocdrev = -1;
 
   p->mem = lcreat(NULL, 0);
 
@@ -383,6 +469,7 @@ AVRPART * avr_dup_part(AVRPART * d)
   AVRPART * p;
   LISTID save;
   LNODEID ln;
+  int i;
 
   p = avr_new_part();
   save = p->mem;
@@ -395,9 +482,28 @@ AVRPART * avr_dup_part(AVRPART * d)
     ladd(p->mem, avr_dup_mem(ldata(ln)));
   }
 
+  for (i = 0; i < AVR_OP_MAX; i++) {
+    p->op[i] = avr_dup_opcode(p->op[i]);
+  }
+
   return p;
 }
 
+void avr_free_part(AVRPART * d)
+{
+int i;
+	ldestroy_cb(d->mem, (void(*)(void *))avr_free_mem);
+	d->mem = NULL;
+    for(i=0;i<sizeof(d->op)/sizeof(d->op[0]);i++)
+    {
+    	if (d->op[i] != NULL)
+    	{
+    		avr_free_opcode(d->op[i]);
+    		d->op[i] = NULL;
+    	}
+    }
+	free(d);
+}
 
 AVRPART * locate_part(LISTID parts, char * partdesc)
 {
@@ -434,6 +540,27 @@ AVRPART * locate_part_by_avr910_devcode(LISTID parts, int devcode)
   return NULL;
 }
 
+AVRPART * locate_part_by_signature(LISTID parts, unsigned char * sig,
+                                   int sigsize)
+{
+  LNODEID ln1;
+  AVRPART * p = NULL;
+  int i;
+
+  if (sigsize == 3) {
+    for (ln1=lfirst(parts); ln1; ln1=lnext(ln1)) {
+      p = ldata(ln1);
+      for (i=0; i<3; i++)
+        if (p->signature[i] != sig[i])
+          break;
+      if (i == 3)
+        return p;
+    }
+  }
+
+  return NULL;
+}
+
 /*
  * Iterate over the list of avrparts given as "avrparts", and
  * call the callback function cb for each entry found.  cb is being
@@ -455,6 +582,24 @@ void walk_avrparts(LISTID avrparts, walk_avrparts_cb cb, void *cookie)
   }
 }
 
+/*
+ * Compare function to sort the list of programmers
+ */
+static int sort_avrparts_compare(AVRPART * p1,AVRPART * p2)
+{
+  if(p1 == NULL || p2 == NULL) {
+    return 0;
+  }
+  return strncasecmp(p1->desc,p2->desc,AVR_DESCLEN);
+}
+
+/*
+ * Sort the list of programmers given as "programmers"
+ */
+void sort_avrparts(LISTID avrparts)
+{
+  lsort(avrparts,(int (*)(void*, void*)) sort_avrparts_compare);
+}
 
 
 static char * reset_disp_str(int r)
@@ -463,18 +608,6 @@ static char * reset_disp_str(int r)
     case RESET_DEDICATED : return "dedicated";
     case RESET_IO        : return "possible i/o";
     default              : return "<invalid>";
-  }
-}
-
-
-static char * pin_name(int pinno)
-{
-  switch (pinno) {
-    case PIN_AVR_RESET : return "RESET";
-    case PIN_AVR_MISO  : return "MISO";
-    case PIN_AVR_MOSI  : return "MOSI";
-    case PIN_AVR_SCK   : return "SCK";
-    default : return "<unknown>";
   }
 }
 
@@ -509,7 +642,7 @@ void avr_display(FILE * f, AVRPART * p, const char * prefix, int verbose)
           prefix, p->pagel,
           prefix, p->bs2,
           prefix, reset_disp_str(p->reset_disposition),
-          prefix, pin_name(p->retry_pulse),
+          prefix, avr_pin_name(p->retry_pulse),
           prefix, (p->flags & AVRPART_SERIALOK) ? "yes" : "no",
           prefix, (p->flags & AVRPART_PARALLELOK) ?
             ((p->flags & AVRPART_PSEUDOPARALLEL) ? "psuedo" : "yes") : "no",

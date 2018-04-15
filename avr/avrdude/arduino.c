@@ -13,11 +13,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: arduino.c 874 2009-11-02 23:52:52Z mludvig $ */
+/* $Id: arduino.c 1321 2014-06-13 20:07:40Z awachtler $ */
 
 /*
  * avrdude interface for Arduino programmer
@@ -33,10 +32,10 @@
 #include <unistd.h>
 
 #include "avrdude.h"
-#include "pgm.h"
+#include "libavrdude.h"
 #include "stk500_private.h"
 #include "stk500.h"
-#include "serial.h"
+#include "arduino.h"
 
 /* read signature bytes - arduino version */
 static int arduino_read_sig_bytes(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m)
@@ -46,7 +45,7 @@ static int arduino_read_sig_bytes(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m)
   /* Signature byte reads are always 3 bytes. */
 
   if (m->size < 3) {
-    fprintf(stderr, "%s: memsize too small for sig byte read", progname);
+    avrdude_message(MSG_INFO, "%s: memsize too small for sig byte read", progname);
     return -1;
   }
 
@@ -58,21 +57,19 @@ static int arduino_read_sig_bytes(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m)
   if (serial_recv(&pgm->fd, buf, 5) < 0)
     return -1;
   if (buf[0] == Resp_STK_NOSYNC) {
-    fprintf(stderr, "%s: stk500_cmd(): programmer is out of sync\n",
+    avrdude_message(MSG_INFO, "%s: stk500_cmd(): programmer is out of sync\n",
 			progname);
 	return -1;
   } else if (buf[0] != Resp_STK_INSYNC) {
-    fprintf(stderr,
-			"\n%s: arduino_read_sig_bytes(): (a) protocol error, "
-			"expect=0x%02x, resp=0x%02x\n",
-			progname, Resp_STK_INSYNC, buf[0]);
+    avrdude_message(MSG_INFO, "\n%s: arduino_read_sig_bytes(): (a) protocol error, "
+                    "expect=0x%02x, resp=0x%02x\n",
+                    progname, Resp_STK_INSYNC, buf[0]);
 	return -2;
   }
   if (buf[4] != Resp_STK_OK) {
-    fprintf(stderr,
-			"\n%s: arduino_read_sig_bytes(): (a) protocol error, "
-			"expect=0x%02x, resp=0x%02x\n",
-			progname, Resp_STK_OK, buf[4]);
+    avrdude_message(MSG_INFO, "\n%s: arduino_read_sig_bytes(): (a) protocol error, "
+                    "expect=0x%02x, resp=0x%02x\n",
+                    progname, Resp_STK_OK, buf[4]);
     return -3;
   }
 
@@ -85,13 +82,17 @@ static int arduino_read_sig_bytes(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m)
 
 static int arduino_open(PROGRAMMER * pgm, char * port)
 {
+  union pinfo pinfo;
   strcpy(pgm->port, port);
-  serial_open(port, pgm->baudrate? pgm->baudrate: 115200, &pgm->fd);
+  pinfo.baud = pgm->baudrate? pgm->baudrate: 115200;
+  if (serial_open(port, pinfo, &pgm->fd)==-1) {
+    return -1;
+  }
 
   /* Clear DTR and RTS to unload the RESET capacitor 
    * (for example in Arduino) */
   serial_set_dtr_rts(&pgm->fd, 0);
-  usleep(50*1000);
+  usleep(250*1000);
   /* Set DTR and RTS back to high */
   serial_set_dtr_rts(&pgm->fd, 1);
   usleep(50*1000);
@@ -114,9 +115,11 @@ static void arduino_close(PROGRAMMER * pgm)
   pgm->fd.ifd = -1;
 }
 
+const char arduino_desc[] = "Arduino programmer";
+
 void arduino_initpgm(PROGRAMMER * pgm)
 {
-	/* This is mostly a STK500; just the signature is read
+  /* This is mostly a STK500; just the signature is read
      differently than on real STK500v1 
      and the DTR signal is set when opening the serial port
      for the Auto-Reset feature */

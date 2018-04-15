@@ -1,10 +1,348 @@
-$Id: NEWS 931 2010-01-19 10:34:39Z joerg_wunsch $
+$Id: NEWS 1376 2016-02-16 21:28:52Z joerg_wunsch $
 
 Approximate change log for AVRDUDE by version.
 
 (For more detailed changes, see the ChangeLog file.)
 
 ----------------------------------------------------------------------
+Version 6.3:
+
+  * Major changes compared to the previous version:
+
+    - Backout of
+      patch #8380: adds 500k 1M 2M baud to ser_posix.c
+      It broke the functionality in too many situations
+      (bug #46610/46483)
+
+  * New devices supported:
+
+    - ATmega48PB, ATmega88PB, ATmega168PB
+    - ATtiny28 (HVPP-only device)
+
+  * New programmers supported:
+
+    - Atmel mEDBG: xplainedmini, xplainedmini_dw
+
+  * Bugfixes
+
+    - bug #46610: Floating point exception (core dumped) arch linux rpi2
+    - bug #46483: version 6.2. ser_open(): can't set attributes for device
+    - patch #8435: Implementing mEDBG CMSIS-DAP protocol
+    - patch #8735: ATtiny28 support in avrdude.conf
+    - patch #8896: Silence cppcheck warnings in 6.2 code
+    - patch #8895: Spelling in 6.2 code
+
+
+Version 6.2:
+
+  * Major changes compared to the previous version:
+
+    - The stk500v2 implementation now uses its own higher-level
+      command implementation for byte-wide access, rather than the
+      historic SPI_MULTI command where all the low-level ISP
+      implementation had to be assembled manually inside AVRDUDE.  In
+      addition to the traditional STK500, this implementation is also
+      used by all the more modern Atmel tools (AVRISPmkII, JTAGICEmkII
+      in ISP mode, STK600 in ISP mode).
+
+    - The -B option can be suffixed with "Hz", "kHz", or "MHz", in
+      order to specify a bitclock frequency rather than period.
+
+    - Print part id after signature (patch #8440 )
+
+    - buspirate: Also support "cpufreq" extended parameter
+      in binary mode (patch #8504 )
+
+    - The "-P net:" syntax (forwarding of serial data over TCP) is now
+      also implemented for Win32 systems.
+
+    - Allow for arbitrary serial baudrates under Linux (OSX and *BSD
+      could already handle it).
+
+
+  * New devices supported:
+    - AT90PWM216 (bug #42310: New part description for AT90PWM216)
+    - ATmega32M1 (patch #7694 Add support for the atmega32m1)
+
+  * New programmers supported:
+    - ftdi_syncbb
+      + uncompatino, ttl232r (FTDI TTL232R-5V with ICSP adapter)
+        (patch #8529 2 more ftdi_syncbb devices)
+
+  * Bugfixes
+    - bug #45727: Wrong atmega8u2 flash parameters
+    - bug #46020: Add TIAO TUMPA to the conf file.
+    - bug #46021: Please add read in the memory lock section of ATtiny85
+    - bug #42337 avrdude.conf updates for UM232H/CM232H
+    - bug #42056: double free or corruption triggered at exit
+    - bug #42158: Linux GPIO - Source Typo
+    - bug #42516 spelling-error-in-binary
+    - patch #8419 fix ftdi_syncbb hang with libftdi 1
+    - bug #43002 usbasp debug output typo
+    - patch #8511 Fix reset on FT245R
+    - bug #40142 Floating point exception on Ubuntu 10.04
+    - bug #22248: Read efuse error (partial fix)
+    - bug #42267: jtag3isp fails to read lock and fuse bytes directly
+                  after changing lock byte
+    - bug #41561: AVRDUDE 6.0.1/USBasp doesn't write first bytes of
+                  flash page
+    - bug #43078: AVRDUDE crashes after sucessfully reading/writing eeprom
+    - bug #43137: Writing and reading incorrect pages when using jtagicemkI
+    - bug #40870: config nitpick: ATtiny25/45/85 have 1 calibration byte not 2
+    - bug #42908: no external reset at JTAGICE3
+    - patch #8437: [PATCH] Serial-over-ethernet for Win32
+    - bug #44717: avrdude creates empty flash dump
+
+  * Internals:
+    - Removing exit calls from config parser
+    - bug #42662 clang warnings under FreeBSD 10.x
+
+Version 6.1:
+
+  * Major changes compared to the previous version:
+    - Atmel EDBG protocol support added (JTAGICE3, XplainedPro, Atmel-ICE)
+
+  * New programmers supported:
+    - Atmel DFU, using FLIP protocol version 1 (AT90USB and ATmega*U* devices),
+      or version 2 (Xmega devices)
+    - Atmel-ICE (ARM/AVR), JTAG, PDI, debugWIRE, ISP modi
+
+  * Bugfixes
+    - bug #40055: AVRDUDE segfaults when writing eeprom
+    - bug #40085: Typo fix in fuses report (for 6.1-svn-20130917)
+    - bug #40782: Verify errors for object size > 16 k on x32e5 due
+      to typo in avrdude.conf
+    - bug #40817: Elf file support (possibly) not working on 6.0.1 windows build
+    - bug #40897: AT Mega2560 not correctly programmed with stk500(v1)
+      ISP (solution patch)
+    - bug #41357: OS X: Avrdude messes with the usb stack?
+    - bug #41402: dfu.c missing include <stdint.h>
+    - patch #7896: DFU FLIPv2 programming support
+    - patch #XXXX: xxx
+
+  * Internals:
+    - (Some) programmers can take a list of USB PIDs now.
+
+
+Version 6.0:
+
+  * Major changes compared to the previous version:
+
+    - Programmer types in configuration file are no longer keywords but
+      specified as string.
+
+      So you need to change 'type = XYZ;' to 'type = "XYZ";' in own
+      config files.  (internal: The parser does not need to know all
+      programmer types now, new programmers will update only the table
+      in pgm_type.c.)
+
+    - The erase cycle counter (formerly options -y / -Y) has been
+      removed.
+
+    - Specifying a -U option without a memory type (short form of
+      option argument list) now defaults to "application" memory for
+      Xmega devices, and "flash" for everything else.  This ensures
+      the Xmega bootloader is not accidentally touched.
+
+    - For programmers that support it, the default erase method is a
+      page erase now, rather than a chip erase (Xmega only).
+
+    - Keep track of input file contents
+
+      Memory segments are being tracked to remember whether they've
+      been actually read from a file.  Only segments that came from a
+      file are being programmed into the device, or considered for
+      verification.  This drastically improves handling speed for
+      sparse files (e.g. files that have a second bootloader segment),
+      and it ensures the device contents is actually compared for
+      everything mentioned in the file (even in case the file has
+      large 0xFF blocks).
+
+    - The -U option now accepts ELF files as input files, and extracts
+      the appropriate section contents that matches the requested memory
+      region.  To enable this feature, the host system used for the
+      compilation must have a libelf around, including the respective
+      header files (i.e., package "libelf-devel" on many Linux systems).
+
+    - Programmers and parts lists
+
+      They are now sorted at output with '-c ?'/'-p ?'. (patch #7671:
+      Sorting programmers and parts lists for console output)
+
+      Programmers and parts lists in documentation generated from lists
+      mentioned above. (patch #7687: Autogenerating programmers and
+      parts lists for docs)
+
+      Output list of programmer types with '-c ?type', add list to
+      documentation
+
+    - Configuration files now accepts parent parts/programmers, parts
+      starting with '.' (eg. .xmega) are not included in output parts
+      list and can be used as abstract parents
+
+      (bug #34302: Feature request : device configuration with parent classes)
+      (patch #7688: Implement parent programmers feature)
+
+    - Additional config files which are read after default can be
+      specified on command line using '-C +filename'
+
+      (patch #7699 Read additional config files)
+
+    - "Safemode" can now be turned off by default from within a
+      configuration file (like ~/.avrduderc).
+
+    - The new option -l logfile allows to redirect diagnostic messages
+      to a logfile rather than stderr.  Useful to record debugging
+      traces, in particular in environments which do not offer
+      shell-style redirection functionality for standard streams.
+
+    - When leaving debugWIRE mode, immediately retry with ISP rather
+      than bailing out completely.
+
+    - The USBasp programmer implementation now supports detailed traces
+      with -vvv, and device communication traces with -vvvv.
+
+    - The "verbose" terminal mode command allows to query or modify the
+      verbosity level.
+
+  * New devices supported:
+    - ATmega48P (patch #7629 add support for atmega48p)
+    - AT90PWM316 (bug #21797: AT90PWM316: New part description)
+    - ATxmega16D4, ATxmega32D4, ATxmega64D4, ATxmega128D4
+    - ATmega256RFR2, ATmega128RFR2, ATmega64RFR2, ATmega2564RFR2,
+      ATmega1284RFR2, ATmega644RFR2
+    - ATtiny1634
+    - ATxmega128A1U, ATxmega128A3U, ATxmega128A4U, ATxmega128B1,
+      ATxmega128B3, ATxmega128C3, ATxmega128D3, ATxmega16A4U,
+      ATxmega16C4, ATxmega192A3U, ATxmega192C3, ATxmega192D3,
+      ATxmega256A3BU, ATxmega256A3U, ATxmega256C3, ATxmega256D3,
+      ATxmega32A4U, ATxmega32C4, ATxmega384C3, ATxmega384D3,
+      ATxmega64A1U, ATxmega64A3U, ATxmega64A4U, ATxmega64B1,
+      ATxmega64B3, ATxmega64C3, ATxmega64D3
+    - ATtiny43U
+    - ATmega406
+    - ATxmega8E5, ATxmega16E5, ATxmega32E5
+    - ATtiny20, ATtiny40
+
+
+  * New programmers supported:
+    - linuxgpio
+      + any (embedded) Linux system with 4 GPIOs available can be used
+        as a programmer with little or no additional hardware.
+
+    - avrftdi
+      + o-link (patch #7672 adding support for O-Link (FTDI based
+        JTAG) as programmer)
+      + 4232h (patch #7715 FT4232H support)
+    - TPI support
+      + openmoko (bug #37977 Support for Openmoko Debug Board)
+
+    - usbasp
+      + nibobee (previously specified as '-c usbasp -P nibobee)
+      + usbasp-clone (same as usbasp but ignores vendor and product
+        string, checks only vid/pid)
+
+    - ftdi_syncbb (new type for synchronous bitbanging with ft232r/ft245r)
+      + ft245r (FT245R Synchronous BitBang, miso = D1, sck = D0, mosi
+        = D2, reset = D4)
+      + ft232r (FT232R Synchronous BitBang, miso = RxD, sck = RTS,
+        mosi = TxD, reset = DTR)
+      + bwmega (BitWizard ftdi_atmega builtin programmer, miso = DSR,
+        sck = DCD, mosi = CTS, reset = RI)
+      + arduino-ft232r (Arduino: FT232R connected to ISP, miso = CTS
+        X3(1), sck = DSR X3(2), mosi = DCD X3(3), reset = RI X3(4))
+      + diecimila (alias for arduino-ft232r)
+
+    - pickit2
+
+    - Atmel JTAGICE3
+
+    - buspirate_bb (TPI programming using the BusPirate in bitbang mode)
+
+  * Bugfixes
+      - bug #34027: avrdude AT90S1200 Problem
+      - bug #34518: loading intel hex files > 64k using record-type 4
+      - patch #7667: Minor memory handling fixes
+      - patch #7680: Fixing timeout problem in ser_recv in ser_win32.c
+      - patch #7693: Fix config file atmel URLs (+ URLs in
+        avrdude.texi and avrpart.h)
+      - bug #21663: AT90PWM efuse incorrect, bug #30438: efuse bits
+        written as 0 on at90pwmxx parts
+      - bug #35261: avrftdi uses wrong interface in avrftdi_paged_(write|load)
+      - patch #7437 modifications to Bus Pirate module
+      - patch #7686 Updating buspirate ascii mode to current firmware,
+        use AUX as clock generator, and setting of serial receive
+        timeout
+      - bug #34768 Proposition: Change the name of the AVR32 devices
+      - patch #7718: Merge global data of avrftdi in a private data
+        structure
+      - bug #35208: avrdude 5.11 on freebsd 8.2-STABLE does not reset
+        Arduino Uno properly
+      - bug #34518: loading intel hex files > 64k using record-type 4
+        (Extended Linear Address Record)
+      - bug #34027: avrdude AT90S1200 Problem
+      - bug #30451: Accessing some Xmega memory sections gives not
+        supported error
+      - bug #28744: Can't load bootloader to xmega128a1
+      - bug #29019: pagel/bs2 warning when uploading using stk500 to xmega
+      - bug #30756: When setting SUT to 64ms on XMEGA, avrdude doesn't
+        read device signature
+      - bug #37265: wrong page sizes for XMega64xx in avrdude.conf
+      - bug #37942: Latest SVN can't program in dragon_jtag mode
+      - patch #7876 JTAGICE mkII fails to connect to attiny if debugwire
+        is enabled AND target has a very slow clock
+      - bug #39893: Verification failure with AVRISPmkII and Xmega
+      - bug #38713: Compilation of the documentation breaks with texinfo-5
+      - bug #38023: avrdude doesn't return an error code when attempting
+        to upload an invalid Intel HEX file
+      - bug #39794: warnings when building avrdude 6.0rc1 under CentOS 6.4
+      - bug #35800: Compilation error on certain systems if parport is disabled
+      - bug #38307: Can't write usersig of an xmega256a3
+      - bug #38580: Current svn head, xmega and fuses, all fuses tied to fuse0
+      - bug #39691: Buffer overrun when reading EEPROM byte with JTAGICE3
+      - bug #38951: AVR109 use byte offset instead of word offset
+      - patch #7769: Write flash fails for AVR910 programmers
+      - bug #38732: Support for ATtiny1634
+      - bug #36901: flashing Atmega32U4 EEPROM produces garbage on chip
+      - bug #28344: chip_erase_delay too short for ATmega324P, 644, 644P, and 1284P
+      - bug #34277: avrdude reads wrong byte order if using avr911 (aka butterfly)
+      - bug #35456: The progress bar for STK500V2 programmer is "wrong".
+      - patch #5708: avrdude should make 10 synchronization attempts instead of just one
+      - patch #7606: ATtiny43u support
+      - patch #7657: Add ATmega406 support for avrdude using DRAGON + JTAG
+      - bug #35474: Feature request: print fuse values in safemode output.
+      - patch #7710: usb_libusb: Check VID/PID before opening device
+      - [no-id]: Fix SCK period adjustment for STK500v2
+      - bug #40040: Support for ATtiny20 and ATtiny40
+
+  * Internals:
+
+    - Restructuring and compacting programmer definition part of
+      grammar for config file.
+    - Cleanup of parser code, removing unused definitions/
+      functions. Using yylex_destroy if available.
+    - Fixed some more memory leaks, added cleanup code at program exit
+      (to minimize the number of non-freed memory blocks reported by
+      valgrind)
+    - Fixed some findings reported by cppcheck.
+
+Version 5.11:
+
+  * New devices supported:
+      - ATmega88P/168P
+      - ATmega8U2/16U2/32U2
+      - ATtiny4313
+
+  * New programmers supported:
+      - TPI programming through bitbang programmers (both, serial
+        and parallel ones)
+      - FT2232 (and relatives) based programmers (MPSSE bitbang mode)
+      - Wiring environment (http://wiring.org.co/)
+      - butterfly-style bootloader of the Mikrokopter.de device
+
+  * Bugfixes
+
+
 Version 5.10:
 
   * Bugfixes

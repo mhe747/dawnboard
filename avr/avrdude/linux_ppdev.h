@@ -13,11 +13,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: linux_ppdev.h 557 2005-11-29 20:20:22Z joerg_wunsch $ */
+/* $Id: linux_ppdev.h 1325 2014-06-23 20:20:38Z rliebscher $ */
 
 #ifndef linux_ppdev_h
 #define linux_ppdev_h
@@ -25,24 +24,25 @@
 #define OBSOLETE__IOW _IOW
 
 #include <sys/ioctl.h>
+#ifdef HAVE_PARPORT
 #include <linux/parport.h>
 #include <linux/ppdev.h>
+#endif
 
 #include <stdlib.h>
 
 #define ppi_claim(fd)                                        \
   if (ioctl(fd, PPCLAIM)) {                                  \
-    fprintf(stderr, "%s: can't claim device \"%s\": %s\n\n", \
+    avrdude_message(MSG_INFO, "%s: can't claim device \"%s\": %s\n\n", \
             progname, port, strerror(errno));                \
     close(fd);                                               \
-    exit(1);                                                 \
+    return;                                                  \
   }
 
 #define ppi_release(fd)                                      \
   if (ioctl(fd, PPRELEASE)) {                                \
-    fprintf(stderr, "%s: can't release device: %s\n\n",      \
+    avrdude_message(MSG_INFO, "%s: can't release device: %s\n\n", \
             progname, strerror(errno));                      \
-    exit(1);                                                 \
   }
 
 #define DO_PPI_READ(fd, reg, valp) \

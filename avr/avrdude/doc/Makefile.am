@@ -13,25 +13,33 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
 #
-# $Id: Makefile.am 530 2005-09-22 17:51:59Z bdean $
+# $Id: Makefile.am 1107 2012-11-20 14:03:50Z joerg_wunsch $
 #
+
+GENERATED_TEXINFOS = \
+	$(builddir)/programmers.texi \
+	$(builddir)/parts.texi \
+	$(builddir)/programmer_types.texi \
+	$(builddir)/version.texi
 
 CLEANFILES = \
-	version.texi \
-	stamp-vti
+	$(GENERATED_TEXINFOS) \
+	$(builddir)/stamp-vti
 
 info_TEXINFOS = avrdude.texi
+
+EXTRA_DIST = \
+	parts_comments.txt
 
 all-local: info html ps pdf
 
 html: avrdude-html/avrdude.html
 
-avrdude-html/avrdude.html: $(srcdir)/$(info_TEXINFOS)
+avrdude-html/avrdude.html: $(srcdir)/$(info_TEXINFOS) $(GENERATED_TEXINFOS)
 	texi2html -split_node $(srcdir)/$(info_TEXINFOS)
 	if [ -e ./avrdude.html -o -e ./avrdude_1.html ]; then \
 	 mkdir -p avrdude-html ; \
@@ -39,6 +47,32 @@ avrdude-html/avrdude.html: $(srcdir)/$(info_TEXINFOS)
 	else \
 	 mv -f avrdude avrdude-html; \
 	fi;
+
+$(builddir)/avrdude.info: $(GENERATED_TEXINFOS)
+$(builddir)/avrdude.dvi: $(GENERATED_TEXINFOS)
+$(builddir)/avrdude.pdf: $(GENERATED_TEXINFOS)
+
+# if it does not exist make this first
+../avrdude$(EXEEXT):
+	$(MAKE) -C .. avrdude$(EXEEXT)
+
+$(builddir)/programmers.texi: ../avrdude$(EXEEXT) ../avrdude.conf Makefile
+	../avrdude$(EXEEXT) -C ../avrdude.conf -c \? 2>&1 \
+	| $(AWK) '$$2 ~ /^=$$/ {printf("@item @code{%s} @tab %s\n",$$1,gensub("[^=]+=[ \t]*","",1))}' \
+	| sed "s# *,\? *<\?\(http://[^ \t>]*\)>\?#,@*\n@url{\1}#g" \
+	>programmers.texi
+
+$(builddir)/programmer_types.texi: ../avrdude$(EXEEXT) ../avrdude.conf Makefile
+	../avrdude$(EXEEXT) -C ../avrdude.conf -c \?type 2>&1 \
+	| $(AWK) '$$2 ~ /^=$$/ {printf("@item @code{%s} @tab %s\n",$$1,gensub("[^=]+=[ \t]*","",1))}' \
+	| sed "s#<\?\(http://[^ \t,>]*\)>\?#@url{\1}#g" \
+	>programmer_types.texi
+
+$(builddir)/parts.texi: ../avrdude$(EXEEXT) ../avrdude.conf parts_comments.txt Makefile
+	../avrdude$(EXEEXT) -C ../avrdude.conf -p \? 2>&1 \
+	| $(AWK) '$$2 ~ /^=$$/ {printf("@item @code{%s} @tab %s\n",$$1,$$3)}' \
+	| sed -e "`sed 's:\([^ \t]*\)[ \t]*\(.*\):s/\1$$/\1 \2/g:g' <parts_comments.txt`" \
+	>parts.texi
 
 clean-local:
 	rm -rf avrdude-html *.info

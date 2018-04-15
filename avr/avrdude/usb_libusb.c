@@ -14,11 +14,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: usb_libusb.c 880 2009-11-29 20:19:15Z dhoerl $ */
+/* $Id: usb_libusb.c 1369 2016-02-15 19:58:45Z joerg_wunsch $ */
 
 /*
  * USB interface via libusb for avrdude.
@@ -36,10 +35,17 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
-#include <usb.h>
+#if defined(HAVE_USB_H)
+#  include <usb.h>
+#elif defined(HAVE_LUSB0_USB_H)
+#  include <lusb0_usb.h>
+#else
+#  error "libusb needs either <usb.h> or <lusb0_usb.h>"
+#endif
 
 #include "avrdude.h"
-#include "serial.h"
+#include "libavrdude.h"
+
 #include "usbdevs.h"
 
 #if defined(WIN32NATIVE)
@@ -47,7 +53,7 @@
 #  undef interface
 #endif
 
-static char usbbuf[USBDEV_MAX_XFER];
+static char usbbuf[USBDEV_MAX_XFER_3];
 static int buflen = -1, bufptr;
 
 static int usb_interface;
@@ -56,7 +62,7 @@ static int usb_interface;
  * The "baud" parameter is meaningless for USB devices, so we reuse it
  * to pass the desired USB device ID.
  */
-static void usbdev_open(char * port, long baud, union filedescriptor *fd)
+static int usbdev_open(char * port, union pinfo pinfo, union filedescriptor *fd)
 {
   char string[256];
   char product[256];
@@ -65,6 +71,7 @@ static void usbdev_open(char * port, long baud, union filedescriptor *fd)
   usb_dev_handle *udev;
   char *serno, *cp2;
   int i;
+  int iface;
   size_t x;
 
   /*
@@ -91,12 +98,14 @@ static void usbdev_open(char * port, long baud, union filedescriptor *fd)
 
       if (strlen(serno) > 12)
 	{
-	  fprintf(stderr,
-		  "%s: usbdev_open(): invalid serial number \"%s\"\n",
-		  progname, serno);
-	  exit(1);
+	  avrdude_message(MSG_INFO, "%s: usbdev_open(): invalid serial number \"%s\"\n",
+                          progname, serno);
+	  return -1;
 	}
     }
+
+  if (fd->usb.max_xfer == 0)
+    fd->usb.max_xfer = USBDEV_MAX_XFER_MKII;
 
   usb_init();
 
@@ -107,20 +116,19 @@ static void usbdev_open(char * port, long baud, union filedescriptor *fd)
     {
       for (dev = bus->devices; dev; dev = dev->next)
 	{
-	  udev = usb_open(dev);
-	  if (udev)
+	  if (dev->descriptor.idVendor == pinfo.usbinfo.vid &&
+	      dev->descriptor.idProduct == pinfo.usbinfo.pid)
 	    {
-	      if (dev->descriptor.idVendor == USB_VENDOR_ATMEL &&
-		  dev->descriptor.idProduct == (unsigned short)baud)
+	      udev = usb_open(dev);
+	      if (udev)
 		{
 		  /* yeah, we found something */
 		  if (usb_get_string_simple(udev,
 					    dev->descriptor.iSerialNumber,
 					    string, sizeof(string)) < 0)
 		    {
-		      fprintf(stderr,
-			      "%s: usb_open(): cannot read serial number \"%s\"\n",
-			      progname, usb_strerror());
+		      avrdude_message(MSG_INFO, "%s: usb_open(): cannot read serial number \"%s\"\n",
+                                      progname, usb_strerror());
 		      /*
 		       * On some systems, libusb appears to have
 		       * problems sending control messages.  Catch the
@@ -129,7 +137,7 @@ static void usbdev_open(char * port, long baud, union filedescriptor *fd)
 		       * continue anyway.
 		       */
 		      if (serno != NULL)
-			exit(1); /* no chance */
+			return -1; /* no chance */
 		      else
 			strcpy(string, "[unknown]");
 		    }
@@ -138,16 +146,35 @@ static void usbdev_open(char * port, long baud, union filedescriptor *fd)
 					    dev->descriptor.iProduct,
 					    product, sizeof(product)) < 0)
 		    {
-		      fprintf(stderr,
-			      "%s: usb_open(): cannot read product name \"%s\"\n",
-			      progname, usb_strerror());
+		      avrdude_message(MSG_INFO, "%s: usb_open(): cannot read product name \"%s\"\n",
+                                      progname, usb_strerror());
 		      strcpy(product, "[unnamed product]");
 		    }
+		  /*
+		   * The CMSIS-DAP specification mandates the string
+		   * "CMSIS-DAP" must be present somewhere in the
+		   * product name string for a device compliant to
+		   * that protocol.  Use this for the decisision
+		   * whether we have to search for a HID interface
+		   * below.
+		   */
+		  if(strstr(product, "CMSIS-DAP") != NULL)
+		  {
+		      pinfo.usbinfo.flags |= PINFO_FL_USEHID;
+		      /* The JTAGICE3 running the CMSIS-DAP firmware doesn't
+		       * use a separate endpoint for event reception. */
+		      fd->usb.eep = 0;
+		  }
 
-		  if (verbose)
-		    fprintf(stderr,
-			    "%s: usbdev_open(): Found %s, serno: %s\n",
-			    progname, product, string);
+		  if(strstr(product, "mEDBG") != NULL)
+		  {
+		      /* The AVR Xplained Mini uses different endpoints. */
+		      fd->usb.rep = 0x81;
+		      fd->usb.wep = 0x02;
+		  }
+
+                  avrdude_message(MSG_NOTICE, "%s: usbdev_open(): Found %s, serno: %s\n",
+                                    progname, product, string);
 		  if (serno != NULL)
 		    {
 		      /*
@@ -158,10 +185,8 @@ static void usbdev_open(char * port, long baud, union filedescriptor *fd)
 		      x = strlen(string) - strlen(serno);
 		      if (strcasecmp(string + x, serno) != 0)
 			{
-			  if (verbose > 2)
-			    fprintf(stderr,
-				    "%s: usbdev_open(): serial number doesn't match\n",
-				    progname);
+                          avrdude_message(MSG_DEBUG, "%s: usbdev_open(): serial number doesn't match\n",
+                                            progname);
 			  usb_close(udev);
 			      continue;
 			}
@@ -169,77 +194,128 @@ static void usbdev_open(char * port, long baud, union filedescriptor *fd)
 
 		  if (dev->config == NULL)
 		    {
-		      fprintf(stderr,
-			      "%s: usbdev_open(): USB device has no configuration\n",
-			      progname);
+		      avrdude_message(MSG_INFO, "%s: usbdev_open(): USB device has no configuration\n",
+                                      progname);
 		      goto trynext;
 		    }
 
 		  if (usb_set_configuration(udev, dev->config[0].bConfigurationValue))
 		    {
-		      fprintf(stderr,
-			      "%s: usbdev_open(): error setting configuration %d: %s\n",
-			      progname, dev->config[0].bConfigurationValue,
-			      usb_strerror());
-		      goto trynext;
+		      avrdude_message(MSG_INFO, "%s: usbdev_open(): WARNING: failed to set configuration %d: %s\n",
+                                      progname, dev->config[0].bConfigurationValue,
+                                      usb_strerror());
+		      /* let's hope it has already been configured */
+		      // goto trynext;
 		    }
 
-		  usb_interface = dev->config[0].interface[0].altsetting[0].bInterfaceNumber;
-		  if (usb_claim_interface(udev, usb_interface))
+		  for (iface = 0; iface < dev->config[0].bNumInterfaces; iface++)
 		    {
-		      fprintf(stderr,
-			      "%s: usbdev_open(): error claiming interface %d: %s\n",
-			      progname, usb_interface, usb_strerror());
+		      usb_interface = dev->config[0].interface[iface].altsetting[0].bInterfaceNumber;
+#ifdef LIBUSB_HAS_GET_DRIVER_NP
+		      /*
+		       * Many Linux systems attach the usbhid driver
+		       * by default to any HID-class device.  On
+		       * those, the driver needs to be detached before
+		       * we can claim the interface.
+		       */
+		      (void)usb_detach_kernel_driver_np(udev, usb_interface);
+#endif
+		      if (usb_claim_interface(udev, usb_interface))
+			{
+			  avrdude_message(MSG_INFO, "%s: usbdev_open(): error claiming interface %d: %s\n",
+                                          progname, usb_interface, usb_strerror());
+			}
+		      else
+			{
+			  if (pinfo.usbinfo.flags & PINFO_FL_USEHID)
+			    {
+			      /* only consider an interface that is of class HID */
+			      if (dev->config[0].interface[iface].altsetting[0].bInterfaceClass !=
+				  USB_CLASS_HID)
+				continue;
+			      fd->usb.use_interrupt_xfer = 1;
+			    }
+			  break;
+			}
+		    }
+		  if (iface == dev->config[0].bNumInterfaces)
+		    {
+		      avrdude_message(MSG_INFO, "%s: usbdev_open(): no usable interface found\n",
+                                      progname);
 		      goto trynext;
 		    }
 
 		  fd->usb.handle = udev;
-		  fd->usb.ep = -1;
-		  /* Try finding out what our read endpoint is. */
-		  for (i = 0; i < dev->config[0].interface[0].altsetting[0].bNumEndpoints; i++)
+		  if (fd->usb.rep == 0)
 		    {
-		      int possible_ep = dev->config[0].interface[0].altsetting[0].
-		      endpoint[i].bEndpointAddress;
-
-		      if ((possible_ep & USB_ENDPOINT_DIR_MASK) != 0)
+		      /* Try finding out what our read endpoint is. */
+		      for (i = 0; i < dev->config[0].interface[iface].altsetting[0].bNumEndpoints; i++)
 			{
-			  if (verbose > 1)
+			  int possible_ep = dev->config[0].interface[iface].altsetting[0].
+			  endpoint[i].bEndpointAddress;
+
+			  if ((possible_ep & USB_ENDPOINT_DIR_MASK) != 0)
 			    {
-			      fprintf(stderr,
-				      "%s: usbdev_open(): using read endpoint 0x%02x\n",
-				      progname, possible_ep);
+                              avrdude_message(MSG_NOTICE2, "%s: usbdev_open(): using read endpoint 0x%02x\n",
+                                                  progname, possible_ep);
+			      fd->usb.rep = possible_ep;
+			      break;
 			    }
-			  fd->usb.ep = possible_ep;
-			  break;
+			}
+		      if (fd->usb.rep == 0)
+			{
+			  avrdude_message(MSG_INFO, "%s: usbdev_open(): cannot find a read endpoint, using 0x%02x\n",
+                                          progname, USBDEV_BULK_EP_READ_MKII);
+			  fd->usb.rep = USBDEV_BULK_EP_READ_MKII;
 			}
 		    }
-		  if (fd->usb.ep == -1)
+		  for (i = 0; i < dev->config[0].interface[iface].altsetting[0].bNumEndpoints; i++)
 		    {
-		      fprintf(stderr,
-			      "%s: usbdev_open(): cannot find a read endpoint, using 0x%02x\n",
-			      progname, USBDEV_BULK_EP_READ);
-		      fd->usb.ep = USBDEV_BULK_EP_READ;
+		      if ((dev->config[0].interface[iface].altsetting[0].endpoint[i].bEndpointAddress == fd->usb.rep ||
+			   dev->config[0].interface[iface].altsetting[0].endpoint[i].bEndpointAddress == fd->usb.wep) &&
+			  dev->config[0].interface[iface].altsetting[0].endpoint[i].wMaxPacketSize < fd->usb.max_xfer)
+			{
+                          avrdude_message(MSG_NOTICE, "%s: max packet size expected %d, but found %d due to EP 0x%02x's wMaxPacketSize\n",
+                                            progname,
+                                            fd->usb.max_xfer,
+                                            dev->config[0].interface[iface].altsetting[0].endpoint[i].wMaxPacketSize,
+                                            dev->config[0].interface[iface].altsetting[0].endpoint[i].bEndpointAddress);
+			  fd->usb.max_xfer = dev->config[0].interface[iface].altsetting[0].endpoint[i].wMaxPacketSize;
+			}
 		    }
-                  return;
+		  if (pinfo.usbinfo.flags & PINFO_FL_USEHID)
+		    {
+		      if (usb_control_msg(udev, 0x21, 0x0a /* SET_IDLE */, 0, 0, NULL, 0, 100) < 0)
+			avrdude_message(MSG_INFO, "%s: usbdev_open(): SET_IDLE failed\n", progname);
+		    }
+		  return 0;
+		  trynext:
+		  usb_close(udev);
 		}
-	      trynext:
-	      usb_close(udev);
+	      else
+		avrdude_message(MSG_INFO, "%s: usbdev_open(): cannot open device: %s\n",
+                                progname, usb_strerror());
 	    }
 	}
     }
 
-  fprintf(stderr, "%s: usbdev_open(): did not find any%s USB device \"%s\"\n",
-	  progname, serno? " (matching)": "", port);
-  exit(1);
+  if ((pinfo.usbinfo.flags & PINFO_FL_SILENT) == 0)
+      avrdude_message(MSG_NOTICE, "%s: usbdev_open(): did not find any%s USB device \"%s\" (0x%04x:0x%04x)\n",
+	      progname, serno? " (matching)": "", port,
+	      (unsigned)pinfo.usbinfo.vid, (unsigned)pinfo.usbinfo.pid);
+  return -1;
 }
 
 static void usbdev_close(union filedescriptor *fd)
 {
   usb_dev_handle *udev = (usb_dev_handle *)fd->usb.handle;
 
+  if (udev == NULL)
+    return;
+
   (void)usb_release_interface(udev, usb_interface);
 
-#if !( defined(__FreeBSD__) ) // || ( defined(__APPLE__) && defined(__MACH__) ) )
+#if defined(__linux__)
   /*
    * Without this reset, the AVRISP mkII seems to stall the second
    * time we try to connect to it.  This is not necessary on
@@ -252,13 +328,16 @@ static void usbdev_close(union filedescriptor *fd)
 }
 
 
-static int usbdev_send(union filedescriptor *fd, unsigned char *bp, size_t mlen)
+static int usbdev_send(union filedescriptor *fd, const unsigned char *bp, size_t mlen)
 {
   usb_dev_handle *udev = (usb_dev_handle *)fd->usb.handle;
   int rv;
   int i = mlen;
-  unsigned char * p = bp;
+  const unsigned char * p = bp;
   int tx_size;
+
+  if (udev == NULL)
+    return -1;
 
   /*
    * Split the frame into multiple packets.  It's important to make
@@ -268,36 +347,39 @@ static int usbdev_send(union filedescriptor *fd, unsigned char *bp, size_t mlen)
    * 0.
    */
   do {
-    tx_size = (mlen < USBDEV_MAX_XFER)? mlen: USBDEV_MAX_XFER;
-    rv = usb_bulk_write(udev, USBDEV_BULK_EP_WRITE, (char *)bp, tx_size, 5000);
+    tx_size = (mlen < fd->usb.max_xfer)? mlen: fd->usb.max_xfer;
+    if (fd->usb.use_interrupt_xfer)
+      rv = usb_interrupt_write(udev, fd->usb.wep, (char *)bp, tx_size, 10000);
+    else
+      rv = usb_bulk_write(udev, fd->usb.wep, (char *)bp, tx_size, 10000);
     if (rv != tx_size)
     {
-        fprintf(stderr, "%s: usbdev_send(): wrote %d out of %d bytes, err = %s\n",
+        avrdude_message(MSG_INFO, "%s: usbdev_send(): wrote %d out of %d bytes, err = %s\n",
                 progname, rv, tx_size, usb_strerror());
         return -1;
     }
     bp += tx_size;
     mlen -= tx_size;
-  } while (tx_size == USBDEV_MAX_XFER);
+  } while (mlen > 0);
 
   if (verbose > 3)
   {
-      fprintf(stderr, "%s: Sent: ", progname);
+      avrdude_message(MSG_TRACE, "%s: Sent: ", progname);
 
       while (i) {
         unsigned char c = *p;
         if (isprint(c)) {
-          fprintf(stderr, "%c ", c);
+          avrdude_message(MSG_TRACE, "%c ", c);
         }
         else {
-          fprintf(stderr, ". ");
+          avrdude_message(MSG_TRACE, ". ");
         }
-        fprintf(stderr, "[%02x] ", c);
+        avrdude_message(MSG_TRACE, "[%02x] ", c);
 
         p++;
         i--;
       }
-      fprintf(stderr, "\n");
+      avrdude_message(MSG_TRACE, "\n");
   }
   return 0;
 }
@@ -311,16 +393,19 @@ static int usbdev_send(union filedescriptor *fd, unsigned char *bp, size_t mlen)
  * empty and more data are requested.
  */
 static int
-usb_fill_buf(usb_dev_handle *udev, int ep)
+usb_fill_buf(usb_dev_handle *udev, int maxsize, int ep, int use_interrupt_xfer)
 {
   int rv;
 
-  rv = usb_bulk_read(udev, ep, usbbuf, USBDEV_MAX_XFER, 5000);
+  if (use_interrupt_xfer)
+    rv = usb_interrupt_read(udev, ep, usbbuf, maxsize, 10000);
+  else
+    rv = usb_bulk_read(udev, ep, usbbuf, maxsize, 10000);
   if (rv < 0)
     {
-      if (verbose > 1)
-	fprintf(stderr, "%s: usb_fill_buf(): usb_bulk_read() error %s\n",
-		progname, usb_strerror());
+      avrdude_message(MSG_NOTICE2, "%s: usb_fill_buf(): usb_%s_read() error %s\n",
+		progname, (use_interrupt_xfer? "interrupt": "bulk"),
+		usb_strerror());
       return -1;
     }
 
@@ -336,11 +421,14 @@ static int usbdev_recv(union filedescriptor *fd, unsigned char *buf, size_t nbyt
   int i, amnt;
   unsigned char * p = buf;
 
+  if (udev == NULL)
+    return -1;
+
   for (i = 0; nbytes > 0;)
     {
       if (buflen <= bufptr)
 	{
-	  if (usb_fill_buf(udev, fd->usb.ep) < 0)
+	  if (usb_fill_buf(udev, fd->usb.max_xfer, fd->usb.rep, fd->usb.use_interrupt_xfer) < 0)
 	    return -1;
 	}
       amnt = buflen - bufptr > nbytes? nbytes: buflen - bufptr;
@@ -352,22 +440,22 @@ static int usbdev_recv(union filedescriptor *fd, unsigned char *buf, size_t nbyt
 
   if (verbose > 4)
   {
-      fprintf(stderr, "%s: Recv: ", progname);
+      avrdude_message(MSG_TRACE2, "%s: Recv: ", progname);
 
       while (i) {
         unsigned char c = *p;
         if (isprint(c)) {
-          fprintf(stderr, "%c ", c);
+          avrdude_message(MSG_TRACE2, "%c ", c);
         }
         else {
-          fprintf(stderr, ". ");
+          avrdude_message(MSG_TRACE2, ". ");
         }
-        fprintf(stderr, "[%02x] ", c);
+        avrdude_message(MSG_TRACE2, "[%02x] ", c);
 
         p++;
         i--;
       }
-      fprintf(stderr, "\n");
+      avrdude_message(MSG_TRACE2, "\n");
   }
 
   return 0;
@@ -389,16 +477,42 @@ static int usbdev_recv_frame(union filedescriptor *fd, unsigned char *buf, size_
   int i;
   unsigned char * p = buf;
 
+  if (udev == NULL)
+    return -1;
+
+  /* If there's an event EP, and it has data pending, return it first. */
+  if (fd->usb.eep != 0)
+  {
+      rv = usb_bulk_read(udev, fd->usb.eep, usbbuf,
+                         fd->usb.max_xfer, 1);
+      if (rv > 4)
+      {
+	  memcpy(buf, usbbuf, rv);
+	  n = rv;
+	  n |= USB_RECV_FLAG_EVENT;
+	  goto printout;
+      }
+      else if (rv > 0)
+      {
+	  avrdude_message(MSG_INFO, "Short event len = %d, ignored.\n", rv);
+	  /* fallthrough */
+      }
+  }
+
   n = 0;
   do
     {
-      rv = usb_bulk_read(udev, fd->usb.ep, usbbuf,
-			 USBDEV_MAX_XFER, 10000);
+      if (fd->usb.use_interrupt_xfer)
+	rv = usb_interrupt_read(udev, fd->usb.rep, usbbuf,
+				fd->usb.max_xfer, 10000);
+      else
+	rv = usb_bulk_read(udev, fd->usb.rep, usbbuf,
+			   fd->usb.max_xfer, 10000);
       if (rv < 0)
 	{
-	  if (verbose > 1)
-	    fprintf(stderr, "%s: usbdev_recv_frame(): usb_bulk_read(): %s\n",
-		    progname, usb_strerror());
+          avrdude_message(MSG_NOTICE2, "%s: usbdev_recv_frame(): usb_%s_read(): %s\n",
+		    progname, (fd->usb.use_interrupt_xfer? "interrupt": "bulk"),
+		    usb_strerror());
 	  return -1;
 	}
 
@@ -407,49 +521,67 @@ static int usbdev_recv_frame(union filedescriptor *fd, unsigned char *buf, size_
 	  memcpy (buf, usbbuf, rv);
 	  buf += rv;
 	}
+      else
+        {
+            return -1; // buffer overflow
+        }
 
       n += rv;
       nbytes -= rv;
     }
-  while (rv == USBDEV_MAX_XFER);
+  while (nbytes > 0 && rv == fd->usb.max_xfer);
 
-  if (nbytes < 0)
-    return -1;
+/*
+ this ends when the buffer is completly filled (nbytes=0) or was too small (nbytes< 0)
+ or a short packet is found.
+ however we cannot say for nbytes=0 that there was really a packet completed, 
+ we had to check the last rv value than for a short packet,
+ but what happens if the packet does not end with a short packet?
+ and what if the buffer is filled without the packet was completed?
 
+ preconditions:
+    expected packet is not a multiple of usb.max_xfer. (prevents further waiting)
+
+    expected packet is shorter than the provided buffer (so it cannot filled completely)
+    or buffer size is not a multiple of usb.max_xfer. (so it can clearly detected if the buffer was overflown.)
+*/
+
+  printout:
   if (verbose > 3)
   {
-      i = n;
-      fprintf(stderr, "%s: Recv: ", progname);
+      i = n & USB_RECV_LENGTH_MASK;
+      avrdude_message(MSG_TRACE, "%s: Recv: ", progname);
 
       while (i) {
         unsigned char c = *p;
         if (isprint(c)) {
-          fprintf(stderr, "%c ", c);
+          avrdude_message(MSG_TRACE, "%c ", c);
         }
         else {
-          fprintf(stderr, ". ");
+          avrdude_message(MSG_TRACE, ". ");
         }
-        fprintf(stderr, "[%02x] ", c);
+        avrdude_message(MSG_TRACE, "[%02x] ", c);
 
         p++;
         i--;
       }
-      fprintf(stderr, "\n");
+      avrdude_message(MSG_TRACE, "\n");
   }
   return n;
 }
 
 static int usbdev_drain(union filedescriptor *fd, int display)
 {
-  usb_dev_handle *udev = (usb_dev_handle *)fd->usb.handle;
-  int rv;
-
-  do {
-    rv = usb_bulk_read(udev, fd->usb.ep, usbbuf, USBDEV_MAX_XFER, 100);
-    if (rv > 0 && verbose >= 4)
-      fprintf(stderr, "%s: usbdev_drain(): flushed %d characters\n",
-	      progname, rv);
-  } while (rv > 0);
+  /*
+   * There is not much point in trying to flush any data
+   * on an USB endpoint, as the endpoint is supposed to
+   * start afresh after being configured from the host.
+   *
+   * As trying to flush the data here caused strange effects
+   * in some situations (see
+   * https://savannah.nongnu.org/bugs/index.php?43268 )
+   * better avoid it.
+   */
 
   return 0;
 }

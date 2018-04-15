@@ -13,21 +13,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: avr910.h 722 2007-01-24 22:43:46Z joerg_wunsch $ */
+/* $Id: avr910.h 1311 2014-05-19 10:01:59Z joerg_wunsch $ */
 
 #ifndef avr910_h
 #define avr910_h
-
-#include "avrpart.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+extern const char avr910_desc[];
 void avr910_initpgm (PROGRAMMER * pgm);
 
 #ifdef __cplusplus

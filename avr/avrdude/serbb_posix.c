@@ -15,10 +15,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-/* $Id: serbb_posix.c 917 2010-01-15 16:40:17Z joerg_wunsch $ */
+/* $Id: serbb_posix.c 1321 2014-06-13 20:07:40Z awachtler $ */
 
 /*
  * Posix serial bitbanging interface for avrdude.
@@ -38,10 +37,10 @@
 #include <termios.h>
 
 #include "avrdude.h"
-#include "avr.h"
-#include "pindefs.h"
-#include "pgm.h"
+#include "libavrdude.h"
+
 #include "bitbang.h"
+#include "serbb.h"
 
 #undef DEBUG
 
@@ -71,10 +70,11 @@ static char *serpins[DB9PINS + 1] =
   { "NONE", "CD", "RXD", "TXD", "DTR", "GND", "DSR", "RTS", "CTS", "RI" };
 #endif
 
-static int serbb_setpin(PROGRAMMER * pgm, int pin, int value)
+static int serbb_setpin(PROGRAMMER * pgm, int pinfunc, int value)
 {
   unsigned int	ctl;
   int           r;
+  int pin = pgm->pinno[pinfunc]; // get its value
 
   if (pin & PIN_INVERSE)
   {
@@ -127,11 +127,12 @@ static int serbb_setpin(PROGRAMMER * pgm, int pin, int value)
   return 0;
 }
 
-static int serbb_getpin(PROGRAMMER * pgm, int pin)
+static int serbb_getpin(PROGRAMMER * pgm, int pinfunc)
 {
   unsigned int	ctl;
   unsigned char invert;
   int           r;
+  int pin = pgm->pinno[pinfunc]; // get its value
 
   if (pin & PIN_INVERSE)
   {
@@ -177,13 +178,15 @@ static int serbb_getpin(PROGRAMMER * pgm, int pin)
   }
 }
 
-static int serbb_highpulsepin(PROGRAMMER * pgm, int pin)
+static int serbb_highpulsepin(PROGRAMMER * pgm, int pinfunc)
 {
+  int pin = pgm->pinno[pinfunc]; // replace pin name by its value
+
   if ( (pin & PIN_MASK) < 1 || (pin & PIN_MASK) > DB9PINS )
     return -1;
 
-  serbb_setpin(pgm, pin, 1);
-  serbb_setpin(pgm, pin, 0);
+  serbb_setpin(pgm, pinfunc, 1);
+  serbb_setpin(pgm, pinfunc, 0);
 
   return 0;
 }
@@ -221,7 +224,8 @@ static int serbb_open(PROGRAMMER *pgm, char *port)
   int flags;
   int r;
 
-  bitbang_check_prerequisites(pgm);
+  if (bitbang_check_prerequisites(pgm) < 0)
+    return -1;
 
   /* adapted from uisp code */
 
@@ -234,7 +238,7 @@ static int serbb_open(PROGRAMMER *pgm, char *port)
 
   r = tcgetattr(pgm->fd.ifd, &mode);
   if (r < 0) {
-    fprintf(stderr, "%s: ", port);
+    avrdude_message(MSG_INFO, "%s: ", port);
     perror("tcgetattr");
     return(-1);
   }
@@ -248,7 +252,7 @@ static int serbb_open(PROGRAMMER *pgm, char *port)
 
   r = tcsetattr(pgm->fd.ifd, TCSANOW, &mode);
   if (r < 0) {
-      fprintf(stderr, "%s: ", port);
+      avrdude_message(MSG_INFO, "%s: ", port);
       perror("tcsetattr");
       return(-1);
   }
@@ -257,14 +261,14 @@ static int serbb_open(PROGRAMMER *pgm, char *port)
   flags = fcntl(pgm->fd.ifd, F_GETFL, 0);
   if (flags == -1)
     {
-      fprintf(stderr, "%s: Can not get flags: %s\n",
+      avrdude_message(MSG_INFO, "%s: Can not get flags: %s\n",
 	      progname, strerror(errno));
       return(-1);
     }
   flags &= ~O_NONBLOCK;
   if (fcntl(pgm->fd.ifd, F_SETFL, flags) == -1)
     {
-      fprintf(stderr, "%s: Can not clear nonblock flag: %s\n",
+      avrdude_message(MSG_INFO, "%s: Can not clear nonblock flag: %s\n",
 	      progname, strerror(errno));
       return(-1);
     }
@@ -277,15 +281,19 @@ static void serbb_close(PROGRAMMER *pgm)
   if (pgm->fd.ifd != -1)
   {
 	  (void)tcsetattr(pgm->fd.ifd, TCSANOW, &oldmode);
-	  pgm->setpin(pgm, pgm->pinno[PIN_AVR_RESET], 1);
+	  pgm->setpin(pgm, PIN_AVR_RESET, 1);
 	  close(pgm->fd.ifd);
   }
   return;
 }
 
+const char serbb_desc[] = "Serial port bitbanging";
+
 void serbb_initpgm(PROGRAMMER *pgm)
 {
   strcpy(pgm->type, "SERBB");
+
+  pgm_fill_old_pins(pgm); // TODO to be removed if old pin data no longer needed
 
   pgm->rdy_led        = bitbang_rdy_led;
   pgm->err_led        = bitbang_err_led;
@@ -300,6 +308,7 @@ void serbb_initpgm(PROGRAMMER *pgm)
   pgm->program_enable = bitbang_program_enable;
   pgm->chip_erase     = bitbang_chip_erase;
   pgm->cmd            = bitbang_cmd;
+  pgm->cmd_tpi        = bitbang_cmd_tpi;
   pgm->open           = serbb_open;
   pgm->close          = serbb_close;
   pgm->setpin         = serbb_setpin;

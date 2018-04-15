@@ -13,27 +13,29 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: config.h 725 2007-01-30 13:41:54Z joerg_wunsch $ */
+/* $Id: config.h 1322 2014-06-17 20:08:28Z rliebscher $ */
+
+/* These are the internal definitions needed for config parsing */
 
 #ifndef config_h
 #define config_h
 
-#include "lists.h"
-#include "pindefs.h"
-#include "avr.h"
+#include "libavrdude.h"
 
 
 #define MAX_STR_CONST 1024
 
-enum { V_NONE, V_NUM, V_STR };
+enum { V_NONE, V_NUM, V_NUM_REAL, V_STR };
 typedef struct value_t {
   int      type;
-  double   number;
-  char   * string;
+  /*union { TODO: use an anonymous union here ? */
+    int      number;
+    double   number_real;
+    char   * string;
+  /*};*/
 } VALUE;
 
 
@@ -52,12 +54,6 @@ extern int          lineno;
 extern const char * infile;
 extern LISTID       string_list;
 extern LISTID       number_list;
-extern LISTID       part_list;
-extern LISTID       programmers;
-extern char         default_programmer[];
-extern char         default_parallel[];
-extern char         default_serial[];
-
 
 
 #if !defined(HAS_YYSTYPE)
@@ -74,8 +70,9 @@ extern "C" {
 
 int yyparse(void);
 
+int yyerror(char * errmsg, ...);
 
-int init_config(void);
+int yywarning(char * errmsg, ...);
 
 TOKEN * new_token(int primary);
 
@@ -85,11 +82,11 @@ void free_tokens(int n, ...);
 
 TOKEN * number(char * text);
 
+TOKEN * number_real(char * text);
+
 TOKEN * hexnumber(char * text);
 
 TOKEN * string(char * text);
-
-TOKEN * id(char * text);
 
 TOKEN * keyword(int primary);
 
@@ -98,8 +95,6 @@ void print_token(TOKEN * tkn);
 void pyytext(void);
 
 char * dup_string(const char * str);
-
-int read_config(const char * file);
 
 #ifdef __cplusplus
 }

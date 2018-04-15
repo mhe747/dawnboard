@@ -14,11 +14,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: update.c 819 2009-04-28 18:35:14Z joerg_wunsch $ */
+/* $Id: update.c 1355 2015-04-09 19:50:30Z joerg_wunsch $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,11 +26,7 @@
 #include <time.h>
 
 #include "avrdude.h"
-#include "avr.h"
-#include "config.h"
-#include "confwin.h"
-#include "fileio.h"
-#include "update.h"
+#include "libavrdude.h"
 
 UPDATE * parse_op(char * s)
 {
@@ -43,7 +38,7 @@ UPDATE * parse_op(char * s)
 
   upd = (UPDATE *)malloc(sizeof(UPDATE));
   if (upd == NULL) {
-    fprintf(stderr, "%s: out of memory\n", progname);
+    avrdude_message(MSG_INFO, "%s: out of memory\n", progname);
     exit(1);
   }
 
@@ -54,17 +49,13 @@ UPDATE * parse_op(char * s)
   buf[i] = 0;
 
   if (*p != ':') {
-    upd->memtype = (char *)malloc(strlen("flash")+1);
-    if (upd->memtype == NULL) {
-      outofmem:
-      fprintf(stderr, "%s: out of memory\n", progname);
-      exit(1);
-    }
-    strcpy(upd->memtype, "flash");
+    upd->memtype = NULL;        /* default memtype, "flash", or "application" */
     upd->op = DEVICE_WRITE;
     upd->filename = (char *)malloc(strlen(buf) + 1);
-    if (upd->filename == NULL)
-      goto outofmem;
+    if (upd->filename == NULL) {
+        avrdude_message(MSG_INFO, "%s: out of memory\n", progname);
+        exit(1);
+    }
     strcpy(upd->filename, buf);
     upd->format = FMT_AUTO;
     return upd;
@@ -72,7 +63,7 @@ UPDATE * parse_op(char * s)
 
   upd->memtype = (char *)malloc(strlen(buf)+1);
   if (upd->memtype == NULL) {
-    fprintf(stderr, "%s: out of memory\n", progname);
+    avrdude_message(MSG_INFO, "%s: out of memory\n", progname);
     exit(1);
   }
   strcpy(upd->memtype, buf);
@@ -88,13 +79,12 @@ UPDATE * parse_op(char * s)
     upd->op = DEVICE_VERIFY;
   }
   else {
-    fprintf(stderr, "%s: invalid I/O mode '%c' in update specification\n",
+    avrdude_message(MSG_INFO, "%s: invalid I/O mode '%c' in update specification\n",
             progname, *p);
-    fprintf(stderr,
-            "  allowed values are:\n"
-            "    r = read device\n"
-            "    w = write device\n"
-            "    v = verify device\n");
+    avrdude_message(MSG_INFO, "  allowed values are:\n"
+                    "    r = read device\n"
+                    "    w = write device\n"
+                    "    v = verify device\n");
     free(upd->memtype);
     free(upd);
     return NULL;
@@ -103,7 +93,7 @@ UPDATE * parse_op(char * s)
   p++;
 
   if (*p != ':') {
-    fprintf(stderr, "%s: invalid update specification\n", progname);
+    avrdude_message(MSG_INFO, "%s: invalid update specification\n", progname);
     free(upd->memtype);
     free(upd);
     return NULL;
@@ -138,13 +128,14 @@ UPDATE * parse_op(char * s)
       case 's': upd->format = FMT_SREC; break;
       case 'i': upd->format = FMT_IHEX; break;
       case 'r': upd->format = FMT_RBIN; break;
+      case 'e': upd->format = FMT_ELF; break;
       case 'm': upd->format = FMT_IMM; break;
       case 'b': upd->format = FMT_BIN; break;
       case 'd': upd->format = FMT_DEC; break;
       case 'h': upd->format = FMT_HEX; break;
       case 'o': upd->format = FMT_OCT; break;
       default:
-        fprintf(stderr, "%s: invalid file format '%s' in update specifier\n",
+        avrdude_message(MSG_INFO, "%s: invalid file format '%s' in update specifier\n",
                 progname, p);
         free(upd->memtype);
         free(upd);
@@ -153,7 +144,7 @@ UPDATE * parse_op(char * s)
   }
 
   if (upd->filename == NULL) {
-    fprintf(stderr, "%s: out of memory\n", progname);
+    avrdude_message(MSG_INFO, "%s: out of memory\n", progname);
     free(upd->memtype);
     free(upd);
     return NULL;
@@ -170,13 +161,16 @@ UPDATE * dup_update(UPDATE * upd)
 
   u = (UPDATE *)malloc(sizeof(UPDATE));
   if (u == NULL) {
-    fprintf(stderr, "%s: out of memory\n", progname);
+    avrdude_message(MSG_INFO, "%s: out of memory\n", progname);
     exit(1);
   }
 
   memcpy(u, upd, sizeof(UPDATE));
 
-  u->memtype = strdup(upd->memtype);
+  if (upd->memtype != NULL)
+    u->memtype = strdup(upd->memtype);
+  else
+    u->memtype = NULL;
   u->filename = strdup(upd->filename);
 
   return u;
@@ -188,7 +182,7 @@ UPDATE * new_update(int op, char * memtype, int filefmt, char * filename)
 
   u = (UPDATE *)malloc(sizeof(UPDATE));
   if (u == NULL) {
-    fprintf(stderr, "%s: out of memory\n", progname);
+    avrdude_message(MSG_INFO, "%s: out of memory\n", progname);
     exit(1);
   }
 
@@ -200,8 +194,23 @@ UPDATE * new_update(int op, char * memtype, int filefmt, char * filename)
   return u;
 }
 
-int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, int nowrite,
-          int verify)
+void free_update(UPDATE * u)
+{
+    if (u != NULL) {
+	if(u->memtype != NULL) {
+	    free(u->memtype);
+	    u->memtype = NULL;
+	}
+	if(u->filename != NULL) {
+	    free(u->filename);
+	    u->filename = NULL;
+	}
+	free(u);
+    }
+}
+
+
+int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, enum updateflags flags)
 {
   struct avrpart * v;
   AVRMEM * mem;
@@ -210,7 +219,7 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, int nowrite,
 
   mem = avr_locate_mem(p, upd->memtype);
   if (mem == NULL) {
-    fprintf(stderr, "\"%s\" memory type not defined for part \"%s\"\n",
+    avrdude_message(MSG_INFO, "\"%s\" memory type not defined for part \"%s\"\n",
             upd->memtype, p->desc);
     return -1;
   }
@@ -220,13 +229,13 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, int nowrite,
      * read out the specified device memory and write it to a file
      */
     if (quell_progress < 2) {
-      fprintf(stderr, "%s: reading %s memory:\n",
+      avrdude_message(MSG_INFO, "%s: reading %s memory:\n",
             progname, mem->desc);
 	  }
     report_progress(0,1,"Reading");
-    rc = avr_read(pgm, p, upd->memtype, 0, 1);
+    rc = avr_read(pgm, p, upd->memtype, 0);
     if (rc < 0) {
-      fprintf(stderr, "%s: failed to read all of %s memory, rc=%d\n",
+      avrdude_message(MSG_INFO, "%s: failed to read all of %s memory, rc=%d\n",
               progname, mem->desc, rc);
       return -1;
     }
@@ -234,14 +243,16 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, int nowrite,
     size = rc;
 
     if (quell_progress < 2) {
-      fprintf(stderr,
-            "%s: writing output file \"%s\"\n",
-            progname,
-            strcmp(upd->filename, "-")==0 ? "<stdout>" : upd->filename);
+      if (rc == 0)
+        avrdude_message(MSG_INFO, "%s: Flash is empty, resulting file has no contents.\n",
+                        progname);
+      avrdude_message(MSG_INFO, "%s: writing output file \"%s\"\n",
+                      progname,
+                      strcmp(upd->filename, "-")==0 ? "<stdout>" : upd->filename);
     }
     rc = fileio(FIO_WRITE, upd->filename, upd->format, p, upd->memtype, size);
     if (rc < 0) {
-      fprintf(stderr, "%s: write to file '%s' failed\n",
+      avrdude_message(MSG_INFO, "%s: write to file '%s' failed\n",
               progname, upd->filename);
       return -1;
     }
@@ -252,14 +263,13 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, int nowrite,
      * read the data from the specified file
      */
     if (quell_progress < 2) {
-      fprintf(stderr,
-            "%s: reading input file \"%s\"\n",
-            progname,
-            strcmp(upd->filename, "-")==0 ? "<stdin>" : upd->filename);
+      avrdude_message(MSG_INFO, "%s: reading input file \"%s\"\n",
+                      progname,
+                      strcmp(upd->filename, "-")==0 ? "<stdin>" : upd->filename);
     }
     rc = fileio(FIO_READ, upd->filename, upd->format, p, upd->memtype, -1);
     if (rc < 0) {
-      fprintf(stderr, "%s: write to file '%s' failed\n",
+      avrdude_message(MSG_INFO, "%s: read from file '%s' failed\n",
               progname, upd->filename);
       return -1;
     }
@@ -269,13 +279,13 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, int nowrite,
      * write the buffer contents to the selected memory type
      */
     if (quell_progress < 2) {
-      fprintf(stderr, "%s: writing %s (%d bytes):\n",
+      avrdude_message(MSG_INFO, "%s: writing %s (%d bytes):\n",
             progname, mem->desc, size);
 	  }
 
-    if (!nowrite) {
+    if (!(flags & UF_NOWRITE)) {
       report_progress(0,1,"Writing");
-      rc = avr_write(pgm, p, upd->memtype, size, 1);
+      rc = avr_write(pgm, p, upd->memtype, size, (flags & UF_AUTO_ERASE) != 0);
       report_progress(1,1,NULL);
     }
     else {
@@ -287,7 +297,7 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, int nowrite,
     }
 
     if (rc < 0) {
-      fprintf(stderr, "%s: failed to write %s memory, rc=%d\n",
+      avrdude_message(MSG_INFO, "%s: failed to write %s memory, rc=%d\n",
               progname, mem->desc, rc);
       return -1;
     }
@@ -295,7 +305,7 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, int nowrite,
     vsize = rc;
 
     if (quell_progress < 2) {
-      fprintf(stderr, "%s: %d bytes of %s written\n", progname,
+      avrdude_message(MSG_INFO, "%s: %d bytes of %s written\n", progname,
             vsize, mem->desc);
     }
 
@@ -307,34 +317,33 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, int nowrite,
      */
     pgm->vfy_led(pgm, ON);
 
-    v = avr_dup_part(p);
-
     if (quell_progress < 2) {
-      fprintf(stderr, "%s: verifying %s memory against %s:\n",
+      avrdude_message(MSG_INFO, "%s: verifying %s memory against %s:\n",
             progname, mem->desc, upd->filename);
 
-      fprintf(stderr, "%s: load data %s data from input file %s:\n",
+      avrdude_message(MSG_INFO, "%s: load data %s data from input file %s:\n",
             progname, mem->desc, upd->filename);
     }
 
     rc = fileio(FIO_READ, upd->filename, upd->format, p, upd->memtype, -1);
     if (rc < 0) {
-      fprintf(stderr, "%s: read from file '%s' failed\n",
+      avrdude_message(MSG_INFO, "%s: read from file '%s' failed\n",
               progname, upd->filename);
       return -1;
     }
+    v = avr_dup_part(p);
     size = rc;
     if (quell_progress < 2) {
-      fprintf(stderr, "%s: input file %s contains %d bytes\n",
+      avrdude_message(MSG_INFO, "%s: input file %s contains %d bytes\n",
             progname, upd->filename, size);
-      fprintf(stderr, "%s: reading on-chip %s data:\n",
+      avrdude_message(MSG_INFO, "%s: reading on-chip %s data:\n",
             progname, mem->desc);
     }
 
     report_progress (0,1,"Reading");
-    rc = avr_read(pgm, v, upd->memtype, size, 1);
+    rc = avr_read(pgm, p, upd->memtype, v);
     if (rc < 0) {
-      fprintf(stderr, "%s: failed to read all of %s memory, rc=%d\n",
+      avrdude_message(MSG_INFO, "%s: failed to read all of %s memory, rc=%d\n",
               progname, mem->desc, rc);
       pgm->err_led(pgm, ON);
       return -1;
@@ -344,25 +353,25 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, int nowrite,
 
 
     if (quell_progress < 2) {
-      fprintf(stderr, "%s: verifying ...\n", progname);
+      avrdude_message(MSG_INFO, "%s: verifying ...\n", progname);
     }
     rc = avr_verify(p, v, upd->memtype, size);
     if (rc < 0) {
-      fprintf(stderr, "%s: verification error; content mismatch\n",
+      avrdude_message(MSG_INFO, "%s: verification error; content mismatch\n",
               progname);
       pgm->err_led(pgm, ON);
       return -1;
     }
 
     if (quell_progress < 2) {
-      fprintf(stderr, "%s: %d bytes of %s verified\n",
+      avrdude_message(MSG_INFO, "%s: %d bytes of %s verified\n",
               progname, rc, mem->desc);
     }
 
     pgm->vfy_led(pgm, OFF);
   }
   else {
-    fprintf(stderr, "%s: invalid update operation (%d) requested\n",
+    avrdude_message(MSG_INFO, "%s: invalid update operation (%d) requested\n",
             progname, upd->op);
     return -1;
   }

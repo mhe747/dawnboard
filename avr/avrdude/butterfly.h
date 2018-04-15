@@ -13,11 +13,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: butterfly.h 722 2007-01-24 22:43:46Z joerg_wunsch $ */
+/* $Id: butterfly.h 1107 2012-11-20 14:03:50Z joerg_wunsch $ */
 
 #ifndef butterfly_h
 #define butterfly_h
@@ -26,7 +25,10 @@
 extern "C" {
 #endif
 
+extern const char butterfly_desc[];
+extern const char butterfly_mk_desc[];
 void butterfly_initpgm (PROGRAMMER * pgm);
+void butterfly_mk_initpgm (PROGRAMMER * pgm);
 
 #ifdef __cplusplus
 }

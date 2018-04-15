@@ -13,11 +13,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: stk500generic.c 824 2009-07-02 09:11:45Z joerg_wunsch $ */
+/* $Id: stk500generic.c 1321 2014-06-13 20:07:40Z awachtler $ */
 
 /*
  * avrdude interface for Atmel STK500 programmer
@@ -33,7 +32,9 @@
 #include <string.h>
 
 #include "avrdude.h"
-#include "pgm.h"
+#include "libavrdude.h"
+
+#include "stk500generic.h"
 #include "stk500.h"
 #include "stk500v2.h"
 
@@ -42,9 +43,8 @@ static int stk500generic_open(PROGRAMMER * pgm, char * port)
   stk500_initpgm(pgm);
   if (pgm->open(pgm, port) >= 0)
     {
-      fprintf(stderr,
-	      "%s: successfully opened stk500v1 device -- please use -c stk500v1\n",
-	      progname);
+      avrdude_message(MSG_INFO, "%s: successfully opened stk500v1 device -- please use -c stk500v1\n",
+                      progname);
       return 0;
     }
 
@@ -53,15 +53,13 @@ static int stk500generic_open(PROGRAMMER * pgm, char * port)
   stk500v2_initpgm(pgm);
   if (pgm->open(pgm, port) >= 0)
     {
-      fprintf(stderr,
-	      "%s: successfully opened stk500v2 device -- please use -c stk500v2\n",
-	      progname);
+      avrdude_message(MSG_INFO, "%s: successfully opened stk500v2 device -- please use -c stk500v2\n",
+                      progname);
       return 0;
     }
 
-  fprintf(stderr,
-	  "%s: cannot open either stk500v1 or stk500v2 programmer\n",
-	  progname);
+  avrdude_message(MSG_INFO, "%s: cannot open either stk500v1 or stk500v2 programmer\n",
+                  progname);
   return -1;
 }
 
@@ -80,6 +78,7 @@ static void stk500generic_teardown(PROGRAMMER * pgm)
   pgm->teardown(pgm);
 }
 
+const char stk500generic_desc[] = "Atmel STK500, autodetect firmware version";
 
 void stk500generic_initpgm(PROGRAMMER * pgm)
 {

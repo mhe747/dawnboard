@@ -13,11 +13,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: jtagmkII.h 912 2010-01-13 17:34:18Z joerg_wunsch $ */
+/* $Id: jtagmkII.h 1107 2012-11-20 14:03:50Z joerg_wunsch $ */
 
 #ifndef jtagmkII_h
 #define jtagmkII_h
@@ -33,6 +32,13 @@ int  jtagmkII_getsync(PROGRAMMER * pgm, int mode);
 int  jtagmkII_getparm(PROGRAMMER * pgm, unsigned char parm,
 		      unsigned char * value);
 
+extern const char jtagmkII_desc[];
+extern const char jtagmkII_avr32_desc[];
+extern const char jtagmkII_dw_desc[];
+extern const char jtagmkII_pdi_desc[];
+extern const char jtagmkII_dragon_desc[];
+extern const char jtagmkII_dragon_dw_desc[];
+extern const char jtagmkII_dragon_pdi_desc[];
 void jtagmkII_initpgm (PROGRAMMER * pgm);
 void jtagmkII_avr32_initpgm (PROGRAMMER * pgm);
 void jtagmkII_dw_initpgm (PROGRAMMER * pgm);

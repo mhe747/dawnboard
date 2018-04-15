@@ -14,25 +14,31 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: ser_win32.c 890 2010-01-08 10:39:18Z joerg_wunsch $ */
+/* $Id: ser_win32.c 1353 2014-11-26 09:38:15Z joerg_wunsch $ */
 
 /*
  * Native Win32 serial interface for avrdude.
  */
 
-#include "avrdude.h"
+#include "ac_cfg.h"
 
 #if defined(WIN32NATIVE)
+
+#ifdef HAVE_LIBWS2_32
+/* winsock2.h must be included before windows.h from avrdude.h... */
+#  include <winsock2.h>
+#endif
 
 #include <windows.h>
 #include <stdio.h>
 #include <ctype.h>   /* for isprint */
+#include <errno.h>   /* ENOTTY */
 
-#include "serial.h"
+#include "avrdude.h"
+#include "libavrdude.h"
 
 long serial_recv_timeout = 5000; /* ms */
 
@@ -42,6 +48,8 @@ struct baud_mapping {
   long baud;
   DWORD speed;
 };
+
+static unsigned char serial_over_ethernet = 0;
 
 /* HANDLE hComPort=INVALID_HANDLE_VALUE; */
 
@@ -71,8 +79,7 @@ static DWORD serial_baud_lookup(long baud)
    * If a non-standard BAUD rate is used, issue
    * a warning (if we are verbose) and return the raw rate
    */
-  if (verbose > 0)
-      fprintf(stderr, "%s: serial_baud_lookup(): Using non-standard baud rate: %ld",
+  avrdude_message(MSG_NOTICE, "%s: serial_baud_lookup(): Using non-standard baud rate: %ld",
               progname, baud);
 
   return baud;
@@ -92,27 +99,125 @@ static BOOL serial_w32SetTimeOut(HANDLE hComPort, DWORD timeout) // in ms
 
 static int ser_setspeed(union filedescriptor *fd, long baud)
 {
-	DCB dcb;
-	HANDLE hComPort = (HANDLE)fd->pfd;
+	if (serial_over_ethernet) {
+		return -ENOTTY;
+	} else {
+		DCB dcb;
+		HANDLE hComPort = (HANDLE)fd->pfd;
 
-	ZeroMemory (&dcb, sizeof(DCB));
-	dcb.DCBlength = sizeof(DCB);
-	dcb.BaudRate = serial_baud_lookup (baud);
-	dcb.fBinary = 1;
-	dcb.fDtrControl = DTR_CONTROL_DISABLE;
-	dcb.fRtsControl = RTS_CONTROL_DISABLE;
-	dcb.ByteSize = 8;
-	dcb.Parity = NOPARITY;
-	dcb.StopBits = ONESTOPBIT;
+		ZeroMemory (&dcb, sizeof(DCB));
+		dcb.DCBlength = sizeof(DCB);
+		dcb.BaudRate = serial_baud_lookup (baud);
+		dcb.fBinary = 1;
+		dcb.fDtrControl = DTR_CONTROL_DISABLE;
+		dcb.fRtsControl = RTS_CONTROL_DISABLE;
+		dcb.ByteSize = 8;
+		dcb.Parity = NOPARITY;
+		dcb.StopBits = ONESTOPBIT;
 
-	if (!SetCommState(hComPort, &dcb))
-		return -1;
+		if (!SetCommState(hComPort, &dcb))
+			return -1;
 
-	return 0;
+		return 0;
+	}
 }
 
+#ifdef HAVE_LIBWS2_32
+static int
+net_open(const char *port, union filedescriptor *fdp)
+{
+	WSADATA wsaData;
+	LPVOID lpMsgBuf;
 
-static void ser_open(char * port, long baud, union filedescriptor *fdp)
+	char *hstr, *pstr, *end;
+	unsigned int pnum;
+	int fd;
+	struct sockaddr_in sockaddr;
+	struct hostent *hp;
+
+	if (WSAStartup(MAKEWORD(2, 0), &wsaData) != 0) {
+		avrdude_message(MSG_INFO, "%s: net_open(): WSAStartup() failed\n", progname);
+		return -1;
+	}
+
+	if ((hstr = strdup(port)) == NULL) {
+		avrdude_message(MSG_INFO, "%s: net_open(): Out of memory!\n", progname);
+		return -1;
+	}
+
+	if (((pstr = strchr(hstr, ':')) == NULL) || (pstr == hstr)) {
+		avrdude_message(MSG_INFO, "%s: net_open(): Mangled host:port string \"%s\"\n", progname, hstr);
+		free(hstr);
+		return -1;
+	}
+
+	/*
+	 * Terminate the host section of the description.
+	 */
+	*pstr++ = '\0';
+
+	pnum = strtoul(pstr, &end, 10);
+
+	if ((*pstr == '\0') || (*end != '\0') || (pnum == 0) || (pnum > 65535)) {
+		avrdude_message(MSG_INFO, "%s: net_open(): Bad port number \"%s\"\n", progname, pstr);
+		free(hstr);
+		return -1;
+	}
+
+	if ((hp = gethostbyname(hstr)) == NULL) {
+		avrdude_message(MSG_INFO, "%s: net_open(): unknown host \"%s\"\n", progname, hstr);
+		free(hstr);
+		return -1;
+	}
+
+	free(hstr);
+
+	if ((fd = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER |
+			FORMAT_MESSAGE_FROM_SYSTEM |
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			WSAGetLastError(),
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPTSTR)&lpMsgBuf,
+			0,
+			NULL);
+		avrdude_message(MSG_INFO, "%s: net_open(): Cannot open socket: %s\n", progname, (char *)lpMsgBuf);
+		LocalFree(lpMsgBuf);
+		return -1;
+	}
+
+	memset(&sockaddr, 0, sizeof(struct sockaddr_in));
+	sockaddr.sin_family = AF_INET;
+	sockaddr.sin_port = htons(pnum);
+	memcpy(&(sockaddr.sin_addr.s_addr), hp->h_addr, sizeof(struct in_addr));
+
+	if (connect(fd, (struct sockaddr *)&sockaddr, sizeof(sockaddr))) {
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER |
+			FORMAT_MESSAGE_FROM_SYSTEM |
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			WSAGetLastError(),
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPTSTR)&lpMsgBuf,
+			0,
+			NULL);
+		avrdude_message(MSG_INFO, "%s: net_open(): Connect failed: %s\n", progname, (char *)lpMsgBuf);
+		LocalFree(lpMsgBuf);
+		return -1;
+	}
+
+	fdp->ifd = fd;
+
+	serial_over_ethernet = 1;
+	return 0;
+}
+#endif
+
+
+static int ser_open(char * port, union pinfo pinfo, union filedescriptor *fdp)
 {
 	LPVOID lpMsgBuf;
 	HANDLE hComPort=INVALID_HANDLE_VALUE;
@@ -121,15 +226,16 @@ static void ser_open(char * port, long baud, union filedescriptor *fdp)
 	/*
 	 * If the port is of the form "net:<host>:<port>", then
 	 * handle it as a TCP connection to a terminal server.
-	 *
-	 * This is curently not implemented for Win32.
 	 */
 	if (strncmp(port, "net:", strlen("net:")) == 0) {
-		fprintf(stderr,
-			"%s: ser_open(): network connects are currently not"
-			"implemented for Win32 environments\n",
-			progname);
-		exit(1);
+#ifdef HAVE_LIBWS2_32
+		return net_open(port + strlen("net:"), fdp);
+#else
+		avrdude_message(MSG_INFO, "%s: ser_open(): "
+				"not configured for TCP connections\n",
+                                progname);
+		return -1;
+#endif
 	}
 
 	if (strncasecmp(port, "com", strlen("com")) == 0) {
@@ -138,9 +244,8 @@ static void ser_open(char * port, long baud, union filedescriptor *fdp)
 	    newname = malloc(strlen("\\\\.\\") + strlen(port) + 1);
 
 	    if (newname == 0) {
-		fprintf(stderr,
-			"%s: ser_open(): out of memory\n",
-			progname);
+		avrdude_message(MSG_INFO, "%s: ser_open(): out of memory\n",
+                                progname);
 		exit(1);
 	    }
 	    strcpy(newname, "\\\\.\\");
@@ -153,9 +258,9 @@ static void ser_open(char * port, long baud, union filedescriptor *fdp)
 		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if (hComPort == INVALID_HANDLE_VALUE) {
-		FormatMessage( 
-			FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-			FORMAT_MESSAGE_FROM_SYSTEM | 
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER |
+			FORMAT_MESSAGE_FROM_SYSTEM |
 			FORMAT_MESSAGE_IGNORE_INSERTS,
 			NULL,
 			GetLastError(),
@@ -163,80 +268,157 @@ static void ser_open(char * port, long baud, union filedescriptor *fdp)
 			(LPTSTR) &lpMsgBuf,
 			0,
 			NULL);
-		fprintf(stderr, "%s: ser_open(): can't open device \"%s\": %s\n",
+		avrdude_message(MSG_INFO, "%s: ser_open(): can't open device \"%s\": %s\n",
 				progname, port, (char*)lpMsgBuf);
 		LocalFree( lpMsgBuf );
-		exit(1);
+		return -1;
 	}
 
 	if (!SetupComm(hComPort, W32SERBUFSIZE, W32SERBUFSIZE))
 	{
 		CloseHandle(hComPort);
-		fprintf(stderr, "%s: ser_open(): can't set buffers for \"%s\"\n",
+		avrdude_message(MSG_INFO, "%s: ser_open(): can't set buffers for \"%s\"\n",
 				progname, port);
-		exit(1);
+		return -1;
 	}
 
         fdp->pfd = (void *)hComPort;
-	if (ser_setspeed(fdp, baud) != 0)
+	if (ser_setspeed(fdp, pinfo.baud) != 0)
 	{
 		CloseHandle(hComPort);
-		fprintf(stderr, "%s: ser_open(): can't set com-state for \"%s\"\n",
+		avrdude_message(MSG_INFO, "%s: ser_open(): can't set com-state for \"%s\"\n",
 				progname, port);
-		exit(1);
+		return -1;
 	}
 
 	if (!serial_w32SetTimeOut(hComPort,0))
 	{
 		CloseHandle(hComPort);
-		fprintf(stderr, "%s: ser_open(): can't set initial timeout for \"%s\"\n",
+		avrdude_message(MSG_INFO, "%s: ser_open(): can't set initial timeout for \"%s\"\n",
 				progname, port);
-		exit(1);
+		return -1;
 	}
 
 	if (newname != 0) {
 	    free(newname);
 	}
+	return 0;
 }
 
 
 static void ser_close(union filedescriptor *fd)
 {
-	HANDLE hComPort=(HANDLE)fd->pfd;
-	if (hComPort != INVALID_HANDLE_VALUE)
-		CloseHandle (hComPort);
+	if (serial_over_ethernet) {
+		closesocket(fd->ifd);
+		WSACleanup();
+	} else {
+		HANDLE hComPort=(HANDLE)fd->pfd;
+		if (hComPort != INVALID_HANDLE_VALUE)
+			CloseHandle (hComPort);
 
-	hComPort = INVALID_HANDLE_VALUE;
+		hComPort = INVALID_HANDLE_VALUE;
+	}
 }
 
 static int ser_set_dtr_rts(union filedescriptor *fd, int is_on)
 {
-	HANDLE hComPort=(HANDLE)fd->pfd;
-
-	if (is_on) {
-		EscapeCommFunction(hComPort, SETDTR);
-		EscapeCommFunction(hComPort, SETRTS);
+	if (serial_over_ethernet) {
+		return 0;
 	} else {
-		EscapeCommFunction(hComPort, CLRDTR);
-		EscapeCommFunction(hComPort, CLRRTS);
+		HANDLE hComPort=(HANDLE)fd->pfd;
+
+		if (is_on) {
+			EscapeCommFunction(hComPort, SETDTR);
+			EscapeCommFunction(hComPort, SETRTS);
+		} else {
+			EscapeCommFunction(hComPort, CLRDTR);
+			EscapeCommFunction(hComPort, CLRRTS);
+		}
+		return 0;
 	}
-	return 0;
 }
 
-
-static int ser_send(union filedescriptor *fd, unsigned char * buf, size_t buflen)
+#ifdef HAVE_LIBWS2_32
+static int net_send(union filedescriptor *fd, const unsigned char * buf, size_t buflen)
 {
+	LPVOID lpMsgBuf;
+	int rc;
+	const unsigned char *p = buf;
+	size_t len = buflen;
+
+	if (fd->ifd < 0) {
+		avrdude_message(MSG_NOTICE, "%s: net_send(): connection not open\n", progname);
+		exit(1);
+	}
+
+	if (!len) {
+		return 0;
+	}
+
+	if (verbose > 3) {
+		avrdude_message(MSG_TRACE, "%s: Send: ", progname);
+
+		while (buflen) {
+			unsigned char c = *buf;
+			if (isprint(c)) {
+				avrdude_message(MSG_TRACE, "%c ", c);
+			} else {
+				avrdude_message(MSG_TRACE, ". ");
+			}
+			avrdude_message(MSG_TRACE, "[%02x] ", c);
+
+			buf++;
+			buflen--;
+		}
+
+		avrdude_message(MSG_TRACE, "\n");
+	}
+
+	while (len) {
+		rc = send(fd->ifd, p, (len > 1024) ? 1024 : len, 0);
+		if (rc < 0) {
+			FormatMessage(
+				FORMAT_MESSAGE_ALLOCATE_BUFFER |
+				FORMAT_MESSAGE_FROM_SYSTEM |
+				FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL,
+				WSAGetLastError(),
+				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+				(LPTSTR)&lpMsgBuf,
+				0,
+				NULL);
+			avrdude_message(MSG_INFO, "%s: net_send(): send error: %s\n", progname, (char *)lpMsgBuf);
+			LocalFree(lpMsgBuf);
+			exit(1);
+		}
+		p += rc;
+		len -= rc;
+	}
+
+	return 0;
+}
+#endif
+
+
+static int ser_send(union filedescriptor *fd, const unsigned char * buf, size_t buflen)
+{
+#ifdef HAVE_LIBWS2_32
+	if (serial_over_ethernet) {
+		return net_send(fd, buf, buflen);
+	}
+#endif
+
 	size_t len = buflen;
 	unsigned char c='\0';
 	DWORD written;
-        unsigned char * b = buf;
+        const unsigned char * b = buf;
 
 	HANDLE hComPort=(HANDLE)fd->pfd;
 
 	if (hComPort == INVALID_HANDLE_VALUE) {
-		fprintf(stderr, "%s: ser_send(): port not open\n",
+		avrdude_message(MSG_INFO, "%s: ser_send(): port not open\n",
               progname); 
-		exit(1);
+		return -1;
 	}
 
 	if (!len)
@@ -244,43 +426,145 @@ static int ser_send(union filedescriptor *fd, unsigned char * buf, size_t buflen
 
 	if (verbose > 3)
 	{
-		fprintf(stderr, "%s: Send: ", progname);
+		avrdude_message(MSG_TRACE, "%s: Send: ", progname);
 
 		while (len) {
 			c = *b;
 			if (isprint(c)) {
-				fprintf(stderr, "%c ", c);
+				avrdude_message(MSG_TRACE, "%c ", c);
 			}
 			else {
-				fprintf(stderr, ". ");
+				avrdude_message(MSG_TRACE, ". ");
 			}
-			fprintf(stderr, "[%02x] ", c);
+			avrdude_message(MSG_TRACE, "[%02x] ", c);
 			b++;
 			len--;
 		}
-      fprintf(stderr, "\n");
+      avrdude_message(MSG_INFO, "\n");
 	}
 	
 	serial_w32SetTimeOut(hComPort,500);
 
 	if (!WriteFile (hComPort, buf, buflen, &written, NULL)) {
-		fprintf(stderr, "%s: ser_send(): write error: %s\n",
+		avrdude_message(MSG_INFO, "%s: ser_send(): write error: %s\n",
               progname, "sorry no info avail"); // TODO
-		exit(1);
+		return -1;
 	}
 
 	if (written != buflen) {
-		fprintf(stderr, "%s: ser_send(): size/send mismatch\n",
+		avrdude_message(MSG_INFO, "%s: ser_send(): size/send mismatch\n",
               progname); 
-		exit(1);
+		return -1;
 	}
 
 	return 0;
 }
 
 
+#ifdef HAVE_LIBWS2_32
+static int net_recv(union filedescriptor *fd, unsigned char * buf, size_t buflen)
+{
+	LPVOID lpMsgBuf;
+	struct timeval timeout, to2;
+	fd_set rfds;
+	int nfds;
+	int rc;
+	unsigned char *p = buf;
+	size_t len = 0;
+
+	if (fd->ifd < 0) {
+		avrdude_message(MSG_INFO, "%s: net_recv(): connection not open\n", progname);
+		exit(1);
+	}
+
+	timeout.tv_sec  = serial_recv_timeout / 1000L;
+	timeout.tv_usec = (serial_recv_timeout % 1000L) * 1000;
+	to2 = timeout;
+
+	while (len < buflen) {
+reselect:
+		FD_ZERO(&rfds);
+		FD_SET(fd->ifd, &rfds);
+
+		nfds = select(fd->ifd + 1, &rfds, NULL, NULL, &to2);
+		if (nfds == 0) {
+			if (verbose > 1) {
+				avrdude_message(MSG_NOTICE, "%s: ser_recv(): programmer is not responding\n", progname);
+			}
+			return -1;
+		} else if (nfds == -1) {
+			if (WSAGetLastError() == WSAEINTR || WSAGetLastError() == WSAEINPROGRESS) {
+				avrdude_message(MSG_NOTICE, "%s: ser_recv(): programmer is not responding, reselecting\n", progname);
+				goto reselect;
+			} else {
+				FormatMessage(
+					FORMAT_MESSAGE_ALLOCATE_BUFFER |
+					FORMAT_MESSAGE_FROM_SYSTEM |
+					FORMAT_MESSAGE_IGNORE_INSERTS,
+					NULL,
+					WSAGetLastError(),
+					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+					(LPTSTR)&lpMsgBuf,
+					0,
+					NULL);
+				avrdude_message(MSG_INFO, "%s: ser_recv(): select(): %s\n", progname, (char *)lpMsgBuf);
+				LocalFree(lpMsgBuf);
+				exit(1);
+			}
+		}
+
+		rc = recv(fd->ifd, p, (buflen - len > 1024) ? 1024 : buflen - len, 0);
+		if (rc < 0) {
+			FormatMessage(
+				FORMAT_MESSAGE_ALLOCATE_BUFFER |
+				FORMAT_MESSAGE_FROM_SYSTEM |
+				FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL,
+				WSAGetLastError(),
+				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+				(LPTSTR)&lpMsgBuf,
+				0,
+				NULL);
+			avrdude_message(MSG_INFO, "%s: ser_recv(): read error: %s\n", progname, (char *)lpMsgBuf);
+			LocalFree(lpMsgBuf);
+			exit(1);
+		}
+		p += rc;
+		len += rc;
+	}
+
+	p = buf;
+
+	if (verbose > 3) {
+		avrdude_message(MSG_TRACE, "%s: Recv: ", progname);
+
+		while (len) {
+			unsigned char c = *p;
+			if (isprint(c)) {
+				avrdude_message(MSG_TRACE, "%c ", c);
+			} else {
+				avrdude_message(MSG_TRACE, ". ");
+			}
+			avrdude_message(MSG_TRACE, "[%02x] ", c);
+
+			p++;
+			len--;
+		}
+		avrdude_message(MSG_TRACE, "\n");
+	}
+
+	return 0;
+}
+#endif
+
 static int ser_recv(union filedescriptor *fd, unsigned char * buf, size_t buflen)
 {
+#ifdef HAVE_LIBWS2_32
+	if (serial_over_ethernet) {
+		return net_recv(fd, buf, buflen);
+	}
+#endif
+
 	unsigned char c;
 	unsigned char * p = buf;
 	DWORD read;
@@ -288,9 +572,9 @@ static int ser_recv(union filedescriptor *fd, unsigned char * buf, size_t buflen
 	HANDLE hComPort=(HANDLE)fd->pfd;
 	
 	if (hComPort == INVALID_HANDLE_VALUE) {
-		fprintf(stderr, "%s: ser_read(): port not open\n",
+		avrdude_message(MSG_INFO, "%s: ser_read(): port not open\n",
               progname); 
-		exit(1);
+		return -1;
 	}
 	
 	serial_w32SetTimeOut(hComPort, serial_recv_timeout);
@@ -307,32 +591,39 @@ static int ser_recv(union filedescriptor *fd, unsigned char * buf, size_t buflen
 			(LPTSTR) &lpMsgBuf,
 			0,
 			NULL 	);
-		fprintf(stderr, "%s: ser_recv(): read error: %s\n",
+		avrdude_message(MSG_INFO, "%s: ser_recv(): read error: %s\n",
 			      progname, (char*)lpMsgBuf);
 		LocalFree( lpMsgBuf );
-		exit(1);
+		return -1;
+	}
+
+	/* time out detected */
+	if (read == 0) {
+		avrdude_message(MSG_NOTICE2, "%s: ser_recv(): programmer is not responding\n",
+                                progname);
+		return -1;
 	}
 
 	p = buf;
 
 	if (verbose > 3)
 	{
-		fprintf(stderr, "%s: Recv: ", progname);
+		avrdude_message(MSG_TRACE, "%s: Recv: ", progname);
 
 		while (read) {
 			c = *p;
 			if (isprint(c)) {
-				fprintf(stderr, "%c ", c);
+				avrdude_message(MSG_TRACE, "%c ", c);
 			}
 			else {
-				fprintf(stderr, ". ");
+				avrdude_message(MSG_TRACE, ". ");
 			}
-			fprintf(stderr, "[%02x] ", c);
+			avrdude_message(MSG_TRACE, "[%02x] ", c);
 
 			p++;
 			read--;
 		}
-		fprintf(stderr, "\n");
+		avrdude_message(MSG_INFO, "\n");
 	}
   return 0;
 }
@@ -348,15 +639,15 @@ static int ser_drain(union filedescriptor *fd, int display)
 	HANDLE hComPort=(HANDLE)fd->pfd;
 
   	if (hComPort == INVALID_HANDLE_VALUE) {
-		fprintf(stderr, "%s: ser_drain(): port not open\n",
+		avrdude_message(MSG_INFO, "%s: ser_drain(): port not open\n",
               progname); 
-		exit(1);
+		return -1;
 	}
 
 	serial_w32SetTimeOut(hComPort,250);
   
 	if (display) {
-		fprintf(stderr, "drain>");
+		avrdude_message(MSG_INFO, "drain>");
 	}
 
 	while (1) {
@@ -373,17 +664,17 @@ static int ser_drain(union filedescriptor *fd, int display)
 				(LPTSTR) &lpMsgBuf,
 				0,
 				NULL 	);
-			fprintf(stderr, "%s: ser_drain(): read error: %s\n",
+			avrdude_message(MSG_INFO, "%s: ser_drain(): read error: %s\n",
 					  progname, (char*)lpMsgBuf);
 			LocalFree( lpMsgBuf );
-			exit(1);
+			return -1;
 		}
 
 		if (read) { // data avail
-			if (display) fprintf(stderr, "%02x ", buf[0]);
+			if (display) avrdude_message(MSG_INFO, "%02x ", buf[0]);
 		}
 		else { // no more data
-			if (display) fprintf(stderr, "<drain\n");
+			if (display) avrdude_message(MSG_INFO, "<drain\n");
 			break;
 		}
 	} // while

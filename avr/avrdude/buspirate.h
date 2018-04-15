@@ -16,15 +16,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: buspirate.h 885 2010-01-07 13:29:49Z joerg_wunsch $ */
+/* $Id: buspirate.h 1138 2013-01-30 21:15:39Z rliebscher $ */
 
 #ifndef buspirate_h
 #define buspirate_h
 
+extern const char buspirate_desc[];
+extern const char buspirate_bb_desc[];
 void buspirate_initpgm (struct programmer_t *pgm);
+void buspirate_bb_initpgm (struct programmer_t *pgm);
 
 #endif

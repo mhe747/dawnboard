@@ -3,6 +3,9 @@
 /* Define to 1 if you have the <ddk/hidsdi.h> header file. */
 #undef HAVE_DDK_HIDSDI_H
 
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
 
@@ -11,6 +14,24 @@
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
+
+/* Define if ELF support is enabled via libelf */
+#undef HAVE_LIBELF
+
+/* Define to 1 if you have the <libelf.h> header file. */
+#undef HAVE_LIBELF_H
+
+/* Define to 1 if you have the <libelf/libelf.h> header file. */
+#undef HAVE_LIBELF_LIBELF_H
+
+/* Define if FTDI support is enabled via libftdi */
+#undef HAVE_LIBFTDI
+
+/* Define if FTDI support is enabled via libftdi1 */
+#undef HAVE_LIBFTDI1
+
+/* Define if libftdi supports FT232H, libftdi version >= 0.20 */
+#undef HAVE_LIBFTDI_TYPE_232H
 
 /* Define if HID support is enabled via the Win32 DDK */
 #undef HAVE_LIBHID
@@ -27,8 +48,26 @@
 /* Define if USB support is enabled via libusb */
 #undef HAVE_LIBUSB
 
+/* Define if USB support is enabled via a libusb-1.0 compatible libusb */
+#undef HAVE_LIBUSB_1_0
+
+/* Define to 1 if you have the <libusb-1.0/libusb.h> header file. */
+#undef HAVE_LIBUSB_1_0_LIBUSB_H
+
+/* Define to 1 if you have the <libusb.h> header file. */
+#undef HAVE_LIBUSB_H
+
+/* Define to 1 if you have the `ws2_32' library (-lws2_32). */
+#undef HAVE_LIBWS2_32
+
 /* Define to 1 if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H
+
+/* Linux sysfs GPIO support enabled */
+#undef HAVE_LINUXGPIO
+
+/* Define to 1 if you have the <lusb0_usb.h> header file. */
+#undef HAVE_LUSB0_USB_H
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
@@ -38,6 +77,9 @@
 
 /* parallel port access enabled */
 #undef HAVE_PARPORT
+
+/* Define to 1 if you have the <pthread.h> header file. */
+#undef HAVE_PTHREAD_H
 
 /* Define to 1 if you have the `select' function. */
 #undef HAVE_SELECT
@@ -96,8 +138,18 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Define to 1 if your C compiler doesn't accept -c and -o together. */
-#undef NO_MINUS_C_MINUS_O
+/* Define to 1 if you have the <usb.h> header file. */
+#undef HAVE_USB_H
+
+/* Define to 1 if you have the `usleep' function. */
+#undef HAVE_USLEEP
+
+/* Define if lex/flex has yylex_destroy */
+#undef HAVE_YYLEX_DESTROY
+
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
+#undef LT_OBJDIR
 
 /* Name of package */
 #undef PACKAGE
@@ -113,6 +165,9 @@
 
 /* Define to the one symbol short name of this package. */
 #undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION

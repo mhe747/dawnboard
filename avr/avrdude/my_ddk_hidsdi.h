@@ -13,11 +13,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: my_ddk_hidsdi.h 704 2006-12-20 23:43:34Z joerg_wunsch $ */
+/* $Id: my_ddk_hidsdi.h 1107 2012-11-20 14:03:50Z joerg_wunsch $ */
 
 /*
 The following is a replacement for hidsdi.h from the Windows DDK. It defines some

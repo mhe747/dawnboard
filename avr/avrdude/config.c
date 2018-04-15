@@ -13,11 +13,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: config.c 725 2007-01-30 13:41:54Z joerg_wunsch $ */
+/* $Id: config.c 1322 2014-06-17 20:08:28Z rliebscher $ */
 
 #include "ac_cfg.h"
 
@@ -28,13 +27,16 @@
 #include <string.h>
 
 #include "avrdude.h"
-#include "avr.h"
+#include "libavrdude.h"
 #include "config.h"
+
 #include "config_gram.h"
 
 char default_programmer[MAX_STR_CONST];
 char default_parallel[PATH_MAX];
 char default_serial[PATH_MAX];
+double default_bitclock;
+int default_safemode;
 
 char string_buf[MAX_STR_CONST];
 char *string_buf_ptr;
@@ -54,6 +56,13 @@ extern char * yytext;
 
 #define DEBUG 0
 
+void cleanup_config(void)
+{
+  ldestroy_cb(part_list, (void(*)(void*))avr_free_part);
+  ldestroy_cb(programmers, (void(*)(void*))pgm_free);
+  ldestroy_cb(string_list, (void(*)(void*))free_token);
+  ldestroy_cb(number_list, (void(*)(void*))free_token);
+}
 
 int init_config(void)
 {
@@ -61,7 +70,7 @@ int init_config(void)
   number_list  = lcreat(NULL, 0);
   current_prog = NULL;
   current_part = NULL;
-  current_mem  = 0;
+  current_mem  = NULL;
   part_list    = lcreat(NULL, 0);
   programmers  = lcreat(NULL, 0);
 
@@ -79,10 +88,37 @@ int yywrap()
 }
 
 
-int yyerror(char * errmsg)
+int yyerror(char * errmsg, ...)
 {
-  fprintf(stderr, "%s at %s:%d\n", errmsg, infile, lineno);
-  exit(1);
+  va_list args;
+
+  char message[512];
+
+  va_start(args, errmsg);
+
+  vsnprintf(message, sizeof(message), errmsg, args);
+  avrdude_message(MSG_INFO, "%s: error at %s:%d: %s\n", progname, infile, lineno, message);
+
+  va_end(args);
+
+  return 0;
+}
+
+
+int yywarning(char * errmsg, ...)
+{
+  va_list args;
+
+  char message[512];
+
+  va_start(args, errmsg);
+
+  vsnprintf(message, sizeof(message), errmsg, args);
+  avrdude_message(MSG_INFO, "%s: warning at %s:%d: %s\n", progname, infile, lineno, message);
+
+  va_end(args);
+
+  return 0;
 }
 
 
@@ -92,8 +128,8 @@ TOKEN * new_token(int primary)
 
   tkn = (TOKEN *)malloc(sizeof(TOKEN));
   if (tkn == NULL) {
-    fprintf(stderr, "new_token(): out of memory\n");
-    exit(1);
+    yyerror("new_token(): out of memory");
+    return NULL;
   }
 
   memset(tkn, 0, sizeof(TOKEN));
@@ -107,15 +143,14 @@ TOKEN * new_token(int primary)
 void free_token(TOKEN * tkn)
 {
   if (tkn) {
-    switch (tkn->primary) {
-      case TKN_STRING:
-      case TKN_ID:
+    switch (tkn->value.type) {
+      case V_STR:
         if (tkn->value.string)
           free(tkn->value.string);
         tkn->value.string = NULL;
         break;
     }
-    
+
     free(tkn);
   }
 }
@@ -141,16 +176,33 @@ TOKEN * number(char * text)
   struct token_t * tkn;
 
   tkn = new_token(TKN_NUMBER);
+  if (tkn == NULL) {
+      return NULL; /* yyerror already called */
+  }
   tkn->value.type   = V_NUM;
-  tkn->value.number = atof(text);
+  tkn->value.number = atoi(text);
 
 #if DEBUG
-  fprintf(stderr, "NUMBER(%g)\n", tkn->value.number);
+  avrdude_message(MSG_INFO, "NUMBER(%d)\n", tkn->value.number);
 #endif
 
   return tkn;
 }
 
+TOKEN * number_real(char * text)
+{
+  struct token_t * tkn;
+
+  tkn = new_token(TKN_NUMBER);
+  tkn->value.type   = V_NUM_REAL;
+  tkn->value.number_real = atof(text);
+
+#if DEBUG
+  avrdude_message(MSG_INFO, "NUMBER(%g)\n", tkn->value.number_real);
+#endif
+
+  return tkn;
+}
 
 TOKEN * hexnumber(char * text)
 {
@@ -158,16 +210,18 @@ TOKEN * hexnumber(char * text)
   char * e;
 
   tkn = new_token(TKN_NUMBER);
+  if (tkn == NULL) {
+      return NULL; /* yyerror already called */
+  }
   tkn->value.type   = V_NUM;
   tkn->value.number = strtoul(text, &e, 16);
   if ((e == text) || (*e != 0)) {
-    fprintf(stderr, "error at %s:%d: can't scan hex number \"%s\"\n",
-            infile, lineno, text);
-    exit(1);
+    yyerror("can't scan hex number \"%s\"", text);
+    return NULL;
   }
   
 #if DEBUG
-  fprintf(stderr, "HEXNUMBER(%g)\n", tkn->value.number);
+  avrdude_message(MSG_INFO, "HEXNUMBER(%g)\n", tkn->value.number);
 #endif
 
   return tkn;
@@ -180,44 +234,22 @@ TOKEN * string(char * text)
   int len;
 
   tkn = new_token(TKN_STRING);
+  if (tkn == NULL) {
+      return NULL; /* yyerror already called */
+  }
 
   len = strlen(text);
 
   tkn->value.type   = V_STR;
   tkn->value.string = (char *) malloc(len+1);
   if (tkn->value.string == NULL) {
-    fprintf(stderr, "id(): out of memory\n");
-    exit(1);
+    yyerror("string(): out of memory");
+    return NULL;
   }
   strcpy(tkn->value.string, text);
 
 #if DEBUG
-  fprintf(stderr, "STRING(%s)\n", tkn->value.string);
-#endif
-
-  return tkn;
-}
-
-
-TOKEN * id(char * text)
-{
-  struct token_t * tkn;
-  int len;
-
-  tkn = new_token(TKN_ID);
-
-  len = strlen(text);
-
-  tkn->value.type   = V_STR;
-  tkn->value.string = (char *) malloc(len+1);
-  if (tkn->value.string == NULL) {
-    fprintf(stderr, "id(): out of memory\n");
-    exit(1);
-  }
-  strcpy(tkn->value.string, text);
-
-#if DEBUG
-  fprintf(stderr, "ID(%s)\n", tkn->value.string);
+  avrdude_message(MSG_INFO, "STRING(%s)\n", tkn->value.string);
 #endif
 
   return tkn;
@@ -239,33 +271,33 @@ void print_token(TOKEN * tkn)
   if (!tkn)
     return;
 
-  fprintf(stderr, "token = %d = ", tkn->primary);
-  switch (tkn->primary) {
-    case TKN_NUMBER: 
-      fprintf(stderr, "NUMBER, value=%g", tkn->value.number); 
+  avrdude_message(MSG_INFO, "token = %d = ", tkn->primary);
+  switch (tkn->value.type) {
+    case V_NUM:
+      avrdude_message(MSG_INFO, "NUMBER, value=%d", tkn->value.number);
       break;
 
-    case TKN_STRING: 
-      fprintf(stderr, "STRING, value=%s", tkn->value.string); 
+    case V_NUM_REAL:
+      avrdude_message(MSG_INFO, "NUMBER, value=%g", tkn->value.number_real);
       break;
 
-    case TKN_ID:  
-      fprintf(stderr, "ID,     value=%s", tkn->value.string); 
+    case V_STR:
+      avrdude_message(MSG_INFO, "STRING, value=%s", tkn->value.string);
       break;
 
-    default:     
-      fprintf(stderr, "<other>"); 
+    default:
+      avrdude_message(MSG_INFO, "<other>");
       break;
   }
 
-  fprintf(stderr, "\n");
+  avrdude_message(MSG_INFO, "\n");
 }
 
 
 void pyytext(void)
 {
 #if DEBUG
-  fprintf(stderr, "TOKEN: \"%s\"\n", yytext);
+  avrdude_message(MSG_INFO, "TOKEN: \"%s\"\n", yytext);
 #endif
 }
 
@@ -276,20 +308,26 @@ char * dup_string(const char * str)
 
   s = strdup(str);
   if (s == NULL) {
-    fprintf(stderr, "dup_string(): out of memory\n");
-    exit(1);
+    yyerror("dup_string(): out of memory");
+    return NULL;
   }
 
   return s;
 }
 
+#ifdef HAVE_YYLEX_DESTROY
+/* reset lexer and free any allocated memory */
+extern int yylex_destroy(void);
+#endif
+
 int read_config(const char * file)
 {
   FILE * f;
+  int r;
 
   f = fopen(file, "r");
   if (f == NULL) {
-    fprintf(stderr, "%s: can't open config file \"%s\": %s\n",
+    avrdude_message(MSG_INFO, "%s: can't open config file \"%s\": %s\n",
             progname, file, strerror(errno));
     return -1;
   }
@@ -298,9 +336,14 @@ int read_config(const char * file)
   infile = file;
   yyin   = f;
 
-  yyparse();
+  r = yyparse();
+
+#ifdef HAVE_YYLEX_DESTROY
+  /* reset lexer and free any allocated memory */
+  yylex_destroy();
+#endif
 
   fclose(f);
 
-  return 0;
+  return r;
 }

@@ -13,11 +13,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: avrdude.h 788 2008-11-19 23:32:30Z joerg_wunsch $ */
+/* $Id: avrdude.h 1321 2014-06-13 20:07:40Z awachtler $ */
 
 #ifndef avrdude_h
 #define avrdude_h
@@ -25,10 +24,18 @@
 extern char * progname;		/* name of program, for messages */
 extern char progbuf[];		/* spaces same length as progname */
 
-extern int do_cycles;		/* track erase-rewrite cycles (-y) */
 extern int ovsigck;		/* override signature check (-F) */
 extern int verbose;		/* verbosity level (-v, -vv, ...) */
 extern int quell_progress;	/* quiteness level (-q, -qq) */
+
+int avrdude_message(const int msglvl, const char *format, ...);
+
+#define MSG_INFO    (0) /* no -v option, can be supressed with -qq */
+#define MSG_NOTICE  (1) /* displayed with -v */
+#define MSG_NOTICE2 (2) /* displayed with -vv, used rarely */
+#define MSG_DEBUG   (3) /* displayed with -vvv */
+#define MSG_TRACE   (4) /* displayed with -vvvv, show trace commuication */
+#define MSG_TRACE2  (5) /* displayed with -vvvvv */
 
 #if defined(WIN32NATIVE)
 
@@ -39,23 +46,18 @@ extern int quell_progress;	/* quiteness level (-q, -qq) */
 extern "C" {
 #endif
 
-/* usleep replacements */
-/* sleep Windows in ms, Unix usleep in us
- #define usleep(us) Sleep((us)<20000?20:us/1000)
- #define usleep(us) Sleep(us/1000)
- #define ANTIWARP 3
- #define usleep(us) Sleep(us/1000*ANTIWARP)
-*/
+#if !defined(HAVE_USLEEP)
 int usleep(unsigned int us);
+#endif
 
 #if !defined(HAVE_GETTIMEOFDAY)
 struct timezone;
 int gettimeofday(struct timeval *tv, struct timezone *tz);
+#endif /* HAVE_GETTIMEOFDAY */
+
 #ifdef __cplusplus
 }
 #endif
-#endif /* HAVE_GETTIMEOFDAY */
-
 #endif /* defined(WIN32NATIVE) */
 
 #endif

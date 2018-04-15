@@ -15,11 +15,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $Id: ppiwin.c 804 2009-02-23 22:04:57Z joerg_wunsch $ */
+/* $Id: ppiwin.c 1321 2014-06-13 20:07:40Z awachtler $ */
 
 /*
 This is the parallel port interface for Windows built using Cygwin.
@@ -32,7 +31,6 @@ reg = register as defined in an enum in ppi.h. This must be converted
 
 
 #include "ac_cfg.h"
-#include "avrdude.h"
 
 #if defined (WIN32NATIVE)
 
@@ -46,7 +44,9 @@ reg = register as defined in an enum in ppi.h. This must be converted
 #include <sys/time.h>
 #include <windows.h>
 
-#include "serial.h"
+#include "avrdude.h"
+#include "libavrdude.h"
+
 #include "ppi.h"
 
 #define DEVICE_LPT1 "lpt1"
@@ -92,7 +92,7 @@ void ppi_open(char *port, union filedescriptor *fdp)
 
     if(fd < 0)
     {
-        fprintf(stderr, "%s: can't open device \"giveio\"\n\n", progname);
+        avrdude_message(MSG_INFO, "%s: can't open device \"giveio\"\n\n", progname);
         fdp->ifd = -1;
         return;
     }
@@ -120,15 +120,14 @@ void ppi_open(char *port, union filedescriptor *fdp)
 	fd = strtol(port, &cp, 0);
 	if(*port == '\0' || *cp != '\0')
 	{
-	    fprintf(stderr,
-		    "%s: port name \"%s\" is neither lpt1/2/3 nor valid number\n",
-		    progname, port);
+	    avrdude_message(MSG_INFO, "%s: port name \"%s\" is neither lpt1/2/3 nor valid number\n",
+                            progname, port);
 	    fd = -1;
 	}
     }
     if(fd < 0)
     {
-        fprintf(stderr, "%s: can't open device \"%s\"\n\n", progname, port);
+        avrdude_message(MSG_INFO, "%s: can't open device \"%s\"\n\n", progname, port);
         fdp->ifd = -1;
         return;
     }
@@ -362,7 +361,7 @@ int gettimeofday(struct timeval *tv, struct timezone *unused){
        unsigned long dt;                                                   \
        dt = (unsigned long)((stop.QuadPart - start.QuadPart) * 1000 * 1000 \
                             / freq.QuadPart);                              \
-       fprintf(stderr,                                                     \
+       avrdude_message(MSG_INFO, \
                "hpt:%i usleep usec:%lu sleep msec:%lu timed usec:%lu\n",   \
                has_highperf, us, ((us + 999) / 1000), dt);                 \
      } while (0)
@@ -374,6 +373,7 @@ int gettimeofday(struct timeval *tv, struct timezone *unused){
 
 #endif
 
+#if !defined(HAVE_USLEEP)
 int usleep(unsigned int us)
 {
 	int has_highperf;
@@ -384,7 +384,7 @@ int usleep(unsigned int us)
 	// verify - increasing the delay helps sometimes but not
 	// realiably. There must be some other problem. Maybe just
 	// with my test-hardware maybe in the code-base.
-	//// us=(unsigned long) (us*1.5);	
+	//// us=(unsigned long) (us*1.5);
 
 	has_highperf=QueryPerformanceFrequency(&freq);
 
@@ -393,7 +393,7 @@ int usleep(unsigned int us)
 	if (has_highperf) {
 		QueryPerformanceCounter(&start);
 		loopend.QuadPart=start.QuadPart+freq.QuadPart*us/(1000*1000);
-		do { 
+		do {
 			QueryPerformanceCounter(&stop);
 		} while (stop.QuadPart<=loopend.QuadPart);
 	}
@@ -405,11 +405,12 @@ int usleep(unsigned int us)
 
 		DEBUG_QueryPerformanceCounter(&stop);
 	}
-	
+
     DEBUG_DisplayTimingInfo(start, stop, freq, us, has_highperf);
 
     return 0;
 }
+#endif  /* !HAVE_USLEEP */
 
 #endif
 

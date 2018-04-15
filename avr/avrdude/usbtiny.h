@@ -13,21 +13,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 
 #ifndef usbtiny_h
 #define usbtiny_h
-
-#include "avrpart.h"
-
-// these are specifically assigned to USBtiny,
-// if you need your own VID and PIDs you can get them for cheap from
-// www.mecanique.co.uk so please don't reuse these. Thanks!
-#define USBTINY_VENDOR  0x1781
-#define USBTINY_PRODUCT 0x0C9F
 
 // Generic requests to the USBtiny
 #define	USBTINY_ECHO 	     0      // echo test
@@ -67,6 +58,7 @@
 extern "C" {
 #endif
 
+extern const char usbtiny_desc[];
 void usbtiny_initpgm (PROGRAMMER * pgm);
 
 #ifdef __cplusplus
