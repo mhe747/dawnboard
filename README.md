@@ -71,7 +71,8 @@ Now we go through bitbaking...
 
 	start the http server with this command in your PC server :
 	$ lighttpd -D -f $TISDK/build/arago-tmp-external-linaro-toolchain/deploy/lighttpd.conf
-	then, assuming server ip at 192.168.1.17 check to browse the server address homepage http://192.168.1.17:8000/ipk/
+	then, assuming server ip at 192.168.1.17 check to browse the server address 
+	homepage http://192.168.1.17:8000/ipk/
 
 	you should see something like : 
 
@@ -85,7 +86,8 @@ Now we go through bitbaking...
 
 
 	in Target :
- 	add in beagleboard-x15 oe packages configuration file remote LAN http server links with server address 192.168.1.17:8000/ipk
+ 	add into beagleboard-x15 open embedded packages manager's configuration file 
+	the remote LAN http server links at address of 192.168.1.17:8000/ipk
 
 	$ vi /etc/opkg/base-feeds.conf
 	src/gz all http://192.168.1.17:8000/ipk/all
@@ -127,7 +129,10 @@ Now we go through bitbaking...
 	$ ls -l /dev/i2c*
 	$ ls -l /dev/spi*
 	$ ls -l /dev/ttyS*
-	if files are not present in /dev, it means you have to download required kernel patches and dtb file to enable I2C and SPI,  UART... Read BeagleSDR_KernelHack.md (https://github.com/mhe747/dawnboard/blob/master/BeagleSDR_KernelHack.md) to enable i2c, spi, uart and the pin muxing in the kernel and dtb file.
+	if files are not present in /dev, it means you have to download required kernel patches and dtb file
+	to enable I2C and SPI,  UART... Read following page : 
+	BeagleSDR_KernelHack.md (https://github.com/mhe747/dawnboard/blob/master/BeagleSDR_KernelHack.md) 
+	to enable i2c, spi, uart and the pin muxing in the kernel and dtb file.
 	
 
 ## SPI 
@@ -155,7 +160,7 @@ Now we go through bitbaking...
 
 	I2C had been specified as working at 400 khz.
 	
-	I2C4 of the Beagleboard-X15 is connected to BeagleSDR. WWe then assume using i2c4, which in Linux is /dev/i2c-3
+	I2C4 of the Beagleboard-X15 is connected to BeagleSDR. We then assume using i2c4, which in Linux is /dev/i2c-3
 	We try to detect all connected devices on I2C4 bus.
 	
 	in Target :
@@ -175,7 +180,12 @@ Now we go through bitbaking...
 
 ## EEPROM 24Cxx / I2C
 
-	Please pay attention to the 24cXX 2-wire serial EEPROM on BeagleSDR, there are two kind of voltage. one compliant ONLY to 1.8v and 3.3v, the one used in BeagleSDR is 3.3v compliant, should not be able universal although to be some chips are tolerant, some are not. Despite of my warning, my PCB assembler didn't take into account all requirements and had been provided some EEPROM samples from different suppliers. So, please double check the reference and datasheet if something go wrong and seems not working.
+	Please we must pay attention to the 24cXX 2-wire serial EEPROM on BeagleSDR, there are two kinds of voltage. 
+	one compliant ONLY to 1.8v and not 3.3v. The one used in BeagleSDR is ONLY 3.3v compliant, not universal. 
+	Although some chips are voltage tolerant, some are not. Despite of my warning, my PCB assembler 
+	didn't take into account all requirements and had been provided some EEPROM samples from different suppliers. 
+	So, please double check the reference and datasheet if something go wrong and seems not working. 
+	This point is mentionless if you think never using I2C EEPROM.
 	
 	in Target :
 	We assume the EEPROM address is 0x50.
