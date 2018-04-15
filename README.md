@@ -145,6 +145,7 @@ Now we go through bitbaking...
 	
 	check the message has been looped back
 
+
 ------
 
 ## I2C
@@ -174,6 +175,8 @@ Now we go through bitbaking...
 
 ## EEPROM 24Cxx / I2C
 
+	Please pay attention to the 24cXX 2-wire serial EEPROM on BeagleSDR, there are two kind of voltage. one compliant ONLY to 1.8v and 3.3v, the one used in BeagleSDR is 3.3v compliant, should not be able universal although to be some chips are tolerant, some are not. Despite of my warning, my PCB assembler didn't take into account all requirements and had been provided some EEPROM samples from different suppliers. So, please double check the reference and datasheet if something go wrong and seems not working.
+	
 	in Target :
 	We assume the EEPROM address is 0x50.
 
