@@ -1,5 +1,6 @@
  
  I personnaly recommand this version of kernel https://github.com/RobertCNelson/ti-linux-kernel-dev/tree/ti-linux-4.9.y
+ or maybe more recently https://github.com/RobertCNelson/ti-linux-kernel-dev/tree/ti-linux-4.14.y
  
  	to build the kernel :
  	$ ./build_kernel.sh
@@ -9,7 +10,7 @@
 	$ dtc -I fs /proc/device-tree > mydt4988.txt
 	    check all aliases in device tree showed in mydt4988.txt, especially uart, i2c, mcspi
 
-Now go to your kernel directory in $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/build, find dts files in arch/arm/boot/dts/
+If you'd prefere using the kernel from Processor-SDK, go to your kernel directory in $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/build, find dts files in arch/arm/boot/dts/
 we are going to change dts file to have BeagleSDR loaded with correct configurations.
 
 in am57xx-beagle-x15-revc.dts, add following devices:
