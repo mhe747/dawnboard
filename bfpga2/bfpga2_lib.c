@@ -525,8 +525,11 @@ int bfpga2_cfg(bfpga *s, char *bitfile)
  	qprintf(s, "bfpga2_cfg: sending dummy clocks, waiting for DONE or fail\n\r");
 	byte = 0xFF;
 	ct = 0;
-// SPARTAN 3S200 size = 192kbyte
 
+// SPARTAN 3S200 size => M25P20 = 192kbyte
+// SPARTAN 3S500 size => M25P40 = 384kbyte
+
+#if 0
 	while((bfpga2_i2c_pcf_rd(s,PCF_FPGA_DONE)==0) && (bfpga2_i2c_pcf_rd(s,PCF_FPGA_INIT)==1))
 	{
 		// Dummy - all ones 
@@ -540,7 +543,7 @@ int bfpga2_cfg(bfpga *s, char *bitfile)
 		}
 	}
  	qprintf(s, "bfpga2_cfg: %d dummy clocks sent\n\r", ct*8);
-		
+#endif		
 	/* Clear FLASH_DRV */
 	qprintf(s, "bfpga2_cfg: Setting FLASH -> FPGA cfg\n\r");
 	bfpga2_i2c_pcf_wr(s,PCF_OMAP_FLASH_DRV,1);		// drive high
