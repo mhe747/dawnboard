@@ -18,6 +18,10 @@ in am57xx-beagle-x15-revc.dts, add following devices:
 	&i2c4 {
 		status = "okay";
 		clock-frequency = <400000>;
+	    	eeprom: eeprom@50 {
+			compatible = "at,24c64";
+			reg = <0x50>;
+    		};
 	};
 
 	&uart8 {
