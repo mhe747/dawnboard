@@ -17,11 +17,7 @@ in am57xx-beagle-x15-revc.dts, add following devices:
 
 	&i2c4 {
 		status = "okay";
-		clock-frequency = <400000>;
-	    	eeprom: eeprom@50 {
-			compatible = "at,24c64";
-			reg = <0x50>;
-    		};
+		clock-frequency = <400000>;	    	
 	};
 
 	&uart8 {
@@ -64,8 +60,8 @@ according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.d
 	mcspi3_pins: mcspi3_pins {
 		     pinctrl-single,pins = <
 		               DRA7XX_CORE_IOPAD(0x1780, PIN_INPUT_PULLUP | MUX_MODE1) /*mmc3_cmd.spi3_clk*/
-		               DRA7XX_CORE_IOPAD(0x1784, PIN_INPUT_PULLUP | MUX_MODE1) /*mmc3_dat0.spi3_d1*/
-		               DRA7XX_CORE_IOPAD(0x1788, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat1.spi3_d0*/
+		               DRA7XX_CORE_IOPAD(0x1784, PIN_INPUT_PULLUP | MUX_MODE1) /*mmc3_dat0.spi3_d1 input ?*/
+		               DRA7XX_CORE_IOPAD(0x1788, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat1.spi3_d0 output ?*/
 		               DRA7XX_CORE_IOPAD(0x178C, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat2.spi3_cs0*/
 		>;
 	};
@@ -73,8 +69,8 @@ according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.d
 	mcspi4_pins: mcspi4_pins {
 		     pinctrl-single,pins = <
 		               DRA7XX_CORE_IOPAD(0x1794, PIN_INPUT_PULLUP | MUX_MODE1) /*mmc3_dat4.spi4_clk*/
-		               DRA7XX_CORE_IOPAD(0x1798, PIN_INPUT_PULLUP | MUX_MODE1) /*mmc3_dat5.spi4_d1*/
-		               DRA7XX_CORE_IOPAD(0x179C, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat6.spi4_d0*/
+		               DRA7XX_CORE_IOPAD(0x1798, PIN_INPUT_PULLUP | MUX_MODE1) /*mmc3_dat5.spi4_d1 input ?*/
+		               DRA7XX_CORE_IOPAD(0x179C, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat6.spi4_d0 output ?*/
 		               DRA7XX_CORE_IOPAD(0x17A0, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat7.spi4_cs0*/
 		>;
 	};
@@ -118,16 +114,16 @@ after 15 seconds of reboot, now you have to do a check in target :
 	root@am57xx-evm:~# dmesg | grep i2c
 	[    0.939269] omap_i2c 48070000.i2c: bus 0 rev0.12 at 400 kHz
 	[    0.939868] omap_i2c 48060000.i2c: bus 2 rev0.12 at 400 kHz
-	[    0.940289] omap_i2c 4807a000.i2c: bus 3 rev0.12 at 400 kHz
+	[    0.940289] omap_i2c 4807a000.i2c: bus 3 rev0.12 at 400 kHz   ** this is i2c4
 
 	root@am57xx-evm:~# dmesg | grep serial
 	[    2.108010] 48020000.serial: ttyS2 at MMIO 0x48020000 (irq = 301, base_baud = 3000000) is a 8250
-	[    3.224910] 48422000.serial: ttyS0 at MMIO 0x48422000 (irq = 302, base_baud = 3000000) is a 8250 <-- this is UART8
-	[    3.234412] 48424000.serial: ttyS1 at MMIO 0x48424000 (irq = 303, base_baud = 3000000) is a 8250 <-- this is UART9
+	[    3.224910] 48422000.serial: ttyS7 at MMIO 0x48422000 (irq = 302, base_baud = 3000000) is a 8250 <-- this is UART8
+	[    3.234412] 48424000.serial: ttyS8 at MMIO 0x48424000 (irq = 303, base_baud = 3000000) is a 8250 <-- this is UART9
 
 	root@am57xx-evm:~# dmesg | grep spi
-	[    3.412919] pinctrl-single 4a003400.pinmux: could not add functions for mcspi3_pins 4294954880x  ** SPI3
-	[    3.430787] pinctrl-single 4a003400.pinmux: could not add functions for mcspi4_pins 4294954900x  ** SPI4
+	[    3.412919] pinctrl-single 4a003400.pinmux: could not add functions for mcspi3_pins 4294960000x  ** SPI3
+	[    3.430787] pinctrl-single 4a003400.pinmux: could not add functions for mcspi4_pins 4294960020x  ** SPI4
 
 	root@am57xx-evm:~# ll /dev/i2c* 
 	crw-------    1 root     root       89,   0 Apr  1 12:55 /dev/i2c-0
@@ -135,9 +131,8 @@ after 15 seconds of reboot, now you have to do a check in target :
 	crw-------    1 root     root       89,   3 Apr  1 12:55 /dev/i2c-3   ** this is i2c4
 
 	root@am57xx-evm:~# ll /dev/ttyS*
-	crw-rw----    1 root     dialout     4,  64 Apr  1 12:55 /dev/ttyS0   ** this is uart8
-	crw-rw----    1 root     dialout     4,  65 Apr  1 12:55 /dev/ttyS1   ** this is uart9
-	crw-------    1 root     tty         4,  66 Apr  1 13:14 /dev/ttyS2
+	crw-rw----    1 root     dialout     4,  71 Apr  1 09:47 /dev/ttyS7  ** uart8
+	crw-rw----    1 root     dialout     4,  72 Apr  1 09:47 /dev/ttyS8  ** uart9
 
 
 	root@am57xx-evm:~# ll /dev/spi*
@@ -160,6 +155,10 @@ after 15 seconds of reboot, now you have to do a check in target :
 	50: 50 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
 	60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
 	70: -- -- -- -- -- -- -- --    
+	
+	root@am57xx-evm:~# ls -dl /sys/bus/i2c/devices/
+	   i2c-3 -> ../../../devices/platform/44000000.ocp/4807a000.i2c/i2c-3
+
 
 ------
 
