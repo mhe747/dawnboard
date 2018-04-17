@@ -141,15 +141,13 @@ Now we go through bitbaking...
 	
 	SPI had been specified as working at 48 Mhz. 
 
-	In order to test SPI port, one has to strap MOSI and MISO wires.
-	Using an oscilloscope, check the frequencies at 20 Mhz and the maximal frequency at 48 Mhz too.
+	In order to test SPI port, one can use an oscilloscope, check the frequencies of SPI_CLK at 20 Mhz 
+	and its maximal frequency at 48 Mhz too.
 	
 	in Target :
 	$ ./spitest -D /dev/spidev2.0 -s 20000000
 	$ ./spitest -D /dev/spidev2.0 -s 48000000
 	
-	check the message has been looped back
-
 
 ------
 
@@ -184,7 +182,8 @@ Now we go through bitbaking...
 	We assume the EEPROM address is 0x50.
 
 	There are 2 possible references, ATMEL AT24C08AN-10SU-1.8 or AT24C64DH, EEPROM 8K I2C 2-WIRE 1M CYCLES 10MS, SOIC-8
-
+	You may experience here some issue due to kernel conflicts. This point is under investigation.
+	
 	$ i2cget -y 3 0x50 0x0 
 
 	set fpga id :
@@ -273,10 +272,11 @@ Now we go through bitbaking...
 
 ## UART
 
-	In order to test UART, strap RX and TX wires and use an oscilloscope to check if something happens. UART had been specified as working at 115200 baud, maybe up to faster speed.
-	Then, have a picocom to do a loopback test.
+	In order to test UART, check RX and TX by using an oscilloscope to check if something happens. UART had been specified as working at 115200 baud, or maybe at faster speed.
 
 ------
 
-	Great, all checks had been tested, if no error, you are ready to program the AVR and the FPGA. 
-	Now, go to sub-directory avr, bfpga2 to follow further steps.
+	Great, all checks had been tested, if no error, you now are ready to make a complex project with the 
+	power of the BeagleSDR, like https://github.com/mhe747/sumpx15
+	
+	Now, go to sub-directory avr, bfpga2...
