@@ -272,11 +272,12 @@ Now we go through bitbaking...
 
 ## UART
 
-	In order to test UART, check RX and TX by using an oscilloscope to check if something happens. UART had been specified as working at 115200 baud, or maybe at faster speed.
+	In order to test UART, check RX and TX by using an oscilloscope to check if something toggling. 
+	UART had been specified as working at 115200 baud, or maybe at faster speed.
 
 ------
 
 	Great, all checks had been tested, if no error, you now are ready to make a complex project with the 
 	power of the BeagleSDR, like https://github.com/mhe747/sumpx15
 	
-	Now, go to sub-directory avr, bfpga2...
+	Just Now please go to sub-directory avr, bfpga2 to read more about it.
