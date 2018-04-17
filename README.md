@@ -180,15 +180,10 @@ Now we go through bitbaking...
 
 ## EEPROM 24Cxx / I2C
 
-	Please we must pay attention to the 24cXX 2-wire serial EEPROM on BeagleSDR, there are two kinds of voltage. 
-	one compliant ONLY to 1.8v and not 3.3v. The one used in BeagleSDR is ONLY 3.3v compliant, not universal. 
-	Although some chips are voltage tolerant, some are not. Despite of my warning, my PCB assembler 
-	didn't take into account all requirements and had been provided some EEPROM samples from different suppliers. 
-	So, please double check the reference and datasheet if something go wrong and seems not working. 
-	This point is mentionless if you think never using I2C EEPROM.
-	
 	in Target :
 	We assume the EEPROM address is 0x50.
+
+	There are 2 possible references, ATMEL AT24C08AN-10SU-1.8 or AT24C64DH, EEPROM 8K I2C 2-WIRE 1M CYCLES 10MS, SOIC-8
 
 	$ i2cget -y 3 0x50 0x0 
 
