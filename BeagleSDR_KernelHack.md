@@ -59,19 +59,19 @@ according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.d
 
 	mcspi3_pins: mcspi3_pins {
 		     pinctrl-single,pins = <
-		               DRA7XX_CORE_IOPAD(0x1780, PIN_INPUT_PULLUP | MUX_MODE1) /*mmc3_cmd.spi3_clk*/
-			       DRA7XX_CORE_IOPAD(0x1788, PIN_INPUT_PULLUP | MUX_MODE1) /*mmc3_dat1 MCSPI3_SOMI */
-		               DRA7XX_CORE_IOPAD(0x1784, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat0 MCSPI3_MOSI */
-			       DRA7XX_CORE_IOPAD(0x178C, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat2.spi3_cs0*/
+		               DRA7XX_CORE_IOPAD(0x1780, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_cmd.spi3_clk*/
+			       DRA7XX_CORE_IOPAD(0x1788, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat1 MCSPI3_SOMI */
+		               DRA7XX_CORE_IOPAD(0x1784, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat0 MCSPI3_MOSI */
+			       DRA7XX_CORE_IOPAD(0x178C, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat2.spi3_cs0*/
 		>;
 	};
 
 	mcspi4_pins: mcspi4_pins {
 		     pinctrl-single,pins = <
-		               DRA7XX_CORE_IOPAD(0x1794, PIN_INPUT_PULLUP | MUX_MODE1) /*mmc3_dat4.spi4_clk*/
-		               DRA7XX_CORE_IOPAD(0x1798, PIN_INPUT_PULLUP | MUX_MODE1) /*mmc3_dat5 MCSPI4_SOMI */
-		               DRA7XX_CORE_IOPAD(0x179C, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat6 MCSPI4_MOSI */
-		               DRA7XX_CORE_IOPAD(0x17A0, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat7.spi4_cs0*/
+		               DRA7XX_CORE_IOPAD(0x1794, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat4.spi4_clk*/
+		               DRA7XX_CORE_IOPAD(0x1798, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat5 MCSPI4_SOMI */
+		               DRA7XX_CORE_IOPAD(0x179C, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat6 MCSPI4_MOSI */
+		               DRA7XX_CORE_IOPAD(0x17A0, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat7.spi4_cs0*/
 		>;
 	};
 
