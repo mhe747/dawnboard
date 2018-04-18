@@ -276,11 +276,12 @@ Now we go through bitbaking...
 	In order to test UART, check RX and TX by using an oscilloscope to check if something toggling. 
 	UART had been specified as working at 115200 baud, or maybe at faster speed.
 	
-	Beagleboard-x15's UART8 is shared between FPGA and AVR, thus it is connected from Beagleboard-x15 to both devices.	
+	Beagleboard-x15's UART8 should be exclusively reserved to AVR. However it is connected from Beagleboard-x15 
+	to both devices (FPGA and AVR) and can be used as GPIO purpose in case of UART8 disabled.
 		UART8_TX <=> FPGA_LVS_D <=> AVR_PD0
 		UART8_RX <=> FPGA_LVS_E <=> AVR_PD1 
 		
-	Beagleboard-x15's UART9 is exclusively reserved to FPGA.	
+	Beagleboard-x15's UART9 is exclusively reserved to FPGA. No other purpose.
 		FPGA_BEAGLE_UART_RX = UART9_TXD
 		FPGA_BEAGLE_UART_TX = UART9_RXD
 
