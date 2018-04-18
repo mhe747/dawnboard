@@ -134,6 +134,7 @@ Now we go through bitbaking...
 	BeagleSDR_KernelHack.md (https://github.com/mhe747/dawnboard/blob/master/BeagleSDR_KernelHack.md) 
 	to enable i2c, spi, uart and the pin muxing in the kernel and dtb file.
 	
+------
 
 ## SPI 
 	in Target :
@@ -174,7 +175,7 @@ Now we go through bitbaking...
 	60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 	70: -- -- -- -- -- -- -- --
 
-	
+------	
 
 ## EEPROM 24Cxx / I2C
 
@@ -274,6 +275,41 @@ Now we go through bitbaking...
 
 	In order to test UART, check RX and TX by using an oscilloscope to check if something toggling. 
 	UART had been specified as working at 115200 baud, or maybe at faster speed.
+
+------
+
+## GPIO
+
+	In Target, try to select GPIO connected from Beagleboard-x15 to BeagleSDR :
+	$ cd /sys/class/gpio
+	$ echo 166 > export
+	$ cd gpio166
+	$ echo out > direction
+	$ cat value
+	$ echo 1 > value
+	$ cat value
+
+	in BeagleSDR fpga configuration file .ucf add these lines :
+	NET "FPGA_BEAGLE<0>"  LOC = "P89"; #pin 166
+	NET "FPGA_BEAGLE<1>"  LOC = "P90"; #pin 164
+	NET "FPGA_BEAGLE<2>"  LOC = "P93"; #pin 231
+	NET "FPGA_BEAGLE<3>"  LOC = "P94"; #pin 168
+	NET "FPGA_BEAGLE<4>"  LOC = "P96"; #pin 210
+	NET "FPGA_BEAGLE<5>"  LOC = "P48"; #pin 211
+	NET "FPGA_BEAGLE<6>"  LOC = "P36"; #pin 208
+	NET "FPGA_BEAGLE<7>"  LOC = "P41"; #pin 165
+	NET "FPGA_BEAGLE<8>"  LOC = "P40"; #pin 167
+	NET "FPGA_BEAGLE<9>"  LOC = "P47"; #pin 169
+	NET "FPGA_BEAGLE<10>"  LOC = "P69"; #pin 222
+	NET "FPGA_BEAGLE<11>"  LOC = "P74"; #pin 225
+
+
+	in C, add these lines :
+	/* array of 12 pins IO vectors */
+	int pin_array[] = 
+	{
+	166,164,231,168,210,211,208,165,167,169,222,225
+	};
 
 ------
 
