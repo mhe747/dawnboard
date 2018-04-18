@@ -146,8 +146,8 @@ Now we go through bitbaking...
 	and its maximal frequency at 48 Mhz too.
 	
 	in Target :
-	$ ./spitest -D /dev/spidev2.0 -s 20000000
-	$ ./spitest -D /dev/spidev2.0 -s 48000000
+	$ ./spidev_test -D /dev/spidev2.0 -s 20000000
+	$ ./spidev_test -D /dev/spidev2.0 -s 48000000
 	
 
 ------
@@ -290,19 +290,18 @@ Now we go through bitbaking...
 	$ cat value
 
 	in BeagleSDR fpga configuration file .ucf add these lines :
-	NET "FPGA_BEAGLE<0>"  LOC = "P89"; #pin 166
-	NET "FPGA_BEAGLE<1>"  LOC = "P90"; #pin 164
-	NET "FPGA_BEAGLE<2>"  LOC = "P93"; #pin 231
-	NET "FPGA_BEAGLE<3>"  LOC = "P94"; #pin 168
-	NET "FPGA_BEAGLE<4>"  LOC = "P96"; #pin 210
-	NET "FPGA_BEAGLE<5>"  LOC = "P48"; #pin 211
-	NET "FPGA_BEAGLE<6>"  LOC = "P36"; #pin 208
-	NET "FPGA_BEAGLE<7>"  LOC = "P41"; #pin 165
-	NET "FPGA_BEAGLE<8>"  LOC = "P40"; #pin 167
-	NET "FPGA_BEAGLE<9>"  LOC = "P47"; #pin 169
-	NET "FPGA_BEAGLE<10>"  LOC = "P69"; #pin 222
-	NET "FPGA_BEAGLE<11>"  LOC = "P74"; #pin 225
-
+	NET "FPGA_BEAGLE<0>"  LOC = "P89"; #pin 166 = P17.p45
+	NET "FPGA_BEAGLE<1>"  LOC = "P90"; #pin 164 = P17.p47
+	NET "FPGA_BEAGLE<2>"  LOC = "P93"; #pin 231 = P17.p51
+	NET "FPGA_BEAGLE<3>"  LOC = "P94"; #pin 168 = P17.p55
+	NET "FPGA_BEAGLE<4>"  LOC = "P96"; #pin 210 = P17.p58
+	NET "FPGA_BEAGLE<5>"  LOC = "P48"; #pin 211 = P17.p28
+	NET "FPGA_BEAGLE<6>"  LOC = "P36"; #pin 208 = P17.p12
+	NET "FPGA_BEAGLE<7>"  LOC = "P41"; #pin 165 = P17.p17
+	NET "FPGA_BEAGLE<8>"  LOC = "P40"; #pin 167 = P17.p15
+	NET "FPGA_BEAGLE<9>"  LOC = "P47"; #pin 169 = P17.p25
+	NET "FPGA_BEAGLE<10>"  LOC = "P69"; #pin 222 = P17.p4
+	NET "FPGA_BEAGLE<11>"  LOC = "P74"; #pin 225 = P17.p8
 
 	in C, add these lines :
 	/* array of 12 pins IO vectors */
