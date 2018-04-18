@@ -28,21 +28,11 @@ in am57xx-beagle-x15-revc.dts, add following devices:
 		status = "okay";
 	};
 
-	&mcspi3 { 
-	       status = "okay";
-	       pinctrl-names = "default";
-	       pinctrl-0 = <&mcspi3_pins>;
-	       spidev@3 { 
-		      spi-max-frequency = <48000000>;
-		      reg = <0>; 
-		      compatible = "rohm,dh2228fv";
-	       };
-	};
-
 	&mcspi4 { 
 	       status = "okay";
 	       pinctrl-names = "default";
 	       pinctrl-0 = <&mcspi4_pins>;
+	       ti,pindir-d0-in-d1-out = <0>;
 	       spidev@4 { 
 		      spi-max-frequency = <48000000>;
 		      reg = <0>; 
