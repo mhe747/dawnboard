@@ -1,6 +1,5 @@
- 
- I personnaly recommand this version of kernel https://github.com/RobertCNelson/ti-linux-kernel-dev/tree/ti-linux-4.9.y
- or maybe more recently https://github.com/RobertCNelson/ti-linux-kernel-dev/tree/ti-linux-4.14.y
+  
+## I personnaly recommand using the Kernel in Processor-SDK, which is Linux am57xx-evm 4.9.59-ga75d8e9305 in processor-sdk 4.3.0.5
  
  	to build the kernel :
  	$ ./build_kernel.sh
@@ -46,10 +45,10 @@ according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.d
 
 
 	&dra7_pmx_core {
-
+	// mcspi3 is not used here
 	/*mcspi3_pins: mcspi3_pins {
 		     pinctrl-single,pins = <
-		               DRA7XX_CORE_IOPAD(0x3780, PIN_INPUT | MODE_SELECT | MUX_MODE1) /*mmc3_cmd.spi3_clk*/
+		               DRA7XX_CORE_IOPAD(0x3780, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_cmd.spi3_clk*/
 			       DRA7XX_CORE_IOPAD(0x3788, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat1 MCSPI3_SOMI */
 		               DRA7XX_CORE_IOPAD(0x3784, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat0 MCSPI3_MOSI */
 			       DRA7XX_CORE_IOPAD(0x378C, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat2.spi3_cs0*/
@@ -58,7 +57,7 @@ according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.d
 
 	mcspi4_pins: mcspi4_pins {
 		     pinctrl-single,pins = <
-		               DRA7XX_CORE_IOPAD(0x3794, PIN_INPUT | MODE_SELECT | MUX_MODE1) /*mmc3_dat4.spi4_clk*/
+		               DRA7XX_CORE_IOPAD(0x3794, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat4.spi4_clk*/
 		               DRA7XX_CORE_IOPAD(0x3798, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat5 MCSPI4_SOMI */
 		               DRA7XX_CORE_IOPAD(0x379C, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat6 MCSPI4_MOSI */
 		               DRA7XX_CORE_IOPAD(0x37A0, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat7.spi4_cs0*/
@@ -67,9 +66,12 @@ according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.d
 
 ------
 
-Now go to your beagleboard-x15 kernel source directory and enable SPIDEV in your kernel :
+Now go to your beagleboard-x15 kernel source directory and enable SPIDEV 
+(to find out where it is, just type / SPIDEV in your kernel menuconfig) :
 
-	$ ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make menuconfig 
+	$ ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make menuconfig
+	
+	check SPIDEV if enabled
 	$ grep SPIDEV .config
 	CONFIG_SPI_SPIDEV=y
 
@@ -149,10 +151,15 @@ after 15 seconds of reboot, now you have to do a check in target :
 	root@am57xx-evm:~# ls -dl /sys/bus/i2c/devices/
 	   i2c-3 -> ../../../devices/platform/44000000.ocp/4807a000.i2c/i2c-3
 
-
+	One could read mcspi4 registers with devmem2:    
+	root@am57xx-evm:~# devmem2 0x4A009808 
+	/dev/mem opened. 
+	Memory mapped at address 0xb6f8f000. 
+	Read at address 0x4A009808 (0xb6f8f808): 0x00030000  <-- this is the value of register
+	
 ------
 
-according to spi :
+   mcspiX do not work well according to spi :
 http://e2e.ti.com/support/arm/sitara_arm/f/791/t/496527
 https://elinux.org/BeagleBone_Black_Enable_SPIDEV
 https://elinux.org/BeagleBoard/SPI
