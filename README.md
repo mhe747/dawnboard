@@ -126,6 +126,7 @@ Now we go through bitbaking...
 ## CHECK Linux kernel
 
 	in Target :
+	check devices files in /dev
 	$ ls -l /dev/i2c*
 	$ ls -l /dev/spi*
 	$ ls -l /dev/ttyS*
@@ -137,6 +138,10 @@ Now we go through bitbaking...
 ------
 
 ## SPI 
+
+	You may experience here issue due to kernel conflicts with MMC3. 
+	This point is under investigation by Beagleboard-x15 engineers.
+	
 	in Target :
 	$ opkg install spitools
 	
@@ -180,10 +185,10 @@ Now we go through bitbaking...
 ## EEPROM 24Cxx / I2C
 
 	in Target :
-	We assume the EEPROM address is 0x50.
-
-	There are 2 possible references, ATMEL AT24C08AN-10SU-1.8 or AT24C64DH, EEPROM 8K I2C 2-WIRE 1M CYCLES 10MS, SOIC-8
-	You may experience here some issue due to kernel conflicts. This point is under investigation.
+	There ATMEL AT24C08AN-10SU-1.8 or AT24C64DH are installed in BeagleSDR.
+	We assume the EEPROM address being 0x50.	
+	You may experience here some issue due to Kernel conflicts or voltage inference. 
+	This point is under investigation by Beagleboard-x15 engineers.
 	
 	$ i2cget -y 3 0x50 0x0 
 
@@ -220,7 +225,7 @@ Now we go through bitbaking...
 
 ------
 
-## PCF8574_TS Expander / I2C
+## PCF8574_TS Expander / I2C   - Tested, working
 
 	in Target :
 	We assume the PCF8574_TS Expander i2c address is 0x20.
@@ -236,7 +241,7 @@ Now we go through bitbaking...
 
 ------
 
-## LTC 6904 / I2C
+## LTC 6904 / I2C   - Tested, working
 
 	Have an oscilloscope and solder probe wire to the clock pin according to the LTC 6904 datasheet.
 	in Target :
@@ -271,7 +276,7 @@ Now we go through bitbaking...
 	
 ------
 
-## UART
+## UART 8,9   - Tested, working
 
 	In order to test UART, check RX and TX by using an oscilloscope to check if something toggling. 
 	UART had been specified as working at 115200 baud, or maybe at faster speed.
@@ -286,9 +291,48 @@ Now we go through bitbaking...
 		FPGA_BEAGLE_UART_TX = UART9_RXD
 
 
+	Beagleboard-x15 talks to BeagleSDR's AVR through UART8,
+	Arduino sketches can also be uploaded using avrdude :
+	
+	$ avrdude -V -F -c usbasp -p m328 -P /dev/ttyS8 -b 57600 -U flash:w:Arduino.hex
+
+	avrdude: warning: cannot set sck period. please check for usbasp firmware update.
+	avrdude: AVR device initialized and ready to accept instructions
+
+	Reading | ################################################## | 100% 0.00s
+
+	avrdude: Device signature = 0x1e9514
+
 ------
 
-## GPIO
+	Beagleboard-x15 talks to BeagleSDR's FPGA through UART9, 
+	here is a simple UART loopback test :
+	
+	root@am57xx-evm:~# picocom -b 115200 -f n -d 8 -p n /dev/ttyS8
+	picocom v1.7
+
+	port is        : /dev/ttyS8
+	flowcontrol    : none
+	baudrate is    : 115200
+	parity is      : none
+	databits are   : 8
+	escape is      : C-a
+	local echo is  : no
+	noinit is      : no
+	noreset is     : no
+	nolock is      : no
+	send_cmd is    : sz -vv
+	receive_cmd is : rz -vv
+	imap is        : 
+	omap is        : 
+	emap is        : crcrlf,delbs,
+
+	Terminal ready
+	aaaaaaaaaaaaaaaaaaa
+	
+------
+
+## GPIO - Tested, working
 
 	In Target, try to select GPIO connected from Beagleboard-x15 to BeagleSDR :
 	$ cd /sys/class/gpio
@@ -300,18 +344,18 @@ Now we go through bitbaking...
 	$ cat value
 
 	in BeagleSDR fpga configuration file .ucf add these lines :
-	NET "FPGA_BEAGLE<0>"  LOC = "P89"; #pin 166 = P17.p45
-	NET "FPGA_BEAGLE<1>"  LOC = "P90"; #pin 164 = P17.p47
-	NET "FPGA_BEAGLE<2>"  LOC = "P93"; #pin 231 = P17.p51
-	NET "FPGA_BEAGLE<3>"  LOC = "P94"; #pin 168 = P17.p55
-	NET "FPGA_BEAGLE<4>"  LOC = "P96"; #pin 210 = P17.p58
-	NET "FPGA_BEAGLE<5>"  LOC = "P48"; #pin 211 = P17.p28
-	NET "FPGA_BEAGLE<6>"  LOC = "P36"; #pin 208 = P17.p12
-	NET "FPGA_BEAGLE<7>"  LOC = "P41"; #pin 165 = P17.p17
-	NET "FPGA_BEAGLE<8>"  LOC = "P40"; #pin 167 = P17.p15
-	NET "FPGA_BEAGLE<9>"  LOC = "P47"; #pin 169 = P17.p25
-	NET "FPGA_BEAGLE<10>"  LOC = "P69"; #pin 222 = P17.p4
-	NET "FPGA_BEAGLE<11>"  LOC = "P74"; #pin 225 = P17.p8
+	NET "FPGA_BEAGLE<0>"  LOC = "P89"; # x15's pin 166 = P17.p45
+	NET "FPGA_BEAGLE<1>"  LOC = "P90"; # x15's pin 164 = P17.p47
+	NET "FPGA_BEAGLE<2>"  LOC = "P93"; # x15's pin 231 = P17.p51
+	NET "FPGA_BEAGLE<3>"  LOC = "P94"; # x15's pin 168 = P17.p55
+	NET "FPGA_BEAGLE<4>"  LOC = "P96"; # x15's pin 210 = P17.p58
+	NET "FPGA_BEAGLE<5>"  LOC = "P48"; # x15's pin 211 = P17.p28
+	NET "FPGA_BEAGLE<6>"  LOC = "P36"; # x15's pin 208 = P17.p12
+	NET "FPGA_BEAGLE<7>"  LOC = "P41"; # x15's pin 165 = P17.p17
+	NET "FPGA_BEAGLE<8>"  LOC = "P40"; # x15's pin 167 = P17.p15
+	NET "FPGA_BEAGLE<9>"  LOC = "P47"; # x15's pin 169 = P17.p25
+	NET "FPGA_BEAGLE<10>"  LOC = "P69"; # x15's pin 222 = P17.p4
+	NET "FPGA_BEAGLE<11>"  LOC = "P74"; # x15's pin 225 = P17.p8
 
 	in C, add these lines :
 	/* array of 12 pins IO vectors */
