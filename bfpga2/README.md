@@ -1,8 +1,8 @@
-
-# bfpga2
+  
+# Fpga Xilinx Spartan 3S500E  - Tested, working
 
 ## User
-We would test the programmable clock oscillator and test the SPI control port before. The access to FPGA requires working SPI and UART ports, ref. schematics, in order build applications for interaction with the FPGA design. Therefore MLO, U-boot and Linux Kernel driver with pin muxing support including I2C and SPI are required.
+We would test the programmable clock oscillator and test the SPI control port before. The access to FPGA requires working GPIO, SPI and UART ports, ref. schematics, in order build applications for interaction with the FPGA design. Therefore MLO, U-boot and Linux Kernel driver with pin muxing support including GPIO, SPI, I2C and UART are required.
 
 ------
 
@@ -12,4 +12,4 @@ Xilinx ISE 14.7 is a suite of tools includes IMPACT the bitfile download tool th
 
 ------
 
-Consider using Xilinx Platform Cable USB and Xilinx Impact to program the FPGA. This method is tested and works very well.
+Consider using Xilinx Platform Cable USB and Xilinx Impact to program the FPGA. This method is the fastest, tested and works very well.
