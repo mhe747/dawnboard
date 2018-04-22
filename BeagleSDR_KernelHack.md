@@ -163,3 +163,16 @@ after 15 seconds of reboot, now you have to do a check in target :
 http://e2e.ti.com/support/arm/sitara_arm/f/791/t/496527
 https://elinux.org/BeagleBone_Black_Enable_SPIDEV
 https://elinux.org/BeagleBoard/SPI
+
+
+Annexe :
+
+	get the cpu temperature
+	$ cat /sys/class/thermal/thermal_zone0/temp
+	67000
+	this is about 67 deg C in CPU
+
+	get the cpu frequency
+	$ cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq
+	1000000   <-- this is cpu0
+	1000000   <-- this is cpu1
