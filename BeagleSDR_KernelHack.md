@@ -46,6 +46,7 @@ according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.d
 
 	&dra7_pmx_core {
 	// mcspi3 is not used here
+/* This would configure the port P17, corresponding to the extension pins 17.4, 17.36, 17.7, 17.8 respectively as below */	
 	/*mcspi3_pins: mcspi3_pins {
 		     pinctrl-single,pins = <
 		               DRA7XX_CORE_IOPAD(0x3780, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_cmd.spi3_clk*/
@@ -54,6 +55,8 @@ according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.d
 			       DRA7XX_CORE_IOPAD(0x378C, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat2.spi3_cs0*/
 		>;
 	};*/
+
+/* This would configure the port P17, corresponding to the extension pins 17.37, 17.35, 17.38, 17.6 respectively as below */
 
 	mcspi4_pins: mcspi4_pins {
 		     pinctrl-single,pins = <
