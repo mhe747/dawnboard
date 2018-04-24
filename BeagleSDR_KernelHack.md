@@ -172,12 +172,95 @@ https://elinux.org/BeagleBoard/SPI
 
 Annexe :
 
-	get the cpu temperature
+get the cpu temperature
+
 	$ cat /sys/class/thermal/thermal_zone0/temp
+
 	67000
 	this is about 67 deg C in CPU
 
-	get the cpu frequency
+get the cpu frequency
+
 	$ cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq
+
 	1000000   <-- this is cpu0
 	1000000   <-- this is cpu1
+
+check the clock rate in 
+
+	$ ls /sys/kernel/debug/clk/
+
+check the pin mux
+
+	$ cat /sys/kernel/debug/pinctrl/4a003400.pinmux/pinmux-pins
+
+	Pinmux settings per pin
+	Format: pin (name): mux_owner gpio_owner hog?
+
+	...
+	pin 229 (PIN229): 480ba000.spi (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pins
+	pin 230 (PIN230): 480ba000.spi (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pins
+	pin 231 (PIN231): 480ba000.spi (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pins
+	pin 232 (PIN232): 480ba000.spi (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pins
+	...
+
+	$ cat /sys/kernel/debug/pinctrl/4a003400.pinmux/pinmux-functions
+	function: mcspi4_pins, groups = [ mcspi4_pins ]
+	function: mmc1_pins_default, groups = [ mmc1_pins_default ]
+	function: mmc1_pins_hs, groups = [ mmc1_pins_hs ]
+	function: mmc1_pins_sdr12, groups = [ mmc1_pins_sdr12 ]
+	function: mmc1_pins_sdr25, groups = [ mmc1_pins_sdr25 ]
+	function: mmc1_pins_sdr50, groups = [ mmc1_pins_sdr50 ]
+	function: mmc1_pins_ddr50, groups = [ mmc1_pins_ddr50 ]
+	function: mmc1_pins_sdr104, groups = [ mmc1_pins_sdr104 ]
+	function: mmc2_pins_default, groups = [ mmc2_pins_default ]
+	function: mmc2_pins_hs, groups = [ mmc2_pins_hs ]
+	function: mmc2_pins_ddr_rev20, groups = [ mmc2_pins_ddr_rev20 ]
+
+
+	$ cat /sys/kernel/debug/gpio
+	gpiochip0: GPIOs 0-31, parent: platform/4ae10000.gpio, gpio:
+
+	gpiochip1: GPIOs 32-63, parent: platform/48055000.gpio, gpio:
+	 gpio-40  (                    |?                   ) out lo    
+	 gpio-62  (                    |?                   ) out lo    
+
+	gpiochip2: GPIOs 64-95, parent: platform/48057000.gpio, gpio:
+
+	gpiochip3: GPIOs 96-127, parent: platform/48059000.gpio, gpio:
+	 gpio-117 (                    |vbus                ) in  lo IRQ
+
+	gpiochip4: GPIOs 128-159, parent: platform/4805b000.gpio, gpio:
+
+	gpiochip5: GPIOs 160-191, parent: platform/4805d000.gpio, gpio:
+	 gpio-187 (                    |cd                  ) in  lo IRQ
+
+	gpiochip6: GPIOs 192-223, parent: platform/48051000.gpio, gpio:
+	 gpio-200 (                    |?                   ) out hi    
+	 gpio-201 (                    |?                   ) out lo    
+	 gpio-202 (                    |?                   ) out hi    
+	 gpio-203 (                    |vtt_fixed           ) out hi    
+	 gpio-204 (                    |?                   ) in  hi IRQ
+	 gpio-206 (                    |?                   ) out lo    
+	 gpio-207 (                    |?                   ) out lo    
+
+	gpiochip7: GPIOs 224-255, parent: platform/48053000.gpio, gpio:
+
+	gpiochip8: GPIOs 504-511, parent: platform/48070000.i2c:tps659038@58:tps659038_gpio, 48070000.i2c:tps659038@58:tps659038_gpio, can sleep:
+	 gpio-506 (                    |GPIO fan control    ) out lo    
+
+check wakeup sources
+
+	$ cat /sys/kernel/debug/wakeup_sources
+
+	name		active_count	event_count	wakeup_count	expire_count	active_since	total_time	max_time	last_change	prevent_suspend_time
+	48838000.rtc	0		0		0		0		0		0		0		17096		0
+	48070000.i2c:tps659038@58:tps659038_rtc	0		0		0		0		0		0	016554		0
+	2-006f      	1		1		0		0		0		5		5		21528		0
+	480b4000.mmc	0		0		0		0		0		0		0		3080		0
+	4809c000.mmc	0		0		0		0		0		0		0		3017		0
+	48424000.serial	0		0		0		0		0		0		0		2776		0
+	48422000.serial	0		0		0		0		0		0		0		2766		0
+	48020000.serial	0		0		0		0		0		0		0		1791		0
+	alarmtimer  	0		0		0		0		0		0		0		704		0
+	deleted     	0		0		0		0		0		0		0		00
