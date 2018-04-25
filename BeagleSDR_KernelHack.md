@@ -1,16 +1,23 @@
   
 ## I personnaly recommand using the Kernel in Processor-SDK, which is Linux am57xx-evm 4.9.59-ga75d8e9305 in processor-sdk 4.3.0.5
  
- 	to build the kernel :
- 	$ ./build_kernel.sh
+ 	Go to your kernel directory to build the kernel :
+ 	$ ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make -j 16
 	
  Then, boot to Beagleboard-x15, inside of your target, dump the device tree
 
-	$ dtc -I fs /proc/device-tree > mydt4988.txt
-	    check all aliases in device tree showed in mydt4988.txt, especially uart, i2c, mcspi
+	$ uname -a
+	Linux am57xx-evm 4.9.59-ga75d8e9305 #4 SMP PREEMPT Sat Apr 14 09:35:10 CEST 2018 armv7l GNU/Linux
 
-If you'd prefere using the kernel from Processor-SDK, go to your kernel directory in $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/build, find dts files in arch/arm/boot/dts/
-we are going to change dts file to have BeagleSDR loaded with correct configurations.
+	$ dtc -I fs /proc/device-tree > mydt4988.txt
+	
+	check all aliases in device tree showed in mydt4988.txt, especially uart, i2c, mcspi
+
+If you'd prefere using the kernel from Processor-SDK, go to your kernel directory to find dts files in $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/build/arch/arm/boot/dts/
+
+The Linux Kernel source can be found inside $TISDK/build/arago-tmp-external-linaro-toolchain/work-shared/am57xx-evm/kernel-source
+
+Now we are going to update dts file to have BeagleSDR loaded with correct configurations.
 
 in am57xx-beagle-x15-revc.dts, add following devices:
 
@@ -45,8 +52,7 @@ according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.d
 
 
 	&dra7_pmx_core {
-	// mcspi3 not used
-	
+
 /* This would configure the port P17, corresponding to the extension pins 17.4, 17.36, 17.7, 17.8 respectively as below */
 
 	mcspi3_pins: mcspi3_pins {
@@ -164,10 +170,10 @@ after 15 seconds of reboot, now you have to do a check in target :
 	
 ------
 
-   mcspiX do not work well according to spi :
-http://e2e.ti.com/support/arm/sitara_arm/f/791/t/496527
-https://elinux.org/BeagleBone_Black_Enable_SPIDEV
-https://elinux.org/BeagleBoard/SPI
+   mcspiX may nor work according to all mcspi issues :
+	http://e2e.ti.com/support/arm/sitara_arm/f/791/t/496527
+	https://elinux.org/BeagleBone_Black_Enable_SPIDEV
+	https://elinux.org/BeagleBoard/SPI
 
 
 Annexe :
