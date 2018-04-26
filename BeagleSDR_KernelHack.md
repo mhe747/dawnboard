@@ -35,11 +35,23 @@ in am57xx-beagle-x15-revc.dts, add following devices:
 	};
 
 	&mcspi4 { 
-	       status = "okay";
-	       pinctrl-names = "default";
-	       pinctrl-0 = <&mcspi4_pins>;
-	       ti,pindir-d0-in-d1-out = <0>;
 	       spidev@4 { 
+		       status = "okay";
+		       pinctrl-names = "default";
+		       pinctrl-0 = <&mcspi4_pins>;
+		       ti,pindir-d0-in-d1-out = <0>;
+		      spi-max-frequency = <48000000>;
+		      reg = <0>; 
+		      compatible = "rohm,dh2228fv";
+	       };
+	};
+
+	&mcspi3 { 
+	       spidev@3 { 
+		       status = "okay";
+		       pinctrl-names = "default";
+		       pinctrl-0 = <&mcspi3_pins>;
+		       ti,pindir-d0-in-d1-out = <0>;
 		      spi-max-frequency = <48000000>;
 		      reg = <0>; 
 		      compatible = "rohm,dh2228fv";
@@ -125,8 +137,15 @@ after 15 seconds of reboot, now you have to do a check in target :
 	[    3.234412] 48424000.serial: ttyS8 at MMIO 0x48424000 (irq = 303, base_baud = 3000000) is a 8250 <-- this is UART9
 
 	root@am57xx-evm:~# dmesg | grep spi
-	[    3.412919] pinctrl-single 4a003400.pinmux: could not add functions for mcspi3_pins 4294960000x  ** SPI3
-	[    3.430787] pinctrl-single 4a003400.pinmux: could not add functions for mcspi4_pins 4294960020x  ** SPI4
+	[    2.862171] omap2_mcspi 480b8000.spi: registered master spi1
+	[    2.862407] spi spi1.0: setup: speed 48000000, sample leading edge, clk normal
+	[    2.862419] spi spi1.0: setup mode 0, 8 bits/w, 48000000 Hz max --> 0
+	[    2.862840] omap2_mcspi 480b8000.spi: registered child spi1.0
+	[    2.863124] omap2_mcspi 480ba000.spi: registered master spi2
+	[    2.863301] spi spi2.0: setup: speed 48000000, sample leading edge, clk normal
+	[    2.863313] spi spi2.0: setup mode 0, 8 bits/w, 48000000 Hz max --> 0
+	[    2.863705] omap2_mcspi 480ba000.spi: registered child spi2.0
+
 
 	root@am57xx-evm:~# ll /dev/i2c* 
 	crw-------    1 root     root       89,   0 Apr  1 12:55 /dev/i2c-0
