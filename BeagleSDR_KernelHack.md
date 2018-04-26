@@ -83,23 +83,23 @@ Ref.   https://groups.google.com/forum/#!topic/beagleboard-x15/OWHcEUoCzYo
 	
 	mcspi4_pins: mcspi4_pins {
 		     pinctrl-single,pins = <
-		               DRA7XX_CORE_IOPAD(0x3794, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat4.spi4_clk*/
-		               DRA7XX_CORE_IOPAD(0x3798, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat5 MCSPI4_SOMI */
-		               DRA7XX_CORE_IOPAD(0x379C, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat6 MCSPI4_MOSI */
-		               DRA7XX_CORE_IOPAD(0x37A0, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat7.spi4_cs0*/
+		               DRA7XX_CORE_IOPAD(0x3794, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat4 spi4_clk*/
+		               DRA7XX_CORE_IOPAD(0x3798, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat5 spi4_SOMI */
+		               DRA7XX_CORE_IOPAD(0x379C, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat6 spi4_MOSI */
+		               DRA7XX_CORE_IOPAD(0x37A0, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat7 spi4_cs0*/
 		>;
 	};
 	
 	in case of configuration 2
 	/* This would configure the port P17, corresponding to the extension pins 
-	17.39, 17.40, 17.09, and 17.10 respectively as below */
+	17.37, 17.35, 17.09, and 17.10 respectively as below */
 	
 	mcspi4_pins: mcspi4_pins {
 	     pinctrl-single,pins = <
-		DRA7XX_CORE_IOPAD(0x3744, PIN_INPUT_PULLUP | MUX_MODE2)
-		DRA7XX_CORE_IOPAD(0x3748, PIN_INPUT_PULLUP |  MUX_MODE2)
-		DRA7XX_CORE_IOPAD(0x374c, PIN_OUTPUT_PULLUP | MUX_MODE2)
-		DRA7XX_CORE_IOPAD(0x3750, PIN_OUTPUT_PULLUP |  MUX_MODE2)
+	        DRA7XX_CORE_IOPAD(0x3794, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat4 spi4_clk*/
+	        DRA7XX_CORE_IOPAD(0x3798, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat5 spi4_SOMI */
+		DRA7XX_CORE_IOPAD(0x374c, PIN_OUTPUT_PULLUP | MUX_MODE2) /* UART9.TX */
+		DRA7XX_CORE_IOPAD(0x3750, PIN_OUTPUT_PULLUP |  MUX_MODE2) /* UART9.RX */
 		>;
 	};
 
