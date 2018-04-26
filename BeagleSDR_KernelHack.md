@@ -61,7 +61,7 @@ in am57xx-beagle-x15-revc.dts, add following devices:
 ------
 
 according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.dtsi, change SPI pin mux configuration
-
+Ref.   https://groups.google.com/forum/#!topic/beagleboard-x15/OWHcEUoCzYo
 
 	&dra7_pmx_core {
 
@@ -76,14 +76,30 @@ according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.d
 	//		>;
 	//	};
 
-	/* This would configure the port P17, corresponding to the extension pins 17.37, 17.35, 17.38, 17.6 respectively as below */
 
+	in case of configuration 1
+	/* This would configure the port P17, corresponding to the extension pins 
+	17.37, 17.35, 17.38, 17.6 respectively as below */
+	
 	mcspi4_pins: mcspi4_pins {
 		     pinctrl-single,pins = <
 		               DRA7XX_CORE_IOPAD(0x3794, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat4.spi4_clk*/
 		               DRA7XX_CORE_IOPAD(0x3798, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat5 MCSPI4_SOMI */
 		               DRA7XX_CORE_IOPAD(0x379C, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat6 MCSPI4_MOSI */
 		               DRA7XX_CORE_IOPAD(0x37A0, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat7.spi4_cs0*/
+		>;
+	};
+	
+	in case of configuration 2
+	/* This would configure the port P17, corresponding to the extension pins 
+	17.39, 17.40, 17.09, and 17.10 respectively as below */
+	
+	mcspi4_pins: mcspi4_pins {
+	     pinctrl-single,pins = <
+		DRA7XX_CORE_IOPAD(0x3744, PIN_INPUT_PULLUP | MUX_MODE2)
+		DRA7XX_CORE_IOPAD(0x3748, PIN_INPUT_PULLUP |  MUX_MODE2)
+		DRA7XX_CORE_IOPAD(0x374c, PIN_OUTPUT_PULLUP | MUX_MODE2)
+		DRA7XX_CORE_IOPAD(0x3750, PIN_OUTPUT_PULLUP |  MUX_MODE2)
 		>;
 	};
 
@@ -136,6 +152,7 @@ after 15 seconds of reboot, now you have to do a check in target :
 	[    3.224910] 48422000.serial: ttyS7 at MMIO 0x48422000 (irq = 302, base_baud = 3000000) is a 8250 <-- this is UART8
 	[    3.234412] 48424000.serial: ttyS8 at MMIO 0x48424000 (irq = 303, base_baud = 3000000) is a 8250 <-- this is UART9
 
+	if you enable both mcspi3 and mcspi4, you would see in log :
 	root@am57xx-evm:~# dmesg | grep spi
 	[    2.862171] omap2_mcspi 480b8000.spi: registered master spi1
 	[    2.862407] spi spi1.0: setup: speed 48000000, sample leading edge, clk normal
@@ -222,6 +239,7 @@ check the pin mux
 	Pinmux settings per pin
 	Format: pin (name): mux_owner gpio_owner hog?
 
+	in case of configuration 1
 	...
 	pin 229 (PIN229): 480ba000.spi (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pins
 	pin 230 (PIN230): 480ba000.spi (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pins
@@ -229,6 +247,12 @@ check the pin mux
 	pin 232 (PIN232): 480ba000.spi (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pins
 	...
 
+	in case of configuration 2
+	pin 209 (PIN209): spi2.0 (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pins
+	pin 210 (PIN210): spi2.0 (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pins
+	pin 211 (PIN211): spi2.0 (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pins
+	pin 212 (PIN212): spi2.0 (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pin
+	
 	$ cat /sys/kernel/debug/pinctrl/4a003400.pinmux/pinmux-functions
 	function: mcspi4_pins, groups = [ mcspi4_pins ]
 	function: mmc1_pins_default, groups = [ mmc1_pins_default ]
