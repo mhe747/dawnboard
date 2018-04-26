@@ -69,10 +69,10 @@ Ref.   https://groups.google.com/forum/#!topic/beagleboard-x15/OWHcEUoCzYo
 	   but also may in same time create pertubations to i2c4 */ 
 	//	mcspi3_pins: mcspi3_pins {
 	//		     pinctrl-single,pins = <
-	//		               DRA7XX_CORE_IOPAD(0x3780, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_cmd.spi3_clk*/
-	//			       DRA7XX_CORE_IOPAD(0x3788, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat1 MCSPI3_SOMI */
-	//		               DRA7XX_CORE_IOPAD(0x3784, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat0 MCSPI3_MOSI */
-	//			       DRA7XX_CORE_IOPAD(0x378C, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat2.spi3_cs0*/
+	//		               DRA7XX_CORE_IOPAD(0x3780, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_cmd.spi3_clk*/
+	//			       DRA7XX_CORE_IOPAD(0x3788, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat1 MCSPI3_SOMI */
+	//		               DRA7XX_CORE_IOPAD(0x3784, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat0 MCSPI3_MOSI */
+	//			       DRA7XX_CORE_IOPAD(0x378C, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat2.spi3_cs0*/
 	//		>;
 	//	};
 
@@ -83,10 +83,10 @@ Ref.   https://groups.google.com/forum/#!topic/beagleboard-x15/OWHcEUoCzYo
 	
 	mcspi4_pins: mcspi4_pins {
 		     pinctrl-single,pins = <
-		               DRA7XX_CORE_IOPAD(0x3794, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat4 spi4_clk*/
-		               DRA7XX_CORE_IOPAD(0x3798, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat5 spi4_SOMI */
-		               DRA7XX_CORE_IOPAD(0x379C, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat6 spi4_MOSI */
-		               DRA7XX_CORE_IOPAD(0x37A0, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat7 spi4_cs0*/
+		               DRA7XX_CORE_IOPAD(0x3794, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat4 spi4_clk*/
+		               DRA7XX_CORE_IOPAD(0x3798, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat5 spi4_SOMI */
+		               DRA7XX_CORE_IOPAD(0x379C, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat6 spi4_MOSI */
+		               DRA7XX_CORE_IOPAD(0x37A0, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat7 spi4_cs0*/
 		>;
 	};
 	
@@ -96,10 +96,10 @@ Ref.   https://groups.google.com/forum/#!topic/beagleboard-x15/OWHcEUoCzYo
 	
 	mcspi4_pins: mcspi4_pins {
 	     pinctrl-single,pins = <
-	        DRA7XX_CORE_IOPAD(0x3794, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat4 spi4_clk*/
-	        DRA7XX_CORE_IOPAD(0x3798, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat5 spi4_SOMI */
+	        DRA7XX_CORE_IOPAD(0x3794, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat4 spi4_clk*/
+	        DRA7XX_CORE_IOPAD(0x3798, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat5 spi4_SOMI */
 		DRA7XX_CORE_IOPAD(0x374c, PIN_OUTPUT_PULLUP | MUX_MODE2) /* UART9.TX */
-		DRA7XX_CORE_IOPAD(0x3750, PIN_OUTPUT_PULLUP |  MUX_MODE2) /* UART9.RX */
+		DRA7XX_CORE_IOPAD(0x3750, PIN_OUTPUT_PULLUP | MUX_MODE2) /* UART9.RX */
 		>;
 	};
 
