@@ -248,10 +248,10 @@ check the pin mux
 	...
 
 	in case of configuration 2
-	pin 209 (PIN209): spi2.0 (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pins
-	pin 210 (PIN210): spi2.0 (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pins
-	pin 211 (PIN211): spi2.0 (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pins
-	pin 212 (PIN212): spi2.0 (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pin
+	pin 211 (PIN209): spi2.0 (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pins
+	pin 212 (PIN210): spi2.0 (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pins
+	pin 229 (PIN211): spi2.0 (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pins
+	pin 230 (PIN212): spi2.0 (GPIO UNCLAIMED) function mcspi4_pins group mcspi4_pin
 	
 	$ cat /sys/kernel/debug/pinctrl/4a003400.pinmux/pinmux-functions
 	function: mcspi4_pins, groups = [ mcspi4_pins ]
