@@ -18,6 +18,7 @@ If you'd prefere using the kernel from Processor-SDK, go to your kernel director
 The Linux Kernel source can be found inside $TISDK/build/arago-tmp-external-linaro-toolchain/work-shared/am57xx-evm/kernel-source
 
 Now we are going to update dts file to have BeagleSDR loaded with correct configurations.
+When mcspi3 enabled, i2c4 seems no more working...
 
 in am57xx-beagle-x15-revc.dts, add following devices:
 
@@ -46,17 +47,7 @@ in am57xx-beagle-x15-revc.dts, add following devices:
 	       };
 	};
 
-	&mcspi3 { 
-	       spidev@3 { 
-		       status = "okay";
-		       pinctrl-names = "default";
-		       pinctrl-0 = <&mcspi3_pins>;
-		       ti,pindir-d0-in-d1-out = <0>;
-		      spi-max-frequency = <48000000>;
-		      reg = <0>; 
-		      compatible = "rohm,dh2228fv";
-	       };
-	};
+
 
 ------
 
@@ -65,16 +56,16 @@ according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.d
 
 	&dra7_pmx_core {
 
-/* This would configure the port P17, corresponding to the extension pins 17.4, 17.36, 17.7, 17.8 respectively as below */
-
-	mcspi3_pins: mcspi3_pins {
-		     pinctrl-single,pins = <
-		               DRA7XX_CORE_IOPAD(0x3780, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_cmd.spi3_clk*/
-			       DRA7XX_CORE_IOPAD(0x3788, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat1 MCSPI3_SOMI */
-		               DRA7XX_CORE_IOPAD(0x3784, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat0 MCSPI3_MOSI */
-			       DRA7XX_CORE_IOPAD(0x378C, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat2.spi3_cs0*/
-		>;
-	};
+/* This would configure the port P17, corresponding to the extension pins 17.4, 17.36, 17.7, 17.8 respectively as below 
+   but also may in same time create pertubations to i2c4 */ 
+//	mcspi3_pins: mcspi3_pins {
+//		     pinctrl-single,pins = <
+//		               DRA7XX_CORE_IOPAD(0x3780, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_cmd.spi3_clk*/
+//			       DRA7XX_CORE_IOPAD(0x3788, PIN_INPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat1 MCSPI3_SOMI */
+//		               DRA7XX_CORE_IOPAD(0x3784, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat0 MCSPI3_MOSI */
+//			       DRA7XX_CORE_IOPAD(0x378C, PIN_OUTPUT_PULLUP | MODE_SELECT | MUX_MODE1) /*mmc3_dat2.spi3_cs0*/
+//		>;
+//	};
 
 /* This would configure the port P17, corresponding to the extension pins 17.37, 17.35, 17.38, 17.6 respectively as below */
 
