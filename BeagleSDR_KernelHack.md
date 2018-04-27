@@ -124,6 +124,12 @@ load the zImage and dtb file into /tftpboot (assume you are using tftpboot + nfs
 	$ cp arch/arm/boot/dts/am57xx-beagle-x15-revc.dtb /tftpboot/uImage-am57xx-beagle-x15-revc.dtb
 	$ cp arch/arm/boot/zImage /tftpboot
 
+this is my personal uEnv.txt, simple yet powerful, only one line makes you from MLO to bash.
+
+	# rename to /run/media/mmcblk0p1/uEnv.txt assumed that mount /dev/mmcblk0p1 on /run/media/mmcblk0p1 type vfat 
+	uenvcmd=setenv autoload no;dhcp;setenv bootfile zImage;setenv fdtfile uImage-am57xx-beagle-x15-revc.dtb;setenv serverip 192.168.1.17;setenv netloadfdt tftp ${fdtaddr} ${serverip}:${fdtfile};setenv netloadimage tftp ${loadaddr} ${serverip}:${bootfile};setenv rootpath /home/osboxes/ti-processor-sdk-linux-am57xx-evm-04.03.00.05/targetNFS;run netloadimage;run netloadfdt;run netargs;bootz ${loadaddr} - ${fdtaddr};
+
+
 ------
 after 15 seconds of reboot, now you have to do a check in target :
 	
@@ -202,6 +208,10 @@ after 15 seconds of reboot, now you have to do a check in target :
 	
 	root@am57xx-evm:~# ls -dl /sys/bus/i2c/devices/
 	   i2c-3 -> ../../../devices/platform/44000000.ocp/4807a000.i2c/i2c-3
+
+	root@am57xx-evm:/# ls /sys/devices/platform/44000000.ocp/480ba000.spi 
+	driver           modalias         power            subsystem
+	driver_override  of_node          spi_master       uevent
 
 	One could read mcspi4 registers with devmem2:    
 	root@am57xx-evm:~# devmem2 0x4A009808 
