@@ -162,6 +162,11 @@ after 15 seconds of reboot, now you have to do a check in target :
 	[    2.863301] spi spi2.0: setup: speed 48000000, sample leading edge, clk normal
 	[    2.863313] spi spi2.0: setup mode 0, 8 bits/w, 48000000 Hz max --> 0
 	[    2.863705] omap2_mcspi 480ba000.spi: registered child spi2.0
+	
+	if you have some traces like :
+	[    2.869937] pinctrl-single 4a003400.pinmux: could not add functions for mcspi4_pins 4294960020x
+	
+	that stands for pin muxing is not working in your linux kernel !
 
 
 	root@am57xx-evm:~# ll /dev/i2c* 
