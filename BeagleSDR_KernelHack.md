@@ -39,6 +39,7 @@ These are dts files related to the Beagleboard-X15 revC :
 	am57xx-commercial-grade.dtsi 
 	dra74x-mmc-iodelay.dtsi 
 	dra7.dtsi
+	dra7xx-clocks.dtsi
 
 The Linux Kernel source can be found inside $TISDK/build/arago-tmp-external-linaro-toolchain/work-shared/am57xx-evm/kernel-source
 
@@ -60,23 +61,34 @@ in am57xx-beagle-x15-revc.dts, add following devices:
 		status = "okay";
 	};
 
+	&dra7_pmx_core {
+		mcspi4_pins: mcspi4_pins {
+			pinctrl-single,pins = <
+			       DRA7XX_CORE_IOPAD(0x3794, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat4 spi4_clk*/
+			       DRA7XX_CORE_IOPAD(0x3798, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat5 spi4_SOMI */
+			       DRA7XX_CORE_IOPAD(0x379C, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat6 spi4_MOSI */
+			       DRA7XX_CORE_IOPAD(0x37A0, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat7 spi4_cs0*/
+			>;
+		};
+	};
+
 	&mcspi4 { 
-	       spidev@4 { 
-		       status = "okay";
-		       pinctrl-names = "default";
-		       pinctrl-0 = <&mcspi4_pins>;
-		       ti,pindir-d0-in-d1-out = <0>;
+	       status = "okay";
+	       pinctrl-names = "default";
+
+	       spidev@1 { 
+		      pinctrl-1 = <&mcspi4_pins>;
 		      spi-max-frequency = <48000000>;
 		      reg = <0>; 
 		      compatible = "rohm,dh2228fv";
 	       };
 	};
 
-
-
 ------
 
-according to am5728.pdf (page 105,106), in linux kernel dts dra74x-mmc-iodelay.dtsi, change SPI pin mux configuration
+according to am5728.pdf (page 105,106), in linux kernel dts 
+you can change SPI pin mux configuration here dra74x-mmc-iodelay.dtsi
+
 Ref.   https://groups.google.com/forum/#!topic/beagleboard-x15/OWHcEUoCzYo
 
 	&dra7_pmx_core {
@@ -93,23 +105,23 @@ Ref.   https://groups.google.com/forum/#!topic/beagleboard-x15/OWHcEUoCzYo
 	//	};
 
 
-	in case of configuration 1
-	/* This would configure the port P17, corresponding to the extension pins 
+	/*in case of configuration 1
+	  This would configure the port P17, corresponding to the extension pins 
 	17.37, 17.35, 17.38, 17.6 respectively as below */
 	
-	mcspi4_pins: mcspi4_pins {
+	/* mcspi4_pins: mcspi4_pins {
 		     pinctrl-single,pins = <
 		               DRA7XX_CORE_IOPAD(0x3794, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat4 spi4_clk*/
 		               DRA7XX_CORE_IOPAD(0x3798, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat5 spi4_SOMI */
 		               DRA7XX_CORE_IOPAD(0x379C, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat6 spi4_MOSI */
 		               DRA7XX_CORE_IOPAD(0x37A0, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat7 spi4_cs0*/
 		>;
-	};
+	};*/
 	
-	in case of configuration 2
-	/* This would configure the port P17, corresponding to the extension pins 
+	/* in case of configuration 2
+	   This would configure the port P17, corresponding to the extension pins 
 	17.37, 17.35, 17.09, and 17.10 respectively as below */
-	
+	/*
 	mcspi4_pins: mcspi4_pins {
 	     pinctrl-single,pins = <
 	        DRA7XX_CORE_IOPAD(0x3794, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat4 spi4_clk*/
@@ -117,7 +129,7 @@ Ref.   https://groups.google.com/forum/#!topic/beagleboard-x15/OWHcEUoCzYo
 		DRA7XX_CORE_IOPAD(0x374c, PIN_OUTPUT_PULLUP | MUX_MODE2) /* UART9.TX */
 		DRA7XX_CORE_IOPAD(0x3750, PIN_OUTPUT_PULLUP | MUX_MODE2) /* UART9.RX */
 		>;
-	};
+	};*/
 
 ------
 
