@@ -1,8 +1,25 @@
-  
 ## I personnaly recommand using the Kernel in Processor-SDK, which is Linux am57xx-evm 4.9.59-ga75d8e9305 in processor-sdk 4.3.0.5
  
  	Go to your kernel directory to build the kernel :
- 	$ ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- make -j 16
+ 	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j 32
+	
+	Compile the kernel
+	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j 32
+
+	Compile device tree blobs
+	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- dtbs -j 32
+
+	Compile kernel modules
+	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- modules -j 32
+
+	Install compiled kernel and modules to nfs root directory
+	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=$TARGET_NFS modules_install
+	
+	$ cp arch/arm/boot/zImage /tftpboot/
+	$ cp arch/arm/boot/dts/am57xx-beagle-x15-revc.dtb /tftpboot/uImage-am57xx-beagle-x15-revc.dtb
+	
+	change uEnv.txt to set dtb to uImage-am57xx-beagle-x15-revc.dtb
+	
 	
  Then, boot to Beagleboard-x15, inside of your target, dump the device tree
 
