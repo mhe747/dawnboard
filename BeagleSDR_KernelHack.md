@@ -1,7 +1,7 @@
 ## I personnaly recommand using the Kernel in Processor-SDK, which is Linux am57xx-evm 4.9.59-ga75d8e9305 in processor-sdk 4.3.0.5
  
- 	Go to your kernel directory to build the kernel :
- 	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j 32
+ 	Go to your kernel directory to check the settings of the kernel :
+ 	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j 32 menuconfig
 	
 	Compile the kernel
 	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j 32
@@ -13,8 +13,7 @@
 	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- modules -j 32
 
 	Install compiled kernel and modules to nfs root directory
-	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=$TARGET_NFS modules_install
-	
+	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=$TARGET_NFS modules_install	
 	$ cp arch/arm/boot/zImage /tftpboot/
 	$ cp arch/arm/boot/dts/am57xx-beagle-x15-revc.dtb /tftpboot/uImage-am57xx-beagle-x15-revc.dtb
 	
