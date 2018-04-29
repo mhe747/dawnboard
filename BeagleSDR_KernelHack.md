@@ -192,6 +192,9 @@ this is my personal uEnv.txt, simple yet powerful, only one line makes you from 
 
 ------
 after 15 seconds of reboot, now you have to do a check in target :
+
+	Before plugging your BeagleSDR, it would be advisable to have a check each port with your osciloscope.
+	Check the voltage, clock activites if that seems alright.
 	
 	In target :
 	$ ls /sys/devices/platform/44000000.ocp
