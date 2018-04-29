@@ -8,13 +8,13 @@
 	$ tar -Jxvf gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz -C $HOME
 	$ nano ~/.bashrc
 	add this line into .bashrc 
-	export PATH=$PATH:~/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf/bin/
+	export PATH=$PATH:~/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf/bin
 
 	After setting the cross-compiler in your environment PATH, now have a check with
 	$ . ~/.bashrc
 	$ which arm-linux-gnueabihf-gcc
-	  *** bash should say something like, if not restart your terminal console :
-	  /home/osboxes/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf/bin//arm-linux-gnueabihf-gcc
+	  *** bash should say something like
+	  /home/osboxes/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc
 
 -------
 Now we go through bitbaking some Beagleboard-x15 core packages...
