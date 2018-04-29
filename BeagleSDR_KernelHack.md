@@ -1,33 +1,65 @@
-## I personnaly recommand using the Kernel in Processor-SDK, which is Linux am57xx-evm 4.9.59-ga75d8e9305 in processor-sdk 4.3.0.5
+## I personnaly recommand using the Kernel in Processor-SDK Yocto Distributuion, which is Linux am57xx-evm 4.9.59-ga75d8e9305 in processor-sdk 4.3.0.5
  
- 	Go to your kernel directory to check the settings of the kernel :
+	Setup the standard ARM Cross-compiler Toolchain
+	$ wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/arm-linux-gnueabihf/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz
+	$ tar -Jxvf gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz -C $HOME
+	$ nano ~/.bashrc
+	add this line into .bashrc 
+	export PATH=$PATH:~/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf/bin/
+
+	After setting the cross-compiler in your environment PATH, now have a check with
+	$ . ~/.bashrc
+	$ which arm-linux-gnueabihf-gcc
+	  *** bash should say something like, if not restart your terminal console :
+	  /home/osboxes/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf/bin//arm-linux-gnueabihf-gcc
+
+	Fetch git repo in TI
+	$ git clone git://arago-project.org/git/projects/oe-layersetup.git tisdk
+	$ cd tisdk
+	$ export TISDK=`pwd`
+	$ ls $TISDK/configs/processor-sdk/processor-sdk-04.03.00.05-config.txt
+	  *** this file must exist because we will need to import the bitbake's layers.
+
+	Now optimization, change $TISDK/build/conf/local.conf to set the number of your CPU cores
+	PARALLEL_MAKE = "-j XX"  (eg. XX=8)
+
+	$ ./oe-layertool-setup.sh -f configs/processor-sdk/processor-sdk-04.03.00.05-config.txt
+	$ cd build
+	$ . conf/setenv
+	$ MACHINE=am57xx-evm bitbake arago-core-tisdk-image
+	
+	After several hours of compilation if errors occured you should manually fix them...
+
+ 	Now go to your bitbake's TI kernel directory to check the settings of the kernel :
+	$ cd $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/build/
  	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j 32 menuconfig
 	
-	Compile the kernel
+	Compile the kernel again
 	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j 32
 
-	Compile device tree blobs
+	Compile the device tree blobs
 	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- dtbs -j 32
 
-	Compile kernel modules
+	Compile the kernel modules
 	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- modules -j 32
 
-	Install compiled kernel and modules to nfs root directory
+	Install TFTP and NFS in your local PC...
+	$ sudo apt-get install tftpd nfsd
+	
+	Install compiled kernel and modules to your nfs root directory	
 	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=$TARGET_NFS modules_install	
 	$ cp arch/arm/boot/zImage /tftpboot/
 	$ cp arch/arm/boot/dts/am57xx-beagle-x15-revc.dtb /tftpboot/uImage-am57xx-beagle-x15-revc.dtb
 	
-	change uEnv.txt to set dtb to uImage-am57xx-beagle-x15-revc.dtb
-	
-	
- Then, boot to Beagleboard-x15, inside of your target, dump the device tree
+Change uEnv.txt to set dtb to uImage-am57xx-beagle-x15-revc.dtb
+Then, boot to Beagleboard-x15, now you are inside of your target, dump the device tree
 
 	$ uname -a
 	Linux am57xx-evm 4.9.59-ga75d8e9305 #4 SMP PREEMPT Sat Apr 14 09:35:10 CEST 2018 armv7l GNU/Linux
 
-	$ dtc -I fs /proc/device-tree > mydt4988.txt
+	$ dtc -I fs /proc/device-tree > mykerneldt.txt
 	
-	check all aliases in device tree showed in mydt4988.txt, especially uart, i2c, mcspi
+	check all aliases presence in device tree showed in mykerneldt.txt, especially uart, i2c, mcspi
 
 If you'd prefere using the kernel from Processor-SDK, go to your kernel directory to find dts files in $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/build/arch/arm/boot/dts/
 
@@ -44,10 +76,10 @@ These are dts files related to the Beagleboard-X15 revC :
 The Linux Kernel source can be found inside $TISDK/build/arago-tmp-external-linaro-toolchain/work-shared/am57xx-evm/kernel-source
 
 Now we are going to update dts file to have BeagleSDR loaded with correct configurations.
-When mcspi3 enabled, i2c4 seems no more working...
 
 in am57xx-beagle-x15-revc.dts, add following devices:
 
+------
 	&i2c4 {
 		status = "okay";
 		clock-frequency = <400000>;	    	
