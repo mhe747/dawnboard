@@ -3,21 +3,21 @@
 
 ## ALL yocto arago project ipk packages sources for beagleboard-x15 based on processor-sdk-xx.xx.xx.xx-config
 
-	in PC :
-	$ ./oe-layertool-setup.sh -f configs/processor-sdk/processor-sdk-04.03.00.05-config.txt
-	$ cd build
-	$ . conf/setenv
-	
-## GET the cross compiler 
-	$ wget https://releases.linaro.org/components/toolchain/binaries/6.2-2016.11/arm-linux-gnueabihf/gcc-linaro-6.2.1-2016.11-x86_64_arm-linux-gnueabihf.tar.xz
-	$ tar -Jxvf gcc-linaro-6.2.1-2016.11-x86_64_arm-linux-gnueabihf.tar.xz -C $HOME
+	Setup the standard ARM Cross-compiler Toolchain
+	$ wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/arm-linux-gnueabihf/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz
+	$ tar -Jxvf gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz -C $HOME
+	$ nano ~/.bashrc
+	add this line into .bashrc 
+	export PATH=$PATH:~/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf/bin/
 
-set the cross-compiler in $PATH
+	After setting the cross-compiler in your environment PATH, now have a check with
+	$ . ~/.bashrc
+	$ which arm-linux-gnueabihf-gcc
+	  *** bash should say something like, if not restart your terminal console :
+	  /home/osboxes/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf/bin//arm-linux-gnueabihf-gcc
 
-	$ export PATH=$HOME/gcc-linaro-6.2.1-2016.11-x86_64_arm-linux-gnueabihf/bin:$PATH
-	
 -------
-Now we go through bitbaking...
+Now we go through bitbaking some Beagleboard-x15 core packages...
 
 	$ MACHINE=am57xx-evm bitbake arago-core-tisdk-image
 	$ MACHINE=am57xx-evm bitbake netcat
