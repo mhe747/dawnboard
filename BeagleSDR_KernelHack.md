@@ -1,4 +1,4 @@
-## I personnaly recommand using the Kernel in Processor-SDK Yocto Distributuion, which is Linux am57xx-evm 4.9.59-ga75d8e9305 in processor-sdk 4.3.0.5
+## I personnaly recommand using Linux Kernel am57xx-evm 4.9.59-ga75d8e9305 in processor-sdk 4.3.0.5
  
 	Setup the standard ARM Cross-compiler Toolchain
 	$ wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/arm-linux-gnueabihf/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz
