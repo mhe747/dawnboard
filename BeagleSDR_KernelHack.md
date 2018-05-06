@@ -30,38 +30,13 @@
 	
 	After several hours of compilation if errors occured you should manually fix them...
 
- 	Now go to your bitbake's TI kernel directory to check the settings of the kernel :
-	$ cd $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/build/
- 	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j 32 menuconfig
+Edit your bitbake's TI kernel dts directory :
 	
-	Compile the kernel again
-	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j 32
+	$ cd $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/build/arch/arm/boot/dts/
 
-	Compile the device tree blobs
-	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- dtbs -j 32
+	$ cp $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/git/arch/arm/boot/dts/{am57xx-beagle-x15-revc.dts,am57xx-beagle-x15-common.dtsi,dra74x.dtsi,am57xx-commercial-grade.dtsi,dra74x-mmc-iodelay.dtsi,dra7.dtsi,dra7xx-clocks.dtsi} .
 
-	Compile the kernel modules
-	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- modules -j 32
-
-	Install TFTP and NFS in your local PC...
-	$ sudo apt-get install tftpd nfsd
-	
-	Install compiled kernel and modules to your nfs root directory	
-	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=$TARGET_NFS modules_install	
-	$ cp arch/arm/boot/zImage /tftpboot/
-	$ cp arch/arm/boot/dts/am57xx-beagle-x15-revc.dtb /tftpboot/uImage-am57xx-beagle-x15-revc.dtb
-	
-Change uEnv.txt to set dtb to uImage-am57xx-beagle-x15-revc.dtb
-Then, boot to Beagleboard-x15, now you are inside of your target, dump the device tree
-
-	$ uname -a
-	Linux am57xx-evm 4.9.59-ga75d8e9305 #4 SMP PREEMPT Sat Apr 14 09:35:10 CEST 2018 armv7l GNU/Linux
-
-	$ dtc -I fs /proc/device-tree > mykerneldt.txt
-	
-	check all aliases presence in device tree showed in mykerneldt.txt, especially uart, i2c, mcspi
-
-If you'd prefere using the kernel from Processor-SDK, go to your kernel directory to find dts files in $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/build/arch/arm/boot/dts/
+check your kernel directory to find dts files in $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/build/arch/arm/boot/dts/
 
 These are dts files related to the Beagleboard-X15 revC :
 
@@ -73,9 +48,9 @@ These are dts files related to the Beagleboard-X15 revC :
 	dra7.dtsi
 	dra7xx-clocks.dtsi
 
-The Linux Kernel source can be found inside $TISDK/build/arago-tmp-external-linaro-toolchain/work-shared/am57xx-evm/kernel-source
+The original Linux Kernel sources can be found inside $TISDK/build/arago-tmp-external-linaro-toolchain/work-shared/am57xx-evm/kernel-sources or same as am57xx-evm/git
 
-Now we are going to update dts file to have BeagleSDR loaded with correct configurations.
+Now we are going to update the dts file to have BeagleSDR loaded with correct configurations.
 
 in am57xx-beagle-x15-revc.dts, add following devices:
 
@@ -164,6 +139,42 @@ Ref.   https://groups.google.com/forum/#!topic/beagleboard-x15/OWHcEUoCzYo
 	};*/
 
 ------
+
+	$ cd ../../../..
+
+	$ cd $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/build/
+
+Now come back to your bitbake's TI kernel directory to check the settings of the kernel :
+
+ 	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j 32 menuconfig
+	
+	Compile the kernel again
+	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j 32
+
+	Compile the device tree blobs
+	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- dtbs -j 32
+
+	Compile the kernel modules
+	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- modules -j 32
+
+	Install TFTP and NFS in your local PC...
+	$ sudo apt-get install tftpd nfsd
+	
+	Install compiled kernel and modules to your nfs root directory	
+	$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=$TARGET_NFS modules_install	
+	$ cp arch/arm/boot/zImage /tftpboot/
+	$ cp arch/arm/boot/dts/am57xx-beagle-x15-revc.dtb /tftpboot/uImage-am57xx-beagle-x15-revc.dtb
+	
+Change uEnv.txt to set dtb to uImage-am57xx-beagle-x15-revc.dtb
+Then, boot to Beagleboard-x15, now you are inside of your target, dump the device tree
+
+	$ uname -a
+	Linux am57xx-evm 4.9.59-ga75d8e9305 #4 SMP PREEMPT Sat Apr 14 09:35:10 CEST 2018 armv7l GNU/Linux
+
+	$ dtc -I fs /proc/device-tree > mykerneldt.txt
+	
+	check all aliases presence in device tree showed in mykerneldt.txt, especially uart, i2c, mcspi
+
 
 Now go to your beagleboard-x15 kernel source directory and enable SPIDEV 
 (to find out where it is, just type / SPIDEV in your kernel menuconfig) :
