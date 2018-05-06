@@ -1,9 +1,9 @@
 
 # Welcome to the github of the BeagleSDR add-on board for the famous beagleboard-x15
 
-## ALL yocto arago project ipk packages sources for beagleboard-x15 based on processor-sdk-xx.xx.xx.xx-config
+## AVR / FPGA / ADC / DAC / C2VERILOG   --   ALL IN ONE
 
-	Setup the standard ARM Cross-compiler Toolchain, since one may find some GCC7 compiler's issue with processor-sdk, I advise to use the version 6.4
+	Setup the standard ARM Cross-compiler Toolchain, since one may find some GCC7 compiler's issue with processor-sdk, I advise to use the version 6.4. ALL yocto arago project ipk packages sources for beagleboard-x15 based on processor-sdk-xx.xx.xx.xx-config
 	$ wget https://releases.linaro.org/components/toolchain/binaries/6.4-2017.08/arm-linux-gnueabihf/gcc-linaro-6.4.1-2017.08-x86_64_arm-linux-gnueabihf.tar.xz
 	$ tar -Jxvf gcc-linaro-6.4.1-2017.08-x86_64_arm-linux-gnueabihf.tar.xz -C $HOME
 	$ nano ~/.bashrc
