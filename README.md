@@ -4,11 +4,11 @@
 ## ALL yocto arago project ipk packages sources for beagleboard-x15 based on processor-sdk-xx.xx.xx.xx-config
 
 	Setup the standard ARM Cross-compiler Toolchain, since one may find some GCC7 compiler's issue with processor-sdk, I advise to use the version 6.4
-	$ wget https://releases.linaro.org/components/toolchain/binaries/6.4-2017.11/arm-linux-gnueabihf/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz
-	$ tar -Jxvf gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz -C $HOME
+	$ wget https://releases.linaro.org/components/toolchain/binaries/6.4-2017.08/arm-linux-gnueabihf/gcc-linaro-6.4.1-2017.08-x86_64_arm-linux-gnueabihf.tar.xz
+	$ tar -Jxvf gcc-linaro-6.4.1-2017.08-x86_64_arm-linux-gnueabihf.tar.xz -C $HOME
 	$ nano ~/.bashrc
 	add this line into .bashrc 
-	export PATH=$PATH:~/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin
+	export PATH=$PATH:~/gcc-linaro-6.4.1-2017.08-x86_64_arm-linux-gnueabihf/bin
 
 	After setting the cross-compiler in your environment PATH, now have a check with
 	$ . ~/.bashrc
@@ -17,11 +17,14 @@
 -------
 Now we go through bitbaking some Beagleboard-x15 core packages...
 
+	$ cd $TISDK/build/
+	$ . conf/setenv
 	$ MACHINE=am57xx-evm bitbake arago-core-tisdk-image
 	$ MACHINE=am57xx-evm bitbake netcat
 	$ MACHINE=am57xx-evm bitbake picocom
 	$ MACHINE=am57xx-evm bitbake spitools
 	$ MACHINE=am57xx-evm bitbake i2c-tools	
+	$ MACHINE=am57xx-evm bitbake python-pyserial	
 	
 	Check package version and after re-generation, build the new package index in repository : 
 	$ MACHINE=am57xx-evm bitbake -s
@@ -367,4 +370,4 @@ Now we go through bitbaking some Beagleboard-x15 core packages...
 	Great, all checks had been tested, if no error, you now are ready to make a complex project with the 
 	power of the BeagleSDR, like https://github.com/mhe747/sumpx15
 	
-	Just Now please go to sub-directory avr, bfpga2 to read more about it.
+	Just Now please go to sub-directory avr, bfpga2, chips-beaglesdr to read more about it.
