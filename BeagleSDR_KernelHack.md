@@ -30,7 +30,7 @@
 	
 	After several hours of compilation if errors occured you should manually fix them...
 
-Edit your bitbake's TI kernel dts directory :
+Copy dts files to your bitbake's TI kernel build directory :
 	
 	$ cd $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/build/arch/arm/boot/dts/
 
@@ -47,6 +47,8 @@ These are dts files related to the Beagleboard-X15 revC :
 	dra74x-mmc-iodelay.dtsi 
 	dra7.dtsi
 	dra7xx-clocks.dtsi
+
+Only edit the file "am57xx-beagle-x15-revc.dts" which contains our custom configurations.
 
 The original Linux Kernel sources can be found inside $TISDK/build/arago-tmp-external-linaro-toolchain/work-shared/am57xx-evm/kernel-sources or same as am57xx-evm/git
 
