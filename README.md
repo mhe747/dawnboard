@@ -280,7 +280,7 @@ You may need some tools too...
 ## UART 8,9   - Tested, working
 
 	In order to test UART, check RX and TX by using an oscilloscope to check if something toggling. 
-	UART had been specified as working at 115200 baud, or maybe at faster speed.
+	UART had been specified as working at 115200 baud.
 	
 	Beagleboard-x15's UART8 should be exclusively reserved to AVR. However it is connected from Beagleboard-x15 
 	to both devices (FPGA and AVR) and can be used as GPIO purpose in case of UART8 disabled.
@@ -292,8 +292,9 @@ You may need some tools too...
 		FPGA_BEAGLE_UART_TX = UART9_RXD
 
 
-	Beagleboard-x15 talks to BeagleSDR's AVR through UART8,
-	Arduino sketches can also be uploaded using avrdude :
+	Beagleboard-x15 talks to BeagleSDR's AVR through UART8.
+	
+	Once the arduino bootloader loaded into the AVR flash boot sector, any arduino sketches can be uploaded using avrdude :
 	
 	$ avrdude -V -F -c usbasp -p m328 -P /dev/ttyS8 -b 57600 -U flash:w:Arduino.hex
 
