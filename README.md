@@ -1,9 +1,10 @@
 
 # Welcome to the github of the BeagleSDR add-on board for the famous beagleboard-x15
 
-## AVR / FPGA / ADC / DAC / C2VERILOG   --   ALL IN ONE
+## AVR / FPGA / SDR FRONTEND / C2VERILOG   --   ALL IN ONE
 
-	Setup the standard ARM Cross-compiler Toolchain, since one may find some GCC7 compiler's issue with processor-sdk, I advise to use the version 6.4. ALL yocto arago project ipk packages sources for beagleboard-x15 based on processor-sdk-xx.xx.xx.xx-config
+Setup the standard ARM Cross-compiler Toolchain, since one may find some GCC7 compiler's issue with processor-sdk, I advise to use the version 6.4. ALL yocto arago project ipk packages sources for beagleboard-x15 based on processor-sdk-xx.xx.xx.xx-config
+
 	$ wget https://releases.linaro.org/components/toolchain/binaries/6.4-2017.08/arm-linux-gnueabihf/gcc-linaro-6.4.1-2017.08-x86_64_arm-linux-gnueabihf.tar.xz
 	$ tar -Jxvf gcc-linaro-6.4.1-2017.08-x86_64_arm-linux-gnueabihf.tar.xz -C $HOME
 	$ nano ~/.bashrc
@@ -20,11 +21,10 @@ Now we go through bitbaking some Beagleboard-x15 core packages...
 	$ cd $TISDK/build/
 	$ . conf/setenv
 	$ MACHINE=am57xx-evm bitbake arago-core-tisdk-image
-	$ MACHINE=am57xx-evm bitbake netcat
-	$ MACHINE=am57xx-evm bitbake picocom
-	$ MACHINE=am57xx-evm bitbake spitools
-	$ MACHINE=am57xx-evm bitbake i2c-tools	
-	$ MACHINE=am57xx-evm bitbake python-pyserial	
+	
+You may need some tools too...
+
+	$ MACHINE=am57xx-evm bitbake netcat picocom spitools i2c-tools python-pyserial
 	
 	Check package version and after re-generation, build the new package index in repository : 
 	$ MACHINE=am57xx-evm bitbake -s
@@ -72,8 +72,9 @@ Now we go through bitbaking some Beagleboard-x15 core packages...
 
 	start the http server with this command in your PC server :
 	$ lighttpd -D -f $TISDK/build/arago-tmp-external-linaro-toolchain/deploy/lighttpd.conf
-	then, assuming server ip at 192.168.1.17 check to browse the server address 
-	homepage http://192.168.1.17:8000/ipk/
+	then, assuming server ip 192.168.1.17 
+	
+	browse http://192.168.1.17:8000/ipk/
 
 	you should see something like : 
 
@@ -120,7 +121,6 @@ Now we go through bitbaking some Beagleboard-x15 core packages...
 
 	in PC :
 	$ echo "abc123" | nc 192.168.1.16 6600
-
 
 ------
 
