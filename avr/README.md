@@ -1,6 +1,6 @@
 # AVRDUDE & AVR-GCC    - Tested, working
 
-## User
+## 
 Using Arduino bootloader loaded in AVR microcontroller, one can push a program from Beagleboard-x15 to the BeagleSDR, in order to reprogram the AVR through the UART port linked between AVR and Beagleboard-x15. With an oscilloscope, one should test the UART port control before. The AVR had been conceived to construct complex user-space applications for interaction with your Beagleboard-x15. Some plans can be imaginable in order to control off-board motors and Radio Frequency de/modulator, filters. However the newest updated Kernel is needed. MLO, U-boot and Linux Kernel driver with pin muxing support including UART are required.
 
 ------
