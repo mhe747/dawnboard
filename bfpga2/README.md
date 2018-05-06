@@ -1,7 +1,7 @@
   
 # Fpga Xilinx Spartan 3S500E  - Tested, working
 
-## User
+## 
 We would test the programmable clock oscillator and test the SPI control port before. The access to FPGA requires working GPIO, SPI and UART ports, ref. schematics, in order build applications for interaction with the FPGA design. Therefore MLO, U-boot and Linux Kernel driver with pin muxing support including GPIO, SPI, I2C and UART are required.
 
 ------
