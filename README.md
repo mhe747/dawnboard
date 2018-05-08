@@ -13,6 +13,7 @@ Setup the standard ARM Cross-compiler Toolchain, since one may find some GCC7 co
 
 	After setting the cross-compiler in your environment PATH, now have a check with
 	$ . ~/.bashrc
+
 	$ which arm-linux-gnueabihf-gcc
 
 -------
@@ -37,6 +38,31 @@ You may need some tools too...
 ## SETUP the environment
 
 	in PC :
+	install nfs and tftp server to host target kernel, dtb and rootfs.
+	edit /etc/exports to allow nfs server directory access
+	copy kernel and dtb to /tftp as the directory used by tftp server
+	edit /etc/xinetd.d/tftp, add these lines into it :
+		service tftp
+		{
+		protocol        = udp
+		port            = 69
+		socket_type     = dgram
+		wait            = yes
+		user            = nobody
+		server          = /usr/sbin/in.tftpd
+		server_args     = /tftp
+		disable         = no
+		}
+	$ sudo mkdir /tftpboot
+	$ sudo chmod -R 777 /tftpboot
+	$ sudo chown -R nobody /tftpboot
+	$ sudo /etc/init.d/xinetd start
+	$ sudo /etc/init.d/xinetd restart
+	$ tftp -i 127.0.0.1 put test.txt
+	$ ls -l /tftp
+
+	check presence of test.txt
+	
  	install lighttpd server as an open embedded ipk packages server with Ubuntu
 	$ sudo apt-get install lighttpd
         all yocto arago packages found inside $TISDK/build/arago-tmp-external-linaro-toolchain/deploy/ipk
