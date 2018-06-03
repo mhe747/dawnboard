@@ -31,11 +31,12 @@ Sometimes, people used to ask me how to freeze the FPGA rom and to avoid burning
 	** Click OK to “You have completed the device file entry”.
 	** In the iMPACT Processes window, DC on Generate File.  Should then say “Generate Succeeded”.
 	** Go back and click on Boundary Scan, Initialize the chaine.
-	** Choose the vitfile, a pop up window opens to ask you if you want to attach an SPI or BPI PROM to this device
+	** Choose the .bit file, a pop up window opens to ask you if you want to attach an SPI or BPI PROM to this device
 	** Click on yes, and choose the previously generated mcs file
 	** In new pop up window select SPI PROM (left) and at right the “M25P40” device.
 	** In Main Window, the fpga xc3s500e icon now is shown with new icon “FLASH” above it.
 	** Right click on it and Program.
 
-How to convert bit file to mcs file in order to flash the EEPROM on the FPGA Xilinx Spartan3S500E BeagleSDR board :
-Relax. PROM programming should now start. At its end, “Program Succeeded” should be displayed. You should no longer need to burn the .bit file again.
+
+Just Relax. 
+PROM programming should now start. At its end, “Program Succeeded” should be displayed. From here, you should no longer need to burn the .bit file again.
