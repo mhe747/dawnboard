@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.2466"
+    ComputedModelVersion    "1.2467"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -57,11 +57,11 @@ Model {
 	Object {
 	  $ObjectID		  5
 	  IsActive		  [1]
-	  ViewObjType		  "SimulinkTopLevel"
-	  LoadSaveID		  "0"
+	  ViewObjType		  "SimulinkSubsys"
+	  LoadSaveID		  "6572"
 	  Extents		  [1644.0, 877.0]
-	  ZoomFactor		  [1.0]
-	  Offset		  [-37.875, -78.0]
+	  ZoomFactor		  [1.25]
+	  Offset		  [171.39999999999975, 187.8]
 	}
 	Object {
 	  $ObjectID		  6
@@ -91,9 +91,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "user"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Fri Jun 10 14:44:24 2016"
-  RTWModifiedTimeStamp	  387469795
-  ModelVersionFormat	  "1.%<AutoIncrement:2466>"
+  LastModifiedDate	  "Fri Jun 10 16:03:55 2016"
+  RTWModifiedTimeStamp	  387475431
+  ModelVersionFormat	  "1.%<AutoIncrement:2467>"
   ConfigurationManager	  "None"
   SampleTimeColors	  on
   SampleTimeAnnotations	  on
@@ -958,7 +958,7 @@ Model {
   System {
     Name		    "Xcvr_SSB_AM_2p5"
     Location		    [-8, -8, 1688, 1018]
-    Open		    on
+    Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
     ScreenColor		    "white"
@@ -12003,15 +12003,14 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "counter"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "50,44,0,1,white,blue,0,4510a48a,right,,[ ],[ ]"
+		    sg_icon_stat	    "50,44,0,1,white,blue,0,4b061529,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 50 50 0 0 ],[0 0 44 44 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 50 50 0 0 ],[0 0 44 44 0 ]);\npatch([11.65 20.32 26.32 32.32 38.32 26.32 17.65 11.65 ],[28.66"
 		    " 28.66 34.66 28.66 34.66 34.66 34.66 28.66 ],[1 1 1 ]);\npatch([17.65 26.32 20.32 11.65 17.65 ],[22.66 22.66 28."
 		    "66 28.66 22.66 ],[0.931 0.946 0.973 ]);\npatch([11.65 20.32 26.32 17.65 11.65 ],[16.66 16.66 22.66 22.66 16.66 ]"
 		    ",[1 1 1 ]);\npatch([17.65 38.32 32.32 26.32 20.32 11.65 17.65 ],[10.66 10.66 16.66 10.66 16.66 16.66 10.66 ],[0."
-		    "931 0.946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('"
-		    "black');port_label('output',1,'\\fontsize{10pt}\\bf0.0122','texmode','on');\nfprintf('','COMMENT: end icon text'"
-		    ");"
+		    "931 0.946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\ncolor"
+		    "('black');disp('{\\fontsize{14}\\bf\\lceil++\\rceil}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -12068,15 +12067,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "dsamp"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "40,40,1,1,white,blue,0,aa19b77a,right,,[ ],[ ]"
+		    sg_icon_stat	    "40,40,1,1,white,blue,0,f864025f,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 40 40 0 0 ],[0 0 40 40 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 40 40 0 0 ],[0 0 40 40 0 ]);\npatch([8.875 16.1 21.1 26.1 31.1 21.1 13.875 8.875 ],[25.55 25."
 		    "55 30.55 25.55 30.55 30.55 30.55 25.55 ],[1 1 1 ]);\npatch([13.875 21.1 16.1 8.875 13.875 ],[20.55 20.55 25.55 2"
 		    "5.55 20.55 ],[0.931 0.946 0.973 ]);\npatch([8.875 16.1 21.1 13.875 8.875 ],[15.55 15.55 20.55 20.55 15.55 ],[1 1"
 		    " 1 ]);\npatch([13.875 31.1 26.1 21.1 16.1 8.875 13.875 ],[10.55 10.55 15.55 10.55 15.55 15.55 10.55 ],[0.931 0.9"
-		    "46 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black')"
-		    ";port_label('input',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('output',1,'\\fonts"
-		    "ize{10pt}\\bf0.0244','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "46 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('bla"
+		    "ck');disp('z^{-1}\\newline ','texmode','on');\ncolor('black');disp(' \\newline{\\fontsize{14pt}\\bf\\downarrow}6"
+		    "4','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -12202,16 +12201,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "accum"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "50,120,2,1,white,blue,0,c3f8f39d,right,,[ ],[ ]"
+		    sg_icon_stat	    "50,120,2,1,white,blue,0,6949434e,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 50 50 0 0 ],[0 0 120 120 0 ],[0.77 0."
 		    "82 0.91 ]);\nplot([0 50 50 0 0 ],[0 0 120 120 0 ]);\npatch([9.425 19.54 26.54 33.54 40.54 26.54 16.425 9.425 ],["
 		    "67.77 67.77 74.77 67.77 74.77 74.77 74.77 67.77 ],[1 1 1 ]);\npatch([16.425 26.54 19.54 9.425 16.425 ],[60.77 60"
 		    ".77 67.77 67.77 60.77 ],[0.931 0.946 0.973 ]);\npatch([9.425 19.54 26.54 16.425 9.425 ],[53.77 53.77 60.77 60.77"
 		    " 53.77 ],[1 1 1 ]);\npatch([16.425 40.54 33.54 26.54 19.54 9.425 16.425 ],[46.77 46.77 53.77 46.77 53.77 53.77 4"
 		    "6.77 ],[0.931 0.946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text')"
-		    ";\ncolor('black');port_label('input',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('i"
-		    "nput',2,'\\fontsize{10pt}\\bf0.01','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf1"
-		    ".5625','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    ";\ncolor('black');port_label('input',1,'b');\ncolor('black');port_label('input',2,'rst');\ncolor('black');port_l"
+		    "abel('output',1,'\\bf+=b','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -12247,16 +12245,16 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "mult"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "50,78,2,1,white,blue,0,c3f8f39d,right,,[ ],[ ]"
+		    sg_icon_stat	    "50,78,2,1,white,blue,0,2fbe4d8a,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 50 50 0 0 ],[0 0 78 78 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 50 50 0 0 ],[0 0 78 78 0 ]);\npatch([9.425 19.54 26.54 33.54 40.54 26.54 16.425 9.425 ],[46.7"
 		    "7 46.77 53.77 46.77 53.77 53.77 53.77 46.77 ],[1 1 1 ]);\npatch([16.425 26.54 19.54 9.425 16.425 ],[39.77 39.77 "
 		    "46.77 46.77 39.77 ],[0.931 0.946 0.973 ]);\npatch([9.425 19.54 26.54 16.425 9.425 ],[32.77 32.77 39.77 39.77 32."
 		    "77 ],[1 1 1 ]);\npatch([16.425 40.54 33.54 26.54 19.54 9.425 16.425 ],[25.77 25.77 32.77 25.77 32.77 32.77 25.77"
 		    " ],[0.931 0.946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\nc"
-		    "olor('black');port_label('input',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('input"
-		    "',2,'\\fontsize{10pt}\\bf0.01','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf1.562"
-		    "5','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "olor('black');port_label('input',1,'a');\ncolor('black');port_label('input',2,'b');\ncolor('black');port_label('"
+		    "output',1,'\\bfa \\times b','texmode','on');\ncolor('black');disp('z^{-2}\\newline ','texmode','on');\ncolor('bl"
+		    "ack');disp(' \\n ');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -12432,16 +12430,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "spram"
 		    block_version	    "12.1"
-		    sg_icon_stat	    "70,90,3,1,white,blue,0,6b16a1a7,right,,[ ],[ ]"
+		    sg_icon_stat	    "70,90,3,1,white,blue,0,afe23399,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 70 70 0 0 ],[0 0 90 90 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 70 70 0 0 ],[0 0 90 90 0 ]);\npatch([12.75 27.2 37.2 47.2 57.2 37.2 22.75 12.75 ],[56.1 56.1 "
 		    "66.1 56.1 66.1 66.1 66.1 56.1 ],[1 1 1 ]);\npatch([22.75 37.2 27.2 12.75 22.75 ],[46.1 46.1 56.1 56.1 46.1 ],[0."
 		    "931 0.946 0.973 ]);\npatch([12.75 27.2 37.2 22.75 12.75 ],[36.1 36.1 46.1 46.1 36.1 ],[1 1 1 ]);\npatch([22.75 5"
 		    "7.2 47.2 37.2 27.2 12.75 22.75 ],[26.1 26.1 36.1 26.1 36.1 36.1 26.1 ],[0.931 0.946 0.973 ]);\nfprintf('','COMME"
-		    "NT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'\\fontsi"
-		    "ze{10pt}\\bf0.01','texmode','on');\ncolor('black');port_label('input',2,'\\fontsize{10pt}\\bf0.00','texmode','on"
-		    "');\ncolor('black');port_label('input',3,'\\fontsize{10pt}\\bf0.00','texmode','on');\ncolor('black');port_label("
-		    "'output',1,'\\fontsize{10pt}\\bf0.0122','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "NT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'addr');\n"
+		    "color('black');port_label('input',2,'data');\ncolor('black');port_label('input',3,'we');\n\ncolor('black');disp("
+		    "'z^{-1}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -17829,15 +17826,14 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "counter"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "50,44,0,1,white,blue,0,4510a48a,right,,[ ],[ ]"
+		    sg_icon_stat	    "50,44,0,1,white,blue,0,4b061529,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 50 50 0 0 ],[0 0 44 44 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 50 50 0 0 ],[0 0 44 44 0 ]);\npatch([11.65 20.32 26.32 32.32 38.32 26.32 17.65 11.65 ],[28.66"
 		    " 28.66 34.66 28.66 34.66 34.66 34.66 28.66 ],[1 1 1 ]);\npatch([17.65 26.32 20.32 11.65 17.65 ],[22.66 22.66 28."
 		    "66 28.66 22.66 ],[0.931 0.946 0.973 ]);\npatch([11.65 20.32 26.32 17.65 11.65 ],[16.66 16.66 22.66 22.66 16.66 ]"
 		    ",[1 1 1 ]);\npatch([17.65 38.32 32.32 26.32 20.32 11.65 17.65 ],[10.66 10.66 16.66 10.66 16.66 16.66 10.66 ],[0."
-		    "931 0.946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('"
-		    "black');port_label('output',1,'\\fontsize{10pt}\\bf0.0122','texmode','on');\nfprintf('','COMMENT: end icon text'"
-		    ");"
+		    "931 0.946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\ncolor"
+		    "('black');disp('{\\fontsize{14}\\bf\\lceil++\\rceil}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -17894,15 +17890,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "dsamp"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "40,40,1,1,white,blue,0,bb7d0a4f,right,,[ ],[ ]"
+		    sg_icon_stat	    "40,40,1,1,white,blue,0,f864025f,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 40 40 0 0 ],[0 0 40 40 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 40 40 0 0 ],[0 0 40 40 0 ]);\npatch([8.875 16.1 21.1 26.1 31.1 21.1 13.875 8.875 ],[25.55 25."
 		    "55 30.55 25.55 30.55 30.55 30.55 25.55 ],[1 1 1 ]);\npatch([13.875 21.1 16.1 8.875 13.875 ],[20.55 20.55 25.55 2"
 		    "5.55 20.55 ],[0.931 0.946 0.973 ]);\npatch([8.875 16.1 21.1 13.875 8.875 ],[15.55 15.55 20.55 20.55 15.55 ],[1 1"
 		    " 1 ]);\npatch([13.875 31.1 26.1 21.1 16.1 8.875 13.875 ],[10.55 10.55 15.55 10.55 15.55 15.55 10.55 ],[0.931 0.9"
-		    "46 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black')"
-		    ";port_label('input',1,'\\fontsize{10pt}\\bf0.01','texmode','on');\ncolor('black');port_label('output',1,'\\fonts"
-		    "ize{10pt}\\bf0.0002','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "46 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('bla"
+		    "ck');disp('z^{-1}\\newline ','texmode','on');\ncolor('black');disp(' \\newline{\\fontsize{14pt}\\bf\\downarrow}6"
+		    "4','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -18028,16 +18024,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "accum"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "50,120,2,1,white,blue,0,07422077,right,,[ ],[ ]"
+		    sg_icon_stat	    "50,120,2,1,white,blue,0,6949434e,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 50 50 0 0 ],[0 0 120 120 0 ],[0.77 0."
 		    "82 0.91 ]);\nplot([0 50 50 0 0 ],[0 0 120 120 0 ]);\npatch([9.425 19.54 26.54 33.54 40.54 26.54 16.425 9.425 ],["
 		    "67.77 67.77 74.77 67.77 74.77 74.77 74.77 67.77 ],[1 1 1 ]);\npatch([16.425 26.54 19.54 9.425 16.425 ],[60.77 60"
 		    ".77 67.77 67.77 60.77 ],[0.931 0.946 0.973 ]);\npatch([9.425 19.54 26.54 16.425 9.425 ],[53.77 53.77 60.77 60.77"
 		    " 53.77 ],[1 1 1 ]);\npatch([16.425 40.54 33.54 26.54 19.54 9.425 16.425 ],[46.77 46.77 53.77 46.77 53.77 53.77 4"
 		    "6.77 ],[0.931 0.946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text')"
-		    ";\ncolor('black');port_label('input',1,'\\fontsize{10pt}\\bf0.01','texmode','on');\ncolor('black');port_label('i"
-		    "nput',2,'\\fontsize{10pt}\\bf0.01','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0"
-		    ".0122','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    ";\ncolor('black');port_label('input',1,'b');\ncolor('black');port_label('input',2,'rst');\ncolor('black');port_l"
+		    "abel('output',1,'\\bf+=b','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -18073,16 +18068,16 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "mult"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "50,78,2,1,white,blue,0,07422077,right,,[ ],[ ]"
+		    sg_icon_stat	    "50,78,2,1,white,blue,0,2fbe4d8a,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 50 50 0 0 ],[0 0 78 78 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 50 50 0 0 ],[0 0 78 78 0 ]);\npatch([9.425 19.54 26.54 33.54 40.54 26.54 16.425 9.425 ],[46.7"
 		    "7 46.77 53.77 46.77 53.77 53.77 53.77 46.77 ],[1 1 1 ]);\npatch([16.425 26.54 19.54 9.425 16.425 ],[39.77 39.77 "
 		    "46.77 46.77 39.77 ],[0.931 0.946 0.973 ]);\npatch([9.425 19.54 26.54 16.425 9.425 ],[32.77 32.77 39.77 39.77 32."
 		    "77 ],[1 1 1 ]);\npatch([16.425 40.54 33.54 26.54 19.54 9.425 16.425 ],[25.77 25.77 32.77 25.77 32.77 32.77 25.77"
 		    " ],[0.931 0.946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\nc"
-		    "olor('black');port_label('input',1,'\\fontsize{10pt}\\bf0.01','texmode','on');\ncolor('black');port_label('input"
-		    "',2,'\\fontsize{10pt}\\bf0.01','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.012"
-		    "2','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "olor('black');port_label('input',1,'a');\ncolor('black');port_label('input',2,'b');\ncolor('black');port_label('"
+		    "output',1,'\\bfa \\times b','texmode','on');\ncolor('black');disp('z^{-2}\\newline ','texmode','on');\ncolor('bl"
+		    "ack');disp(' \\n ');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -18258,16 +18253,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "spram"
 		    block_version	    "12.1"
-		    sg_icon_stat	    "70,90,3,1,white,blue,0,6b16a1a7,right,,[ ],[ ]"
+		    sg_icon_stat	    "70,90,3,1,white,blue,0,afe23399,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 70 70 0 0 ],[0 0 90 90 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 70 70 0 0 ],[0 0 90 90 0 ]);\npatch([12.75 27.2 37.2 47.2 57.2 37.2 22.75 12.75 ],[56.1 56.1 "
 		    "66.1 56.1 66.1 66.1 66.1 56.1 ],[1 1 1 ]);\npatch([22.75 37.2 27.2 12.75 22.75 ],[46.1 46.1 56.1 56.1 46.1 ],[0."
 		    "931 0.946 0.973 ]);\npatch([12.75 27.2 37.2 22.75 12.75 ],[36.1 36.1 46.1 46.1 36.1 ],[1 1 1 ]);\npatch([22.75 5"
 		    "7.2 47.2 37.2 27.2 12.75 22.75 ],[26.1 26.1 36.1 26.1 36.1 36.1 26.1 ],[0.931 0.946 0.973 ]);\nfprintf('','COMME"
-		    "NT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'\\fontsi"
-		    "ze{10pt}\\bf0.01','texmode','on');\ncolor('black');port_label('input',2,'\\fontsize{10pt}\\bf0.00','texmode','on"
-		    "');\ncolor('black');port_label('input',3,'\\fontsize{10pt}\\bf0.00','texmode','on');\ncolor('black');port_label("
-		    "'output',1,'\\fontsize{10pt}\\bf0.0122','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "NT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'addr');\n"
+		    "color('black');port_label('input',2,'data');\ncolor('black');port_label('input',3,'we');\n\ncolor('black');disp("
+		    "'z^{-1}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -24706,16 +24700,15 @@ Model {
 		    sggui_pos		    "229,452,430,369"
 		    block_type		    "addsub"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,75,2,1,white,blue,0,c186c1e2,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,75,2,1,white,blue,0,32e1f85f,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 75 75 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 75 75 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[41.44 41.4"
 		    "4 45.44 41.44 45.44 45.44 45.44 41.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[37.44 37.44 41.44 41.44 "
 		    "37.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[33.44 33.44 37.44 37.44 33.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[29.44 29.44 33.44 29.44 33.44 33.44 29.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('input',2,'\\fontsize{10pt}\\b"
-		    "f0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.0244','texmode','on');\nfpr"
-		    "intf('','COMMENT: end icon text');"
+		    "('input',1,'a');\ncolor('black');port_label('input',2,'b');\ncolor('black');port_label('output',1,'\\bf{a - b}',"
+		    "'texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -24742,15 +24735,14 @@ Model {
 		    sggui_pos		    "20,20,430,309"
 		    block_type		    "delay"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "35,30,1,1,white,blue,0,5bb23994,right,,[ ],[ ]"
+		    sg_icon_stat	    "35,30,1,1,white,blue,0,07b98262,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 35 35 0 0 ],[0 0 30 30 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 35 35 0 0 ],[0 0 30 30 0 ]);\npatch([8.1 13.88 17.88 21.88 25.88 17.88 12.1 8.1 ],[19.44 19.4"
 		    "4 23.44 19.44 23.44 23.44 23.44 19.44 ],[1 1 1 ]);\npatch([12.1 17.88 13.88 8.1 12.1 ],[15.44 15.44 19.44 19.44 "
 		    "15.44 ],[0.931 0.946 0.973 ]);\npatch([8.1 13.88 17.88 12.1 8.1 ],[11.44 11.44 15.44 15.44 11.44 ],[1 1 1 ]);\np"
 		    "atch([12.1 25.88 21.88 17.88 13.88 8.1 12.1 ],[7.44 7.44 11.44 7.44 11.44 11.44 7.44 ],[0.931 0.946 0.973 ]);\nf"
-		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('in"
-		    "put',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0."
-		    "0244','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('black');disp('z^{-"
+		    "1}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -24893,16 +24885,15 @@ Model {
 		    sggui_pos		    "229,452,430,369"
 		    block_type		    "addsub"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,75,2,1,white,blue,0,c186c1e2,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,75,2,1,white,blue,0,32e1f85f,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 75 75 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 75 75 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[41.44 41.4"
 		    "4 45.44 41.44 45.44 45.44 45.44 41.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[37.44 37.44 41.44 41.44 "
 		    "37.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[33.44 33.44 37.44 37.44 33.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[29.44 29.44 33.44 29.44 33.44 33.44 29.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('input',2,'\\fontsize{10pt}\\b"
-		    "f0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.0244','texmode','on');\nfpr"
-		    "intf('','COMMENT: end icon text');"
+		    "('input',1,'a');\ncolor('black');port_label('input',2,'b');\ncolor('black');port_label('output',1,'\\bf{a - b}',"
+		    "'texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -24929,15 +24920,14 @@ Model {
 		    sggui_pos		    "20,20,430,309"
 		    block_type		    "delay"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "35,30,1,1,white,blue,0,5bb23994,right,,[ ],[ ]"
+		    sg_icon_stat	    "35,30,1,1,white,blue,0,07b98262,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 35 35 0 0 ],[0 0 30 30 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 35 35 0 0 ],[0 0 30 30 0 ]);\npatch([8.1 13.88 17.88 21.88 25.88 17.88 12.1 8.1 ],[19.44 19.4"
 		    "4 23.44 19.44 23.44 23.44 23.44 19.44 ],[1 1 1 ]);\npatch([12.1 17.88 13.88 8.1 12.1 ],[15.44 15.44 19.44 19.44 "
 		    "15.44 ],[0.931 0.946 0.973 ]);\npatch([8.1 13.88 17.88 12.1 8.1 ],[11.44 11.44 15.44 15.44 11.44 ],[1 1 1 ]);\np"
 		    "atch([12.1 25.88 21.88 17.88 13.88 8.1 12.1 ],[7.44 7.44 11.44 7.44 11.44 11.44 7.44 ],[0.931 0.946 0.973 ]);\nf"
-		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('in"
-		    "put',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0."
-		    "0244','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('black');disp('z^{-"
+		    "1}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -25080,16 +25070,15 @@ Model {
 		    sggui_pos		    "229,452,430,369"
 		    block_type		    "addsub"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,75,2,1,white,blue,0,c186c1e2,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,75,2,1,white,blue,0,32e1f85f,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 75 75 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 75 75 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[41.44 41.4"
 		    "4 45.44 41.44 45.44 45.44 45.44 41.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[37.44 37.44 41.44 41.44 "
 		    "37.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[33.44 33.44 37.44 37.44 33.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[29.44 29.44 33.44 29.44 33.44 33.44 29.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('input',2,'\\fontsize{10pt}\\b"
-		    "f0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.0244','texmode','on');\nfpr"
-		    "intf('','COMMENT: end icon text');"
+		    "('input',1,'a');\ncolor('black');port_label('input',2,'b');\ncolor('black');port_label('output',1,'\\bf{a - b}',"
+		    "'texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -25116,15 +25105,14 @@ Model {
 		    sggui_pos		    "20,20,430,309"
 		    block_type		    "delay"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "35,30,1,1,white,blue,0,5bb23994,right,,[ ],[ ]"
+		    sg_icon_stat	    "35,30,1,1,white,blue,0,07b98262,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 35 35 0 0 ],[0 0 30 30 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 35 35 0 0 ],[0 0 30 30 0 ]);\npatch([8.1 13.88 17.88 21.88 25.88 17.88 12.1 8.1 ],[19.44 19.4"
 		    "4 23.44 19.44 23.44 23.44 23.44 19.44 ],[1 1 1 ]);\npatch([12.1 17.88 13.88 8.1 12.1 ],[15.44 15.44 19.44 19.44 "
 		    "15.44 ],[0.931 0.946 0.973 ]);\npatch([8.1 13.88 17.88 12.1 8.1 ],[11.44 11.44 15.44 15.44 11.44 ],[1 1 1 ]);\np"
 		    "atch([12.1 25.88 21.88 17.88 13.88 8.1 12.1 ],[7.44 7.44 11.44 7.44 11.44 11.44 7.44 ],[0.931 0.946 0.973 ]);\nf"
-		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('in"
-		    "put',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0."
-		    "0244','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('black');disp('z^{-"
+		    "1}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -25267,16 +25255,15 @@ Model {
 		    sggui_pos		    "229,452,430,369"
 		    block_type		    "addsub"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,75,2,1,white,blue,0,c186c1e2,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,75,2,1,white,blue,0,32e1f85f,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 75 75 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 75 75 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[41.44 41.4"
 		    "4 45.44 41.44 45.44 45.44 45.44 41.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[37.44 37.44 41.44 41.44 "
 		    "37.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[33.44 33.44 37.44 37.44 33.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[29.44 29.44 33.44 29.44 33.44 33.44 29.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('input',2,'\\fontsize{10pt}\\b"
-		    "f0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.0244','texmode','on');\nfpr"
-		    "intf('','COMMENT: end icon text');"
+		    "('input',1,'a');\ncolor('black');port_label('input',2,'b');\ncolor('black');port_label('output',1,'\\bf{a - b}',"
+		    "'texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -25303,15 +25290,14 @@ Model {
 		    sggui_pos		    "20,20,430,309"
 		    block_type		    "delay"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "35,30,1,1,white,blue,0,5bb23994,right,,[ ],[ ]"
+		    sg_icon_stat	    "35,30,1,1,white,blue,0,07b98262,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 35 35 0 0 ],[0 0 30 30 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 35 35 0 0 ],[0 0 30 30 0 ]);\npatch([8.1 13.88 17.88 21.88 25.88 17.88 12.1 8.1 ],[19.44 19.4"
 		    "4 23.44 19.44 23.44 23.44 23.44 19.44 ],[1 1 1 ]);\npatch([12.1 17.88 13.88 8.1 12.1 ],[15.44 15.44 19.44 19.44 "
 		    "15.44 ],[0.931 0.946 0.973 ]);\npatch([8.1 13.88 17.88 12.1 8.1 ],[11.44 11.44 15.44 15.44 11.44 ],[1 1 1 ]);\np"
 		    "atch([12.1 25.88 21.88 17.88 13.88 8.1 12.1 ],[7.44 7.44 11.44 7.44 11.44 11.44 7.44 ],[0.931 0.946 0.973 ]);\nf"
-		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('in"
-		    "put',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0."
-		    "0244','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('black');disp('z^{-"
+		    "1}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -25454,16 +25440,15 @@ Model {
 		    sggui_pos		    "229,452,430,369"
 		    block_type		    "addsub"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,75,2,1,white,blue,0,c186c1e2,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,75,2,1,white,blue,0,32e1f85f,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 75 75 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 75 75 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[41.44 41.4"
 		    "4 45.44 41.44 45.44 45.44 45.44 41.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[37.44 37.44 41.44 41.44 "
 		    "37.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[33.44 33.44 37.44 37.44 33.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[29.44 29.44 33.44 29.44 33.44 33.44 29.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('input',2,'\\fontsize{10pt}\\b"
-		    "f0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.0244','texmode','on');\nfpr"
-		    "intf('','COMMENT: end icon text');"
+		    "('input',1,'a');\ncolor('black');port_label('input',2,'b');\ncolor('black');port_label('output',1,'\\bf{a - b}',"
+		    "'texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -25490,15 +25475,14 @@ Model {
 		    sggui_pos		    "20,20,430,309"
 		    block_type		    "delay"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "35,30,1,1,white,blue,0,5bb23994,right,,[ ],[ ]"
+		    sg_icon_stat	    "35,30,1,1,white,blue,0,07b98262,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 35 35 0 0 ],[0 0 30 30 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 35 35 0 0 ],[0 0 30 30 0 ]);\npatch([8.1 13.88 17.88 21.88 25.88 17.88 12.1 8.1 ],[19.44 19.4"
 		    "4 23.44 19.44 23.44 23.44 23.44 19.44 ],[1 1 1 ]);\npatch([12.1 17.88 13.88 8.1 12.1 ],[15.44 15.44 19.44 19.44 "
 		    "15.44 ],[0.931 0.946 0.973 ]);\npatch([8.1 13.88 17.88 12.1 8.1 ],[11.44 11.44 15.44 15.44 11.44 ],[1 1 1 ]);\np"
 		    "atch([12.1 25.88 21.88 17.88 13.88 8.1 12.1 ],[7.44 7.44 11.44 7.44 11.44 11.44 7.44 ],[0.931 0.946 0.973 ]);\nf"
-		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('in"
-		    "put',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0."
-		    "0244','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('black');disp('z^{-"
+		    "1}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -25559,15 +25543,15 @@ Model {
 		  sggui_pos		  "-1,-1,-1,-1"
 		  block_type		  "dsamp"
 		  block_version		  "9.2.00"
-		  sg_icon_stat		  "40,46,1,1,white,blue,0,aa19b77a,right,,[ ],[ ]"
+		  sg_icon_stat		  "40,46,1,1,white,blue,0,f864025f,right,,[ ],[ ]"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');\npatch([0 40 40 0 0 ],[0 0 46 46 0 ],[0.77 0.82 0.9"
 		  "1 ]);\nplot([0 40 40 0 0 ],[0 0 46 46 0 ]);\npatch([8.875 16.1 21.1 26.1 31.1 21.1 13.875 8.875 ],[28.55 28.55 33."
 		  "55 28.55 33.55 33.55 33.55 28.55 ],[1 1 1 ]);\npatch([13.875 21.1 16.1 8.875 13.875 ],[23.55 23.55 28.55 28.55 23."
 		  "55 ],[0.931 0.946 0.973 ]);\npatch([8.875 16.1 21.1 13.875 8.875 ],[18.55 18.55 23.55 23.55 18.55 ],[1 1 1 ]);\npa"
 		  "tch([13.875 31.1 26.1 21.1 16.1 8.875 13.875 ],[13.55 13.55 18.55 13.55 18.55 18.55 13.55 ],[0.931 0.946 0.973 ]);"
-		  "\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('i"
-		  "nput',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.0"
-		  "244','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		  "\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('black');disp('z^{"
+		  "-1}\\newline ','texmode','on');\ncolor('black');disp(' \\newline{\\fontsize{14pt}\\bf\\downarrow}64','texmode','on"
+		  "');\nfprintf('','COMMENT: end icon text');"
 		}
 		Block {
 		  BlockType		  SubSystem
@@ -25660,15 +25644,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "accum"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,68,1,1,white,blue,0,8907600c,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,68,1,1,white,blue,0,47915e64,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 68 68 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 68 68 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[38.44 38.4"
 		    "4 42.44 38.44 42.44 42.44 42.44 38.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[34.44 34.44 38.44 38.44 "
 		    "34.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[30.44 30.44 34.44 34.44 30.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[26.44 26.44 30.44 26.44 30.44 30.44 26.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\"
-		    "bf1.5625','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "('input',1,'b');\ncolor('black');port_label('output',1,'\\bf+=b','texmode','on');\nfprintf('','COMMENT: end icon"
+		    " text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -25783,15 +25767,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "accum"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,68,1,1,white,blue,0,8907600c,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,68,1,1,white,blue,0,47915e64,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 68 68 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 68 68 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[38.44 38.4"
 		    "4 42.44 38.44 42.44 42.44 42.44 38.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[34.44 34.44 38.44 38.44 "
 		    "34.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[30.44 30.44 34.44 34.44 30.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[26.44 26.44 30.44 26.44 30.44 30.44 26.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\"
-		    "bf1.5625','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "('input',1,'b');\ncolor('black');port_label('output',1,'\\bf+=b','texmode','on');\nfprintf('','COMMENT: end icon"
+		    " text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -25906,15 +25890,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "accum"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,68,1,1,white,blue,0,8907600c,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,68,1,1,white,blue,0,47915e64,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 68 68 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 68 68 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[38.44 38.4"
 		    "4 42.44 38.44 42.44 42.44 42.44 38.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[34.44 34.44 38.44 38.44 "
 		    "34.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[30.44 30.44 34.44 34.44 30.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[26.44 26.44 30.44 26.44 30.44 30.44 26.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\"
-		    "bf1.5625','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "('input',1,'b');\ncolor('black');port_label('output',1,'\\bf+=b','texmode','on');\nfprintf('','COMMENT: end icon"
+		    " text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -26029,15 +26013,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "accum"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,68,1,1,white,blue,0,8907600c,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,68,1,1,white,blue,0,47915e64,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 68 68 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 68 68 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[38.44 38.4"
 		    "4 42.44 38.44 42.44 42.44 42.44 38.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[34.44 34.44 38.44 38.44 "
 		    "34.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[30.44 30.44 34.44 34.44 30.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[26.44 26.44 30.44 26.44 30.44 30.44 26.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\"
-		    "bf1.5625','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "('input',1,'b');\ncolor('black');port_label('output',1,'\\bf+=b','texmode','on');\nfprintf('','COMMENT: end icon"
+		    " text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -26152,15 +26136,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "accum"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,68,1,1,white,blue,0,8907600c,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,68,1,1,white,blue,0,47915e64,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 68 68 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 68 68 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[38.44 38.4"
 		    "4 42.44 38.44 42.44 42.44 42.44 38.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[34.44 34.44 38.44 38.44 "
 		    "34.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[30.44 30.44 34.44 34.44 30.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[26.44 26.44 30.44 26.44 30.44 30.44 26.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\"
-		    "bf1.5625','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "('input',1,'b');\ncolor('black');port_label('output',1,'\\bf+=b','texmode','on');\nfprintf('','COMMENT: end icon"
+		    " text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -26645,16 +26629,15 @@ Model {
 		    sggui_pos		    "229,452,430,369"
 		    block_type		    "addsub"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,75,2,1,white,blue,0,c186c1e2,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,75,2,1,white,blue,0,32e1f85f,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 75 75 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 75 75 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[41.44 41.4"
 		    "4 45.44 41.44 45.44 45.44 45.44 41.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[37.44 37.44 41.44 41.44 "
 		    "37.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[33.44 33.44 37.44 37.44 33.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[29.44 29.44 33.44 29.44 33.44 33.44 29.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('input',2,'\\fontsize{10pt}\\b"
-		    "f0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.0244','texmode','on');\nfpr"
-		    "intf('','COMMENT: end icon text');"
+		    "('input',1,'a');\ncolor('black');port_label('input',2,'b');\ncolor('black');port_label('output',1,'\\bf{a - b}',"
+		    "'texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -26681,15 +26664,14 @@ Model {
 		    sggui_pos		    "20,20,430,309"
 		    block_type		    "delay"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "35,30,1,1,white,blue,0,5bb23994,right,,[ ],[ ]"
+		    sg_icon_stat	    "35,30,1,1,white,blue,0,07b98262,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 35 35 0 0 ],[0 0 30 30 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 35 35 0 0 ],[0 0 30 30 0 ]);\npatch([8.1 13.88 17.88 21.88 25.88 17.88 12.1 8.1 ],[19.44 19.4"
 		    "4 23.44 19.44 23.44 23.44 23.44 19.44 ],[1 1 1 ]);\npatch([12.1 17.88 13.88 8.1 12.1 ],[15.44 15.44 19.44 19.44 "
 		    "15.44 ],[0.931 0.946 0.973 ]);\npatch([8.1 13.88 17.88 12.1 8.1 ],[11.44 11.44 15.44 15.44 11.44 ],[1 1 1 ]);\np"
 		    "atch([12.1 25.88 21.88 17.88 13.88 8.1 12.1 ],[7.44 7.44 11.44 7.44 11.44 11.44 7.44 ],[0.931 0.946 0.973 ]);\nf"
-		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('in"
-		    "put',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0."
-		    "0244','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('black');disp('z^{-"
+		    "1}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -26832,16 +26814,15 @@ Model {
 		    sggui_pos		    "229,452,430,369"
 		    block_type		    "addsub"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,75,2,1,white,blue,0,c186c1e2,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,75,2,1,white,blue,0,32e1f85f,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 75 75 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 75 75 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[41.44 41.4"
 		    "4 45.44 41.44 45.44 45.44 45.44 41.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[37.44 37.44 41.44 41.44 "
 		    "37.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[33.44 33.44 37.44 37.44 33.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[29.44 29.44 33.44 29.44 33.44 33.44 29.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('input',2,'\\fontsize{10pt}\\b"
-		    "f0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.0244','texmode','on');\nfpr"
-		    "intf('','COMMENT: end icon text');"
+		    "('input',1,'a');\ncolor('black');port_label('input',2,'b');\ncolor('black');port_label('output',1,'\\bf{a - b}',"
+		    "'texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -26868,15 +26849,14 @@ Model {
 		    sggui_pos		    "20,20,430,309"
 		    block_type		    "delay"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "35,30,1,1,white,blue,0,5bb23994,right,,[ ],[ ]"
+		    sg_icon_stat	    "35,30,1,1,white,blue,0,07b98262,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 35 35 0 0 ],[0 0 30 30 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 35 35 0 0 ],[0 0 30 30 0 ]);\npatch([8.1 13.88 17.88 21.88 25.88 17.88 12.1 8.1 ],[19.44 19.4"
 		    "4 23.44 19.44 23.44 23.44 23.44 19.44 ],[1 1 1 ]);\npatch([12.1 17.88 13.88 8.1 12.1 ],[15.44 15.44 19.44 19.44 "
 		    "15.44 ],[0.931 0.946 0.973 ]);\npatch([8.1 13.88 17.88 12.1 8.1 ],[11.44 11.44 15.44 15.44 11.44 ],[1 1 1 ]);\np"
 		    "atch([12.1 25.88 21.88 17.88 13.88 8.1 12.1 ],[7.44 7.44 11.44 7.44 11.44 11.44 7.44 ],[0.931 0.946 0.973 ]);\nf"
-		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('in"
-		    "put',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0."
-		    "0244','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('black');disp('z^{-"
+		    "1}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -27019,16 +26999,15 @@ Model {
 		    sggui_pos		    "229,452,430,369"
 		    block_type		    "addsub"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,75,2,1,white,blue,0,c186c1e2,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,75,2,1,white,blue,0,32e1f85f,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 75 75 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 75 75 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[41.44 41.4"
 		    "4 45.44 41.44 45.44 45.44 45.44 41.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[37.44 37.44 41.44 41.44 "
 		    "37.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[33.44 33.44 37.44 37.44 33.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[29.44 29.44 33.44 29.44 33.44 33.44 29.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('input',2,'\\fontsize{10pt}\\b"
-		    "f0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.0244','texmode','on');\nfpr"
-		    "intf('','COMMENT: end icon text');"
+		    "('input',1,'a');\ncolor('black');port_label('input',2,'b');\ncolor('black');port_label('output',1,'\\bf{a - b}',"
+		    "'texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -27055,15 +27034,14 @@ Model {
 		    sggui_pos		    "20,20,430,309"
 		    block_type		    "delay"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "35,30,1,1,white,blue,0,5bb23994,right,,[ ],[ ]"
+		    sg_icon_stat	    "35,30,1,1,white,blue,0,07b98262,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 35 35 0 0 ],[0 0 30 30 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 35 35 0 0 ],[0 0 30 30 0 ]);\npatch([8.1 13.88 17.88 21.88 25.88 17.88 12.1 8.1 ],[19.44 19.4"
 		    "4 23.44 19.44 23.44 23.44 23.44 19.44 ],[1 1 1 ]);\npatch([12.1 17.88 13.88 8.1 12.1 ],[15.44 15.44 19.44 19.44 "
 		    "15.44 ],[0.931 0.946 0.973 ]);\npatch([8.1 13.88 17.88 12.1 8.1 ],[11.44 11.44 15.44 15.44 11.44 ],[1 1 1 ]);\np"
 		    "atch([12.1 25.88 21.88 17.88 13.88 8.1 12.1 ],[7.44 7.44 11.44 7.44 11.44 11.44 7.44 ],[0.931 0.946 0.973 ]);\nf"
-		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('in"
-		    "put',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0."
-		    "0244','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('black');disp('z^{-"
+		    "1}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -27206,16 +27184,15 @@ Model {
 		    sggui_pos		    "229,452,430,369"
 		    block_type		    "addsub"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,75,2,1,white,blue,0,c186c1e2,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,75,2,1,white,blue,0,32e1f85f,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 75 75 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 75 75 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[41.44 41.4"
 		    "4 45.44 41.44 45.44 45.44 45.44 41.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[37.44 37.44 41.44 41.44 "
 		    "37.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[33.44 33.44 37.44 37.44 33.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[29.44 29.44 33.44 29.44 33.44 33.44 29.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('input',2,'\\fontsize{10pt}\\b"
-		    "f0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.0244','texmode','on');\nfpr"
-		    "intf('','COMMENT: end icon text');"
+		    "('input',1,'a');\ncolor('black');port_label('input',2,'b');\ncolor('black');port_label('output',1,'\\bf{a - b}',"
+		    "'texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -27242,15 +27219,14 @@ Model {
 		    sggui_pos		    "20,20,430,309"
 		    block_type		    "delay"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "35,30,1,1,white,blue,0,5bb23994,right,,[ ],[ ]"
+		    sg_icon_stat	    "35,30,1,1,white,blue,0,07b98262,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 35 35 0 0 ],[0 0 30 30 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 35 35 0 0 ],[0 0 30 30 0 ]);\npatch([8.1 13.88 17.88 21.88 25.88 17.88 12.1 8.1 ],[19.44 19.4"
 		    "4 23.44 19.44 23.44 23.44 23.44 19.44 ],[1 1 1 ]);\npatch([12.1 17.88 13.88 8.1 12.1 ],[15.44 15.44 19.44 19.44 "
 		    "15.44 ],[0.931 0.946 0.973 ]);\npatch([8.1 13.88 17.88 12.1 8.1 ],[11.44 11.44 15.44 15.44 11.44 ],[1 1 1 ]);\np"
 		    "atch([12.1 25.88 21.88 17.88 13.88 8.1 12.1 ],[7.44 7.44 11.44 7.44 11.44 11.44 7.44 ],[0.931 0.946 0.973 ]);\nf"
-		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('in"
-		    "put',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0."
-		    "0244','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('black');disp('z^{-"
+		    "1}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -27393,16 +27369,15 @@ Model {
 		    sggui_pos		    "229,452,430,369"
 		    block_type		    "addsub"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,75,2,1,white,blue,0,c186c1e2,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,75,2,1,white,blue,0,32e1f85f,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 75 75 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 75 75 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[41.44 41.4"
 		    "4 45.44 41.44 45.44 45.44 45.44 41.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[37.44 37.44 41.44 41.44 "
 		    "37.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[33.44 33.44 37.44 37.44 33.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[29.44 29.44 33.44 29.44 33.44 33.44 29.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('input',2,'\\fontsize{10pt}\\b"
-		    "f0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.0244','texmode','on');\nfpr"
-		    "intf('','COMMENT: end icon text');"
+		    "('input',1,'a');\ncolor('black');port_label('input',2,'b');\ncolor('black');port_label('output',1,'\\bf{a - b}',"
+		    "'texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -27429,15 +27404,14 @@ Model {
 		    sggui_pos		    "20,20,430,309"
 		    block_type		    "delay"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "35,30,1,1,white,blue,0,5bb23994,right,,[ ],[ ]"
+		    sg_icon_stat	    "35,30,1,1,white,blue,0,07b98262,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 35 35 0 0 ],[0 0 30 30 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 35 35 0 0 ],[0 0 30 30 0 ]);\npatch([8.1 13.88 17.88 21.88 25.88 17.88 12.1 8.1 ],[19.44 19.4"
 		    "4 23.44 19.44 23.44 23.44 23.44 19.44 ],[1 1 1 ]);\npatch([12.1 17.88 13.88 8.1 12.1 ],[15.44 15.44 19.44 19.44 "
 		    "15.44 ],[0.931 0.946 0.973 ]);\npatch([8.1 13.88 17.88 12.1 8.1 ],[11.44 11.44 15.44 15.44 11.44 ],[1 1 1 ]);\np"
 		    "atch([12.1 25.88 21.88 17.88 13.88 8.1 12.1 ],[7.44 7.44 11.44 7.44 11.44 11.44 7.44 ],[0.931 0.946 0.973 ]);\nf"
-		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('in"
-		    "put',1,'\\fontsize{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0."
-		    "0244','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "printf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('black');disp('z^{-"
+		    "1}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -27498,15 +27472,15 @@ Model {
 		  sggui_pos		  "-1,-1,-1,-1"
 		  block_type		  "dsamp"
 		  block_version		  "9.2.00"
-		  sg_icon_stat		  "40,46,1,1,white,blue,0,aa19b77a,right,,[ ],[ ]"
+		  sg_icon_stat		  "40,46,1,1,white,blue,0,f864025f,right,,[ ],[ ]"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');\npatch([0 40 40 0 0 ],[0 0 46 46 0 ],[0.77 0.82 0.9"
 		  "1 ]);\nplot([0 40 40 0 0 ],[0 0 46 46 0 ]);\npatch([8.875 16.1 21.1 26.1 31.1 21.1 13.875 8.875 ],[28.55 28.55 33."
 		  "55 28.55 33.55 33.55 33.55 28.55 ],[1 1 1 ]);\npatch([13.875 21.1 16.1 8.875 13.875 ],[23.55 23.55 28.55 28.55 23."
 		  "55 ],[0.931 0.946 0.973 ]);\npatch([8.875 16.1 21.1 13.875 8.875 ],[18.55 18.55 23.55 23.55 18.55 ],[1 1 1 ]);\npa"
 		  "tch([13.875 31.1 26.1 21.1 16.1 8.875 13.875 ],[13.55 13.55 18.55 13.55 18.55 18.55 13.55 ],[0.931 0.946 0.973 ]);"
-		  "\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('i"
-		  "nput',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.0"
-		  "244','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		  "\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('black');disp('z^{"
+		  "-1}\\newline ','texmode','on');\ncolor('black');disp(' \\newline{\\fontsize{14pt}\\bf\\downarrow}64','texmode','on"
+		  "');\nfprintf('','COMMENT: end icon text');"
 		}
 		Block {
 		  BlockType		  SubSystem
@@ -27599,15 +27573,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "accum"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,68,1,1,white,blue,0,8907600c,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,68,1,1,white,blue,0,47915e64,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 68 68 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 68 68 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[38.44 38.4"
 		    "4 42.44 38.44 42.44 42.44 42.44 38.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[34.44 34.44 38.44 38.44 "
 		    "34.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[30.44 30.44 34.44 34.44 30.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[26.44 26.44 30.44 26.44 30.44 30.44 26.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\"
-		    "bf1.5625','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "('input',1,'b');\ncolor('black');port_label('output',1,'\\bf+=b','texmode','on');\nfprintf('','COMMENT: end icon"
+		    " text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -27722,15 +27696,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "accum"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,68,1,1,white,blue,0,8907600c,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,68,1,1,white,blue,0,47915e64,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 68 68 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 68 68 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[38.44 38.4"
 		    "4 42.44 38.44 42.44 42.44 42.44 38.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[34.44 34.44 38.44 38.44 "
 		    "34.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[30.44 30.44 34.44 34.44 30.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[26.44 26.44 30.44 26.44 30.44 30.44 26.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\"
-		    "bf1.5625','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "('input',1,'b');\ncolor('black');port_label('output',1,'\\bf+=b','texmode','on');\nfprintf('','COMMENT: end icon"
+		    " text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -27845,15 +27819,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "accum"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,68,1,1,white,blue,0,8907600c,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,68,1,1,white,blue,0,47915e64,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 68 68 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 68 68 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[38.44 38.4"
 		    "4 42.44 38.44 42.44 42.44 42.44 38.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[34.44 34.44 38.44 38.44 "
 		    "34.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[30.44 30.44 34.44 34.44 30.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[26.44 26.44 30.44 26.44 30.44 30.44 26.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\"
-		    "bf1.5625','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "('input',1,'b');\ncolor('black');port_label('output',1,'\\bf+=b','texmode','on');\nfprintf('','COMMENT: end icon"
+		    " text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -27968,15 +27942,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "accum"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,68,1,1,white,blue,0,8907600c,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,68,1,1,white,blue,0,47915e64,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 68 68 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 68 68 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[38.44 38.4"
 		    "4 42.44 38.44 42.44 42.44 42.44 38.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[34.44 34.44 38.44 38.44 "
 		    "34.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[30.44 30.44 34.44 34.44 30.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[26.44 26.44 30.44 26.44 30.44 30.44 26.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\"
-		    "bf1.5625','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "('input',1,'b');\ncolor('black');port_label('output',1,'\\bf+=b','texmode','on');\nfprintf('','COMMENT: end icon"
+		    " text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -28091,15 +28065,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "accum"
 		    block_version	    "VER_STRING_GOES_HERE"
-		    sg_icon_stat	    "30,68,1,1,white,blue,0,8907600c,right,,[ ],[ ]"
+		    sg_icon_stat	    "30,68,1,1,white,blue,0,47915e64,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 30 30 0 0 ],[0 0 68 68 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 30 30 0 0 ],[0 0 68 68 0 ]);\npatch([6.1 11.88 15.88 19.88 23.88 15.88 10.1 6.1 ],[38.44 38.4"
 		    "4 42.44 38.44 42.44 42.44 42.44 38.44 ],[1 1 1 ]);\npatch([10.1 15.88 11.88 6.1 10.1 ],[34.44 34.44 38.44 38.44 "
 		    "34.44 ],[0.931 0.946 0.973 ]);\npatch([6.1 11.88 15.88 10.1 6.1 ],[30.44 30.44 34.44 34.44 30.44 ],[1 1 1 ]);\np"
 		    "atch([10.1 23.88 19.88 15.88 11.88 6.1 10.1 ],[26.44 26.44 30.44 26.44 30.44 30.44 26.44 ],[0.931 0.946 0.973 ])"
 		    ";\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label"
-		    "('input',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\"
-		    "bf1.5625','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "('input',1,'b');\ncolor('black');port_label('output',1,'\\bf+=b','texmode','on');\nfprintf('','COMMENT: end icon"
+		    " text');"
 		    }
 		    Block {
 		    BlockType		    Outport
@@ -46005,16 +45979,15 @@ Model {
 		  sggui_pos		  "-1,-1,-1,-1"
 		  block_type		  "accum"
 		  block_version		  "VER_STRING_GOES_HERE"
-		  sg_icon_stat		  "55,69,2,1,white,blue,0,c3f8f39d,right,,[ ],[ ]"
+		  sg_icon_stat		  "55,69,2,1,white,blue,0,6949434e,right,,[ ],[ ]"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');\npatch([0 55 55 0 0 ],[0 0 69 69 0 ],[0.77 0.82 0.9"
 		  "1 ]);\nplot([0 55 55 0 0 ],[0 0 69 69 0 ]);\npatch([11.425 21.54 28.54 35.54 42.54 28.54 18.425 11.425 ],[41.77 41"
 		  ".77 48.77 41.77 48.77 48.77 48.77 41.77 ],[1 1 1 ]);\npatch([18.425 28.54 21.54 11.425 18.425 ],[34.77 34.77 41.77"
 		  " 41.77 34.77 ],[0.931 0.946 0.973 ]);\npatch([11.425 21.54 28.54 18.425 11.425 ],[27.77 27.77 34.77 34.77 27.77 ],"
 		  "[1 1 1 ]);\npatch([18.425 42.54 35.54 28.54 21.54 11.425 18.425 ],[20.77 20.77 27.77 20.77 27.77 27.77 20.77 ],[0."
 		  "931 0.946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('bl"
-		  "ack');port_label('input',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('input',2,'\\fon"
-		  "tsize{10pt}\\bf0.01','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf1.5625','texmode'"
-		  ",'on');\nfprintf('','COMMENT: end icon text');"
+		  "ack');port_label('input',1,'b');\ncolor('black');port_label('input',2,'rst');\ncolor('black');port_label('output',"
+		  "1,'\\bf+=b','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		}
 		Block {
 		  BlockType		  Reference
@@ -46050,16 +46023,15 @@ Model {
 		  sggui_pos		  "-1,-1,-1,-1"
 		  block_type		  "accum"
 		  block_version		  "VER_STRING_GOES_HERE"
-		  sg_icon_stat		  "55,69,2,1,white,blue,0,c3f8f39d,right,,[ ],[ ]"
+		  sg_icon_stat		  "55,69,2,1,white,blue,0,6949434e,right,,[ ],[ ]"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');\npatch([0 55 55 0 0 ],[0 0 69 69 0 ],[0.77 0.82 0.9"
 		  "1 ]);\nplot([0 55 55 0 0 ],[0 0 69 69 0 ]);\npatch([11.425 21.54 28.54 35.54 42.54 28.54 18.425 11.425 ],[41.77 41"
 		  ".77 48.77 41.77 48.77 48.77 48.77 41.77 ],[1 1 1 ]);\npatch([18.425 28.54 21.54 11.425 18.425 ],[34.77 34.77 41.77"
 		  " 41.77 34.77 ],[0.931 0.946 0.973 ]);\npatch([11.425 21.54 28.54 18.425 11.425 ],[27.77 27.77 34.77 34.77 27.77 ],"
 		  "[1 1 1 ]);\npatch([18.425 42.54 35.54 28.54 21.54 11.425 18.425 ],[20.77 20.77 27.77 20.77 27.77 27.77 20.77 ],[0."
 		  "931 0.946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('bl"
-		  "ack');port_label('input',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('input',2,'\\fon"
-		  "tsize{10pt}\\bf0.01','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf1.5625','texmode'"
-		  ",'on');\nfprintf('','COMMENT: end icon text');"
+		  "ack');port_label('input',1,'b');\ncolor('black');port_label('input',2,'rst');\ncolor('black');port_label('output',"
+		  "1,'\\bf+=b','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		}
 		Block {
 		  BlockType		  Reference
@@ -46336,15 +46308,14 @@ Model {
 		  sggui_pos		  "-1,-1,-1,-1"
 		  block_type		  "delay"
 		  block_version		  "VER_STRING_GOES_HERE"
-		  sg_icon_stat		  "56,45,1,1,white,blue,0,3b2a77e2,up,,[ ],[ ]"
+		  sg_icon_stat		  "56,45,1,1,white,blue,0,41dc5a24,up,,[ ],[ ]"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');\npatch([0 56 56 0 0 ],[0 0 45 45 0 ],[0.77 0.82 0.9"
 		  "1 ]);\nplot([0 56 56 0 0 ],[0 0 45 45 0 ]);\npatch([14.65 23.32 29.32 35.32 41.32 29.32 20.65 14.65 ],[28.66 28.66"
 		  " 34.66 28.66 34.66 34.66 34.66 28.66 ],[1 1 1 ]);\npatch([20.65 29.32 23.32 14.65 20.65 ],[22.66 22.66 28.66 28.66"
 		  " 22.66 ],[0.931 0.946 0.973 ]);\npatch([14.65 23.32 29.32 20.65 14.65 ],[16.66 16.66 22.66 22.66 16.66 ],[1 1 1 ])"
 		  ";\npatch([20.65 41.32 35.32 29.32 23.32 14.65 20.65 ],[10.66 10.66 16.66 10.66 16.66 16.66 10.66 ],[0.931 0.946 0."
-		  "973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_l"
-		  "abel('input',1,'\\fontsize{10pt}\\bf0.01','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}"
-		  "\\bf0.0122','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		  "973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('black');di"
+		  "sp('z^{-62}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		}
 		Block {
 		  BlockType		  Reference
@@ -46520,14 +46491,14 @@ Model {
 		  sggui_pos		  "708,114,356,661"
 		  block_type		  "counter"
 		  block_version		  "VER_STRING_GOES_HERE"
-		  sg_icon_stat		  "55,68,0,1,white,blue,0,4510a48a,right,,[ ],[ ]"
+		  sg_icon_stat		  "55,68,0,1,white,blue,0,99b2647d,right,,[ ],[ ]"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');\npatch([0 55 55 0 0 ],[0 0 68 68 0 ],[0.77 0.82 0.9"
 		  "1 ]);\nplot([0 55 55 0 0 ],[0 0 68 68 0 ]);\npatch([11.425 21.54 28.54 35.54 42.54 28.54 18.425 11.425 ],[41.77 41"
 		  ".77 48.77 41.77 48.77 48.77 48.77 41.77 ],[1 1 1 ]);\npatch([18.425 28.54 21.54 11.425 18.425 ],[34.77 34.77 41.77"
 		  " 41.77 34.77 ],[0.931 0.946 0.973 ]);\npatch([11.425 21.54 28.54 18.425 11.425 ],[27.77 27.77 34.77 34.77 27.77 ],"
 		  "[1 1 1 ]);\npatch([18.425 42.54 35.54 28.54 21.54 11.425 18.425 ],[20.77 20.77 27.77 20.77 27.77 27.77 20.77 ],[0."
-		  "931 0.946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('bl"
-		  "ack');port_label('output',1,'\\fontsize{10pt}\\bf0.0122','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		  "931 0.946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\ncolor('"
+		  "black');disp('{\\fontsize{14}\\bf\\lfloor--\\rfloor}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		}
 		Block {
 		  BlockType		  Reference
@@ -46553,15 +46524,15 @@ Model {
 		  sggui_pos		  "-1,-1,-1,-1"
 		  block_type		  "dsamp"
 		  block_version		  "VER_STRING_GOES_HERE"
-		  sg_icon_stat		  "40,40,1,1,white,blue,0,aa19b77a,right,,[ ],[ ]"
+		  sg_icon_stat		  "40,40,1,1,white,blue,0,f864025f,right,,[ ],[ ]"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');\npatch([0 40 40 0 0 ],[0 0 40 40 0 ],[0.77 0.82 0.9"
 		  "1 ]);\nplot([0 40 40 0 0 ],[0 0 40 40 0 ]);\npatch([8.875 16.1 21.1 26.1 31.1 21.1 13.875 8.875 ],[25.55 25.55 30."
 		  "55 25.55 30.55 30.55 30.55 25.55 ],[1 1 1 ]);\npatch([13.875 21.1 16.1 8.875 13.875 ],[20.55 20.55 25.55 25.55 20."
 		  "55 ],[0.931 0.946 0.973 ]);\npatch([8.875 16.1 21.1 13.875 8.875 ],[15.55 15.55 20.55 20.55 15.55 ],[1 1 1 ]);\npa"
 		  "tch([13.875 31.1 26.1 21.1 16.1 8.875 13.875 ],[10.55 10.55 15.55 10.55 15.55 15.55 10.55 ],[0.931 0.946 0.973 ]);"
-		  "\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('i"
-		  "nput',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.0"
-		  "244','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		  "\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('black');disp('z^{"
+		  "-1}\\newline ','texmode','on');\ncolor('black');disp(' \\newline{\\fontsize{14pt}\\bf\\downarrow}64','texmode','on"
+		  "');\nfprintf('','COMMENT: end icon text');"
 		}
 		Block {
 		  BlockType		  Reference
@@ -46587,15 +46558,15 @@ Model {
 		  sggui_pos		  "20,20,356,303"
 		  block_type		  "dsamp"
 		  block_version		  "VER_STRING_GOES_HERE"
-		  sg_icon_stat		  "40,40,1,1,white,blue,0,aa19b77a,right,,[ ],[ ]"
+		  sg_icon_stat		  "40,40,1,1,white,blue,0,f864025f,right,,[ ],[ ]"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');\npatch([0 40 40 0 0 ],[0 0 40 40 0 ],[0.77 0.82 0.9"
 		  "1 ]);\nplot([0 40 40 0 0 ],[0 0 40 40 0 ]);\npatch([8.875 16.1 21.1 26.1 31.1 21.1 13.875 8.875 ],[25.55 25.55 30."
 		  "55 25.55 30.55 30.55 30.55 25.55 ],[1 1 1 ]);\npatch([13.875 21.1 16.1 8.875 13.875 ],[20.55 20.55 25.55 25.55 20."
 		  "55 ],[0.931 0.946 0.973 ]);\npatch([8.875 16.1 21.1 13.875 8.875 ],[15.55 15.55 20.55 20.55 15.55 ],[1 1 1 ]);\npa"
 		  "tch([13.875 31.1 26.1 21.1 16.1 8.875 13.875 ],[10.55 10.55 15.55 10.55 15.55 15.55 10.55 ],[0.931 0.946 0.973 ]);"
-		  "\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('i"
-		  "nput',1,'\\fontsize{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.0"
-		  "244','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		  "\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\n\ncolor('black');disp('z^{"
+		  "-1}\\newline ','texmode','on');\ncolor('black');disp(' \\newline{\\fontsize{14pt}\\bf\\downarrow}64','texmode','on"
+		  "');\nfprintf('','COMMENT: end icon text');"
 		}
 		Block {
 		  BlockType		  Reference
@@ -46980,16 +46951,16 @@ Model {
 		  sggui_pos		  "20,20,356,486"
 		  block_type		  "mult"
 		  block_version		  "VER_STRING_GOES_HERE"
-		  sg_icon_stat		  "50,78,2,1,white,blue,0,816d4e68,right,,[ ],[ ]"
+		  sg_icon_stat		  "50,78,2,1,white,blue,0,2fbe4d8a,right,,[ ],[ ]"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');\npatch([0 50 50 0 0 ],[0 0 78 78 0 ],[0.77 0.82 0.9"
 		  "1 ]);\nplot([0 50 50 0 0 ],[0 0 78 78 0 ]);\npatch([9.425 19.54 26.54 33.54 40.54 26.54 16.425 9.425 ],[46.77 46.7"
 		  "7 53.77 46.77 53.77 53.77 53.77 46.77 ],[1 1 1 ]);\npatch([16.425 26.54 19.54 9.425 16.425 ],[39.77 39.77 46.77 46"
 		  ".77 39.77 ],[0.931 0.946 0.973 ]);\npatch([9.425 19.54 26.54 16.425 9.425 ],[32.77 32.77 39.77 39.77 32.77 ],[1 1 "
 		  "1 ]);\npatch([16.425 40.54 33.54 26.54 19.54 9.425 16.425 ],[25.77 25.77 32.77 25.77 32.77 32.77 25.77 ],[0.931 0."
 		  "946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');"
-		  "port_label('input',1,'\\fontsize{10pt}\\bf3.13','texmode','on');\ncolor('black');port_label('input',2,'\\fontsize{"
-		  "10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf3.125','texmode','on');"
-		  "\nfprintf('','COMMENT: end icon text');"
+		  "port_label('input',1,'a');\ncolor('black');port_label('input',2,'b');\ncolor('black');port_label('output',1,'\\bfa"
+		  " \\times b','texmode','on');\ncolor('black');disp('z^{-2}\\newline ','texmode','on');\ncolor('black');disp(' \\n '"
+		  ");\nfprintf('','COMMENT: end icon text');"
 		}
 		Block {
 		  BlockType		  Reference
@@ -47017,16 +46988,15 @@ Model {
 		  sggui_pos		  "20,20,553,384"
 		  block_type		  "spram"
 		  block_version		  "12.1"
-		  sg_icon_stat		  "70,90,3,1,white,blue,0,6b16a1a7,right,,[ ],[ ]"
+		  sg_icon_stat		  "70,90,3,1,white,blue,0,afe23399,right,,[ ],[ ]"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');\npatch([0 70 70 0 0 ],[0 0 90 90 0 ],[0.77 0.82 0.9"
 		  "1 ]);\nplot([0 70 70 0 0 ],[0 0 90 90 0 ]);\npatch([12.75 27.2 37.2 47.2 57.2 37.2 22.75 12.75 ],[56.1 56.1 66.1 5"
 		  "6.1 66.1 66.1 66.1 56.1 ],[1 1 1 ]);\npatch([22.75 37.2 27.2 12.75 22.75 ],[46.1 46.1 56.1 56.1 46.1 ],[0.931 0.94"
 		  "6 0.973 ]);\npatch([12.75 27.2 37.2 22.75 12.75 ],[36.1 36.1 46.1 46.1 36.1 ],[1 1 1 ]);\npatch([22.75 57.2 47.2 3"
 		  "7.2 27.2 12.75 22.75 ],[26.1 26.1 36.1 26.1 36.1 36.1 26.1 ],[0.931 0.946 0.973 ]);\nfprintf('','COMMENT: end icon"
-		  " graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'\\fontsize{10pt}\\bf0."
-		  "01','texmode','on');\ncolor('black');port_label('input',2,'\\fontsize{10pt}\\bf0.00','texmode','on');\ncolor('blac"
-		  "k');port_label('input',3,'\\fontsize{10pt}\\bf0.00','texmode','on');\ncolor('black');port_label('output',1,'\\font"
-		  "size{10pt}\\bf0.0122','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		  " graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'addr');\ncolor('black'"
+		  ");port_label('input',2,'data');\ncolor('black');port_label('input',3,'we');\n\ncolor('black');disp('z^{-1}','texmo"
+		  "de','on');\nfprintf('','COMMENT: end icon text');"
 		}
 		Block {
 		  BlockType		  Reference
@@ -47130,14 +47100,14 @@ Model {
 		  sggui_pos		  "-1,-1,-1,-1"
 		  block_type		  "counter"
 		  block_version		  "VER_STRING_GOES_HERE"
-		  sg_icon_stat		  "55,82,0,1,white,blue,0,4510a48a,right,,[ ],[ ]"
+		  sg_icon_stat		  "55,82,0,1,white,blue,0,4b061529,right,,[ ],[ ]"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');\npatch([0 55 55 0 0 ],[0 0 82 82 0 ],[0.77 0.82 0.9"
 		  "1 ]);\nplot([0 55 55 0 0 ],[0 0 82 82 0 ]);\npatch([11.425 21.54 28.54 35.54 42.54 28.54 18.425 11.425 ],[48.77 48"
 		  ".77 55.77 48.77 55.77 55.77 55.77 48.77 ],[1 1 1 ]);\npatch([18.425 28.54 21.54 11.425 18.425 ],[41.77 41.77 48.77"
 		  " 48.77 41.77 ],[0.931 0.946 0.973 ]);\npatch([11.425 21.54 28.54 18.425 11.425 ],[34.77 34.77 41.77 41.77 34.77 ],"
 		  "[1 1 1 ]);\npatch([18.425 42.54 35.54 28.54 21.54 11.425 18.425 ],[27.77 27.77 34.77 27.77 34.77 34.77 27.77 ],[0."
-		  "931 0.946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('bl"
-		  "ack');port_label('output',1,'\\fontsize{10pt}\\bf0.0122','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		  "931 0.946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n\ncolor('"
+		  "black');disp('{\\fontsize{14}\\bf\\lceil++\\rceil}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		}
 		Block {
 		  BlockType		  Outport
@@ -48200,15 +48170,15 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "counter"
 		    block_version	    "12.1"
-		    sg_icon_stat	    "60,60,1,1,white,blue,0,c11c0eb1,right,,[ ],[ ]"
+		    sg_icon_stat	    "60,60,1,1,white,blue,0,803eba70,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 60 60 0 0 ],[0 0 60 60 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 60 60 0 0 ],[0 0 60 60 0 ]);\npatch([12.2 23.76 31.76 39.76 47.76 31.76 20.2 12.2 ],[38.88 38"
 		    ".88 46.88 38.88 46.88 46.88 46.88 38.88 ],[1 1 1 ]);\npatch([20.2 31.76 23.76 12.2 20.2 ],[30.88 30.88 38.88 38."
 		    "88 30.88 ],[0.931 0.946 0.973 ]);\npatch([12.2 23.76 31.76 20.2 12.2 ],[22.88 22.88 30.88 30.88 22.88 ],[1 1 1 ]"
 		    ");\npatch([20.2 47.76 39.76 31.76 23.76 12.2 20.2 ],[14.88 14.88 22.88 14.88 22.88 22.88 14.88 ],[0.931 0.946 0."
 		    "973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port"
-		    "_label('input',1,'\\fontsize{10pt}\\bf0.00','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{1"
-		    "0pt}\\bf0.0002','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		    "_label('input',1,'rst');\n\ncolor('black');disp('{\\fontsize{14}\\bf++}','texmode','on');\nfprintf('','COMMENT: "
+		    "end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -48309,15 +48279,14 @@ Model {
 		    sggui_pos		    "-1,-1,-1,-1"
 		    block_type		    "constant"
 		    block_version	    "12.1"
-		    sg_icon_stat	    "55,26,0,1,white,blue,0,bc478917,right,,[ ],[ ]"
+		    sg_icon_stat	    "55,26,0,1,white,blue,0,ec71a9da,right,,[ ],[ ]"
 		    sg_mask_display	    "fprintf('','COMMENT: begin icon graphics');\npatch([0 55 55 0 0 ],[0 0 26 26 0 ],[0.77 0.82"
 		    " 0.91 ]);\nplot([0 55 55 0 0 ],[0 0 26 26 0 ]);\npatch([20.325 24.66 27.66 30.66 33.66 27.66 23.325 20.325 ],[16"
 		    ".33 16.33 19.33 16.33 19.33 19.33 19.33 16.33 ],[1 1 1 ]);\npatch([23.325 27.66 24.66 20.325 23.325 ],[13.33 13."
 		    "33 16.33 16.33 13.33 ],[0.931 0.946 0.973 ]);\npatch([20.325 24.66 27.66 23.325 20.325 ],[10.33 10.33 13.33 13.3"
 		    "3 10.33 ],[1 1 1 ]);\npatch([23.325 33.66 30.66 27.66 24.66 20.325 23.325 ],[7.33 7.33 10.33 7.33 10.33 10.33 7."
 		    "33 ],[0.931 0.946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\n"
-		    "color('black');port_label('output',1,'\\fontsize{10pt}\\bf0','texmode','on');\nfprintf('','COMMENT: end icon tex"
-		    "t');"
+		    "color('black');port_label('output',1,'130');\nfprintf('','COMMENT: end icon text');"
 		    }
 		    Block {
 		    BlockType		    Reference
@@ -55709,7 +55678,7 @@ Model {
       System {
 	Name			"Serial Interface1"
 	Location		[-8, -8, 1688, 1018]
-	Open			off
+	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -55720,7 +55689,7 @@ Model {
 	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
 	TiledPageScale		1
 	ShowPageBoundaries	off
-	ZoomFactor		"100"
+	ZoomFactor		"125"
 	Block {
 	  BlockType		  Inport
 	  Name			  "Version"
@@ -66106,74 +66075,6 @@ Model {
 	}
 	Block {
 	  BlockType		  Reference
-	  Name			  "Up Sample2"
-	  SID			  "6767"
-	  Ports			  [1, 1]
-	  Position		  [840, 645, 900, 675]
-	  ZOrder		  -42
-	  LibraryVersion	  "1.2"
-	  SourceBlock		  "xbsIndex_r4/Up Sample"
-	  SourceType		  "Xilinx Up Sampler Block"
-	  infoedit		  "Up samples input data.  Inserted values  can be zeros or copies of the most recent input sample.<br><b"
-	  "r>Hardware notes: No hardware is needed if inserted values are copies of the input sample; otherwise, a mux and sin"
-	  "gle bit flip-flop are used."
-	  sample_ratio		  "1024"
-	  copy_samples		  on
-	  en			  off
-	  latency		  "0"
-	  dbl_ovrd		  off
-	  xl_use_area		  off
-	  xl_area		  "[0,0,0,0,0,0,0]"
-	  has_advanced_control	  "0"
-	  sggui_pos		  "-1,-1,-1,-1"
-	  block_type		  "usamp"
-	  block_version		  "12.1"
-	  sg_icon_stat		  "60,30,1,1,white,blue,0,e58afd7a,right,,[ ],[ ]"
-	  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');\npatch([0 60 60 0 0 ],[0 0 30 30 0 ],[0.77 0.82 0.91"
-	  " ]);\nplot([0 60 60 0 0 ],[0 0 30 30 0 ]);\npatch([21.1 26.88 30.88 34.88 38.88 30.88 25.1 21.1 ],[19.44 19.44 23.4"
-	  "4 19.44 23.44 23.44 23.44 19.44 ],[1 1 1 ]);\npatch([25.1 30.88 26.88 21.1 25.1 ],[15.44 15.44 19.44 19.44 15.44 ],"
-	  "[0.931 0.946 0.973 ]);\npatch([21.1 26.88 30.88 25.1 21.1 ],[11.44 11.44 15.44 15.44 11.44 ],[1 1 1 ]);\npatch([25."
-	  "1 38.88 34.88 30.88 26.88 21.1 25.1 ],[7.44 7.44 11.44 7.44 11.44 11.44 7.44 ],[0.931 0.946 0.973 ]);\nfprintf('','"
-	  "COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'\\font"
-	  "size{10pt}\\bf1.56','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf1600','texmode','on"
-	  "');\nfprintf('','COMMENT: end icon text');"
-	}
-	Block {
-	  BlockType		  Reference
-	  Name			  "Up Sample3"
-	  SID			  "6768"
-	  Ports			  [1, 1]
-	  Position		  [930, 680, 990, 710]
-	  ZOrder		  -43
-	  LibraryVersion	  "1.2"
-	  SourceBlock		  "xbsIndex_r4/Up Sample"
-	  SourceType		  "Xilinx Up Sampler Block"
-	  infoedit		  "Up samples input data.  Inserted values  can be zeros or copies of the most recent input sample.<br><b"
-	  "r>Hardware notes: No hardware is needed if inserted values are copies of the input sample; otherwise, a mux and sin"
-	  "gle bit flip-flop are used."
-	  sample_ratio		  "2"
-	  copy_samples		  on
-	  en			  off
-	  latency		  "0"
-	  dbl_ovrd		  off
-	  xl_use_area		  off
-	  xl_area		  "[0,0,0,0,0,0,0]"
-	  has_advanced_control	  "0"
-	  sggui_pos		  "-1,-1,-1,-1"
-	  block_type		  "usamp"
-	  block_version		  "12.1"
-	  sg_icon_stat		  "60,30,1,1,white,blue,0,445c6e08,right,,[ ],[ ]"
-	  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');\npatch([0 60 60 0 0 ],[0 0 30 30 0 ],[0.77 0.82 0.91"
-	  " ]);\nplot([0 60 60 0 0 ],[0 0 30 30 0 ]);\npatch([21.1 26.88 30.88 34.88 38.88 30.88 25.1 21.1 ],[19.44 19.44 23.4"
-	  "4 19.44 23.44 23.44 23.44 19.44 ],[1 1 1 ]);\npatch([25.1 30.88 26.88 21.1 25.1 ],[15.44 15.44 19.44 19.44 15.44 ],"
-	  "[0.931 0.946 0.973 ]);\npatch([21.1 26.88 30.88 25.1 21.1 ],[11.44 11.44 15.44 15.44 11.44 ],[1 1 1 ]);\npatch([25."
-	  "1 38.88 34.88 30.88 26.88 21.1 25.1 ],[7.44 7.44 11.44 7.44 11.44 11.44 7.44 ],[0.931 0.946 0.973 ]);\nfprintf('','"
-	  "COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('input',1,'\\font"
-	  "size{10pt}\\bf0.02','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.0488','texmode','"
-	  "on');\nfprintf('','COMMENT: end icon text');"
-	}
-	Block {
-	  BlockType		  Reference
 	  Name			  "Up Sample4"
 	  SID			  "6769"
 	  Ports			  [1, 1]
@@ -66675,29 +66576,9 @@ Model {
 	  }
 	}
 	Line {
-	  SrcBlock		  "Up Sample2"
+	  SrcBlock		  "CIC_OVLD"
 	  SrcPort		  1
-	  Points		  [175, 0]
-	  Branch {
-	    DstBlock		    "Par2Serial_Output"
-	    DstPort		    8
-	  }
-	  Branch {
-	    Points		    [0, 80; -60, 0; 0, 90]
-	    DstBlock		    "Logical"
-	    DstPort		    3
-	  }
-	}
-	Line {
-	  SrcBlock		  "AM_OVLD"
-	  SrcPort		  1
-	  DstBlock		  "Up Sample2"
-	  DstPort		  1
-	}
-	Line {
-	  SrcBlock		  "Up Sample3"
-	  SrcPort		  1
-	  Points		  [10, 0]
+	  Points		  [205, 0]
 	  Branch {
 	    DstBlock		    "Par2Serial_Output"
 	    DstPort		    9
@@ -66707,12 +66588,6 @@ Model {
 	    DstBlock		    "Logical"
 	    DstPort		    4
 	  }
-	}
-	Line {
-	  SrcBlock		  "CIC_OVLD"
-	  SrcPort		  1
-	  DstBlock		  "Up Sample3"
-	  DstPort		  1
 	}
 	Line {
 	  SrcBlock		  "Up Sample4"
@@ -66904,6 +66779,20 @@ Model {
 	  Points		  [40, 0; 0, -40]
 	  DstBlock		  "Logical2"
 	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "AM_OVLD"
+	  SrcPort		  1
+	  Points		  [218, 0]
+	  Branch {
+	    Points		    [0, 170]
+	    DstBlock		    "Logical"
+	    DstPort		    3
+	  }
+	  Branch {
+	    DstBlock		    "Par2Serial_Output"
+	    DstPort		    8
+	  }
 	}
 	Annotation {
 	  SID			  "8768"
@@ -82291,15 +82180,14 @@ Model {
 		  sggui_pos		  "-1,-1,-1,-1"
 		  block_type		  "counter"
 		  block_version		  "12.1"
-		  sg_icon_stat		  "60,60,1,1,white,blue,0,c11c0eb1,right,,[ ],[ ]"
+		  sg_icon_stat		  "60,60,1,1,white,blue,0,803eba70,right,,[ ],[ ]"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');\npatch([0 60 60 0 0 ],[0 0 60 60 0 ],[0.77 0.82 0.9"
 		  "1 ]);\nplot([0 60 60 0 0 ],[0 0 60 60 0 ]);\npatch([12.2 23.76 31.76 39.76 47.76 31.76 20.2 12.2 ],[38.88 38.88 46"
 		  ".88 38.88 46.88 46.88 46.88 38.88 ],[1 1 1 ]);\npatch([20.2 31.76 23.76 12.2 20.2 ],[30.88 30.88 38.88 38.88 30.88"
 		  " ],[0.931 0.946 0.973 ]);\npatch([12.2 23.76 31.76 20.2 12.2 ],[22.88 22.88 30.88 30.88 22.88 ],[1 1 1 ]);\npatch("
 		  "[20.2 47.76 39.76 31.76 23.76 12.2 20.2 ],[14.88 14.88 22.88 14.88 22.88 22.88 14.88 ],[0.931 0.946 0.973 ]);\nfpr"
 		  "intf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black');port_label('input'"
-		  ",1,'\\fontsize{10pt}\\bf0.00','texmode','on');\ncolor('black');port_label('output',1,'\\fontsize{10pt}\\bf0.0002',"
-		  "'texmode','on');\nfprintf('','COMMENT: end icon text');"
+		  ",1,'rst');\n\ncolor('black');disp('{\\fontsize{14}\\bf++}','texmode','on');\nfprintf('','COMMENT: end icon text');"
 		}
 		Block {
 		  BlockType		  Reference
@@ -82400,14 +82288,14 @@ Model {
 		  sggui_pos		  "-1,-1,-1,-1"
 		  block_type		  "constant"
 		  block_version		  "12.1"
-		  sg_icon_stat		  "55,26,0,1,white,blue,0,bc478917,right,,[ ],[ ]"
+		  sg_icon_stat		  "55,26,0,1,white,blue,0,a8544230,right,,[ ],[ ]"
 		  sg_mask_display	  "fprintf('','COMMENT: begin icon graphics');\npatch([0 55 55 0 0 ],[0 0 26 26 0 ],[0.77 0.82 0.9"
 		  "1 ]);\nplot([0 55 55 0 0 ],[0 0 26 26 0 ]);\npatch([20.325 24.66 27.66 30.66 33.66 27.66 23.325 20.325 ],[16.33 16"
 		  ".33 19.33 16.33 19.33 19.33 19.33 16.33 ],[1 1 1 ]);\npatch([23.325 27.66 24.66 20.325 23.325 ],[13.33 13.33 16.33"
 		  " 16.33 13.33 ],[0.931 0.946 0.973 ]);\npatch([20.325 24.66 27.66 23.325 20.325 ],[10.33 10.33 13.33 13.33 10.33 ],"
 		  "[1 1 1 ]);\npatch([23.325 33.66 30.66 27.66 24.66 20.325 23.325 ],[7.33 7.33 10.33 7.33 10.33 10.33 7.33 ],[0.931 "
 		  "0.946 0.973 ]);\nfprintf('','COMMENT: end icon graphics');\nfprintf('','COMMENT: begin icon text');\ncolor('black'"
-		  ");port_label('output',1,'\\fontsize{10pt}\\bf0','texmode','on');\nfprintf('','COMMENT: end icon text');"
+		  ");port_label('output',1,'127');\nfprintf('','COMMENT: end icon text');"
 		}
 		Block {
 		  BlockType		  Reference
