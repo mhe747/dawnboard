@@ -12,7 +12,8 @@ Notes:
     4.  You will also need the Xilinx ISE Design Suite for the Xilinx blockset required by the Simulink model.
     5.  You have to click on the red X as "Xilinx System Generator" icon that is on the top level of the Simulink model. Around 43 minutes are required for the first time.
     6.  In the Xilinx ISE Design Suite, use the Xilinx "Project Navigator" to convert the .xise file into the final .bit file.
-    7.  The .xise files is created by Simulink model.
+    7.  Open netlist_2p5/xcvr_ssb_am_2p5_mcw.xise Edit the xcvr_ssb_am_2p5_mcw.ucf to set correct hf_adc and tx_dac pins among other pins
+    7.  The .xise files is created by Simulink model, click on "Generate program File".
     8.  And then use iMPACT (from the Xilinx ISE) to load the .bit file into the FPGA itself.
 
 
