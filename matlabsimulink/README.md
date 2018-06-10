@@ -13,8 +13,10 @@ the .xise files is created by Simulink model, you have to click on the red Xilin
 
 
 Ext link :
-http://k6jca.blogspot.com/2017/02/an-fpga-sdr-hf-transceiver-part-1.html
-http://www.w5cz.com/fpga_dsp1.pdf
+
+    http://k6jca.blogspot.com/2017/02/an-fpga-sdr-hf-transceiver-part-1.html
+    http://www.w5cz.com/fpga_dsp1.pdf
 
 The original files from :
-https://github.com/k6jca/fpga-sdr-rev-2.5
+
+   https://github.com/k6jca/fpga-sdr-rev-2.5
