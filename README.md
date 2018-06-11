@@ -397,4 +397,4 @@ You may need some tools too...
 	Great, all checks had been tested, if no error, you now are ready to make a complex project with the 
 	power of the BeagleSDR, like https://github.com/mhe747/sumpx15
 	
-	Just Now please go to sub-directory avr, bfpga2, chips-beaglesdr to read more about it.
+	Just Now please go to sub-directories : avr, bfpga2, chips-beaglesdr, matlabsimulink to read more about it.
