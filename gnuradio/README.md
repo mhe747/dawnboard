@@ -1,6 +1,8 @@
 
 
-  Based on the steps of making of gnuradio plugin for BeagleSDR / Beagleboard-x15 project :
+These are the python and FPGA VHDL files previously based on H. Villeneuve and Ph. Balister design of FPGA software radio logic using GNU Radio software. I have adapted to BeagleSDR board.
+
+ Basical steps of making of gnuradio plugin for BeagleSDR / Beagleboard-x15 project :
 
 --- GNU Radio ---
 Create a class, spi.control, that lets you control the FPGA and ADC from Python or C++
