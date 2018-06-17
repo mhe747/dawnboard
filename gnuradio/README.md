@@ -2,6 +2,22 @@
 
 These are the python and FPGA VHDL files previously based on H. Villeneuve and Ph. Balister design of FPGA software radio logic using GNU Radio software. I have adapted to BeagleSDR board.
 
+That's the way :
+
+	1. Add https://github.com/balister/meta-sdr into your bitbake sources config
+	in build/conf/bblayers.conf :
+
+		BBLAYERS += " \
+		/home/osboxes/bbx15/tisdk/sources/meta-processor-sdk \
+		/home/osboxes/bbx15/tisdk/sources/meta-sdr \
+		...
+
+
+	2. Add gr-spi_0.3.bb recipe into meta-sdr
+	in bitbake's directory sources/meta-sdr/recipes-support/gr-spi
+
+	3. bitbake gr-spi
+
  Basical steps of making of gnuradio plugin for BeagleSDR / Beagleboard-x15 project :
 
 --- GNU Radio ---
