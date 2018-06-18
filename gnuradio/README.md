@@ -36,10 +36,10 @@ That's the way :
 
 --- FPGA ---
 
-		Start with the Verilog design for the USRP and adapt it to work
-		Add a receive path (downmixing/filtering) 
-		Add daughterboard support
-		Change the pin configuration to the correct one for Beagleboard-x15 P17 port (SPI connected)
+		Start the design with Xilinx ISE 14.7
+		Check reception and transmission path (maybe add downmixing/filtering) 
+		Check SPI support
+		Check the pins configuration to the correct one for Beagleboard-x15 P17 port (SPI connected)
 
 
 I. Getting Started
