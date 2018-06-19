@@ -1,6 +1,6 @@
 
 
-These are the bitbake recipe and FPGA VHDL files previously based on H. Villeneuve and Ph. Balister design of FPGA software radio logic using GNU Radio software. I have adapted to BeagleSDR board.
+These are the bitbake recipe and FPGA VHDL files previously based on H. Villeneuve and Ph. Balister design of FPGA software radio logic using GNU Radio software. I have adapted to BeagleSDR board / Beagleboard X15
 
 That's the way :
 
@@ -13,12 +13,16 @@ That's the way :
 		...
 
 
-	2. Add gr-spi_0.3.bb recipe into meta-sdr
-	in bitbake's directory sources/meta-sdr/recipes-support/gr-spi
+	2. Go to bitbake sources sub-directory in "tisdk/sources/", then
+	    git pull https://github.com/balister/meta-sdr
+	    
+	3. Add the file gr-spi_0.3.bb recipe found in this repository into your sources/meta-sdr directory
+	    in bitbake's directory sources/meta-sdr/recipes-support/gr-spi
 
-	3. bitbake gr-spi
+	4. MACHINE=am57xx-evm bitbake gr-spi
+	    tested as 100 % compilable on gnuradio 3.8
 
- Basical steps of making of gnuradio plugin for BeagleSDR / Beagleboard-x15 project :
+ Basical steps : making of gnuradio plugin for BeagleSDR / Beagleboard-x15 project
 
 --- GNU Radio ---
 
@@ -100,7 +104,7 @@ II. System Description
   3. Creating / modifying your own recipes
 		
 		
-Ext link where the original files came from :
+Ext link where the old files came from and designed for Beagleboard 1st version and -xM version :
 		
 	http://trac.geekisp.com/opensdr/browser
 
