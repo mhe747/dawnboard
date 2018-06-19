@@ -1,6 +1,6 @@
 
 
-These are the python and FPGA VHDL files previously based on H. Villeneuve and Ph. Balister design of FPGA software radio logic using GNU Radio software. I have adapted to BeagleSDR board.
+These are the bitbake recipe and FPGA VHDL files previously based on H. Villeneuve and Ph. Balister design of FPGA software radio logic using GNU Radio software. I have adapted to BeagleSDR board.
 
 That's the way :
 
