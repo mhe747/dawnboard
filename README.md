@@ -1,7 +1,7 @@
 
 # Welcome to the github of the BeagleSDR add-on board for the famous beagleboard-x15
 
-## AVR / FPGA / SDR FRONTEND / C2VERILOG   --   ALL IN ONE
+## AVR / FPGA / C2VERILOG / MATLAB SIMULINK / GNURADIO  --   ALL IN ONE
 
 Setup the standard ARM Cross-compiler Toolchain, since one may find some GCC7 compiler's issue with processor-sdk, I advise to use the version 6.4. ALL yocto arago project ipk packages sources for beagleboard-x15 based on processor-sdk-xx.xx.xx.xx-config
 
@@ -397,4 +397,4 @@ You may need some tools too...
 	Great, all checks had been tested, if no error, you now are ready to make a complex project with the 
 	power of the BeagleSDR, like https://github.com/mhe747/sumpx15
 	
-	Just Now please go to sub-directories : avr, bfpga2, chips-beaglesdr, matlabsimulink to read more about it.
+	Read more in sub-directories : avr, bfpga2, chips-beaglesdr, matlabsimulink, gnuradio ...
