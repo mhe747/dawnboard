@@ -107,6 +107,13 @@ II. System Description
 Ext link where the old files came from and designed for Beagleboard 1st version and -xM version :
 		
 	http://trac.geekisp.com/opensdr/browser
-
-
+	https://wiki.gnuradio.org/index.php/Main_Page
+	https://wiki.gnuradio.org/index.php/Embedded_Development_with_GNU_Radio
+	https://wiki.gnuradio.org/index.php/GNURadioCompanion
+	https://wiki.gnuradio.org/index.php/Guided_Tutorial_GNU_Radio_in_Python
+	https://wiki.gnuradio.org/index.php/Guided_Tutorial_GRC
+	https://wiki.gnuradio.org/index.php/TutorialsWritePythonApplications
+	https://wiki.gnuradio.org/index.php/HowToUse
+	http://udel.edu/~mm/gr/
+	http://www.ece.uvic.ca/~elec350/lab_manual/ar01s01s02.html
 
