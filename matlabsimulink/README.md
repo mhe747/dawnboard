@@ -25,10 +25,10 @@ Notes:
     ERROR:Xst:1617 - Processing TIMESPEC TS_clk_16384_dc300de7: TNM...
     ERROR:Xst:1489 - Constraint annotation failed.
     xst compilation stops. This is how we can resolve this issue :
-    delete .XCF file from matlab simulink generation that XST was reading in
-    right click on "Synthesize - XST" in Design menu
+    delete .XCF file from matlab simulink generation that XST was reading in Xilinx ISE 14.7
+    In Xilinx ISE 14.7 Design menu, right click on "Synthesize - XST" 
     Process > Properties > Synthesis Options > switch name -uc, property name Synthesis Constraints File option > delete the xcf file
-    In same window, now double click on Generation Programming File
+    In same window, double click on Generation Programming File
     
     9. Add "NET "clk_xxx" CLOCK_DEDICATED_ROUTE = FALSE;" in the .ucf file for each clock
     
