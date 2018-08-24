@@ -16,7 +16,43 @@ Setup the standard ARM Cross-compiler Toolchain, since one may find some GCC7 co
 
 	$ which arm-linux-gnueabihf-gcc
 
--------
+NOTE
+	One common location for hosting packages, gforge.ti.com, has recently been decommissioned. This will cause fetch failures for the current and past releases. Please follow this augmented procedure to configure the build to obtain these packages from the TI mirror.
+	
+	$ git clone git://arago-project.org/git/projects/oe-layersetup.git tisdk
+	$ cd tisdk
+	
+Processor SDK Build Reference
+The following sections provide information for configuration, build options, and supported platforms of the Processor SDK. 
+Layer Configuration
+Processor SDK uses the following oe-layersetup configs to configure the meta layers. These are the <config> used in the command: 
+	
+	$ ./oe-layersetup.sh -f configs/processor-sdk/processor-sdk-05.00.00.15-config.txt
+	
+	$ cd build
+	$ cat >> ./conf/local.conf << 'EOF'
+
+	TI_MIRROR = "http://software-dl.ti.com/processor-sdk-mirror/sources/"
+	MIRRORS += " \
+	bzr://.*/.*      ${TI_MIRROR} \n \
+	cvs://.*/.*      ${TI_MIRROR} \n \
+	git://.*/.*      ${TI_MIRROR} \n \
+	gitsm://.*/.*    ${TI_MIRROR} \n \
+	hg://.*/.*       ${TI_MIRROR} \n \
+	osc://.*/.*      ${TI_MIRROR} \n \
+	p4://.*/.*       ${TI_MIRROR} \n \
+	npm://.*/.*      ${TI_MIRROR} \n \
+	ftp://.*/.*      ${TI_MIRROR} \n \
+	https?$://.*/.*  ${TI_MIRROR} \n \
+	svn://.*/.*      ${TI_MIRROR} \n \
+	"
+	EOF
+	$ . conf/setenv
+	$ export PATH=$HOME/gcc-linaro-6.2.1-2016.11-x86_64_arm-linux-gnueabihf/bin:$PATH
+	$ MACHINE=am57xx-evm bitbake arago-core-tisdk-image
+	
+
+	
 Now we go through bitbaking some Beagleboard-x15 core packages...
 
 	$ cd $TISDK/build/
