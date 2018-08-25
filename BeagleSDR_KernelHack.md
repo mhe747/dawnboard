@@ -1,6 +1,6 @@
-## I personnaly recommand using Linux Kernel am57xx-evm 4.9.59-ga75d8e9305 in processor-sdk 4.3.0.5
+# I personnaly recommand using Linux Kernel am57xx-evm 4.* in processor-sdk
  
-	Setup the standard ARM Cross-compiler Toolchain
+	Setup the standard ARM Cross-compiler Toolchain / which maybe different from the cross-compiler used to make userland's packages
 	$ wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/arm-linux-gnueabihf/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz
 	$ tar -Jxvf gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz -C $HOME
 	$ nano ~/.bashrc
@@ -29,14 +29,8 @@
 	$ MACHINE=am57xx-evm bitbake arago-core-tisdk-image
 	
 	After several hours of compilation if errors occured you should manually fix them...
-
-Copy dts files to your bitbake's TI kernel build directory :
 	
-	$ cd $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/build/arch/arm/boot/dts/
-
-	$ cp $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/git/arch/arm/boot/dts/{am57xx-beagle-x15-revc.dts,am57xx-beagle-x15-common.dtsi,dra74x.dtsi,am57xx-commercial-grade.dtsi,dra74x-mmc-iodelay.dtsi,dra7.dtsi,dra7xx-clocks.dtsi} .
-
-check your kernel directory to find dts files in $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.9.69+gitAUTOINC+a75d8e9305-r7a.arago5.tisdk16/build/arch/arm/boot/dts/
+Check your kernel directory to find dts files in $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.*/git/arch/arm/boot/dts/
 
 These are dts files related to the Beagleboard-X15 revC :
 
@@ -50,6 +44,8 @@ These are dts files related to the Beagleboard-X15 revC :
 
 Only edit the file "am57xx-beagle-x15-revc.dts" which contains our custom configurations.
 
+	gedit $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.*/git/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts
+
 The original Linux Kernel sources can be found inside $TISDK/build/arago-tmp-external-linaro-toolchain/work-shared/am57xx-evm/kernel-sources or same as am57xx-evm/git
 
 Now we are going to update the dts file to have BeagleSDR loaded with correct configurations.
@@ -57,6 +53,7 @@ Now we are going to update the dts file to have BeagleSDR loaded with correct co
 in am57xx-beagle-x15-revc.dts, add following devices:
 
 ------
+
 	&i2c4 {
 		status = "okay";
 		clock-frequency = <400000>;	    	
