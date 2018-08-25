@@ -86,6 +86,10 @@ You may need some tools too...
 	install nfs and tftp server to host target kernel, dtb and rootfs.
 	edit /etc/exports to allow nfs server directory access
 	copy kernel and dtb to /tftp as the directory used by tftp server
+	
+	$ cd /home/osboxes/bbx15/tisdk/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/*/build/
+	$ cp arch/arm/boot/zImage /tftpboot/ && cp arch/arm/boot/dts/am57xx-beagle-x15-revc.dtb /tftpboot/uImage-am57xx-beagle-x15-revc.dtb
+
 	edit /etc/xinetd.d/tftp, add these lines into it :
 		service tftp
 		{
