@@ -47,13 +47,9 @@ Processor SDK uses the following oe-layersetup configs to configure the meta lay
 	svn://.*/.*      ${TI_MIRROR} \n \
 	"
 	EOF
-	$ . conf/setenv
-	
-	$ MACHINE=am57xx-evm bitbake arago-core-tisdk-image
-	
-Very important :
-Setup the standard ARM Cross-compiler Toolchain, since one may find some GCC7 compiler's issue with processor-sdk, I advise to use the version 6.4.x, we have to change the default GCC cross-compiler version from 7.2 to 6.4
-open your $TISDK/sources/meta-arago/meta-arago-distro/conf/distro/include/toolchain-linaro.inc, comment out these lines :
+
+Very important note :
+Setup the standard ARM Cross-compiler Toolchain, since one may find some GCC7 compiler's issues when trying to compile some packages like opencl within processor-sdk, I advise to use the version 6.4.x, we have to change the default GCC cross-compiler version from 7.2 to 6.4. Open your $TISDK/sources/meta-arago/meta-arago-distro/conf/distro/include/toolchain-linaro.inc, comment out these lines :
 
 	# TOOLCHAIN_BASE ?= "/opt"
 	# TOOLCHAIN_PATH_ARMV5 ?= "${TOOLCHAIN_BASE}/gcc-linaro-7.2.1-ti2018.00-armv5-x86_64_${ELT_TARGET_SYS_ARMV5}"
