@@ -53,16 +53,18 @@ Processor SDK uses the following oe-layersetup configs to configure the meta lay
 	
 Very important :
 Setup the standard ARM Cross-compiler Toolchain, since one may find some GCC7 compiler's issue with processor-sdk, I advise to use the version 6.4.x, we have to change the default GCC cross-compiler version from 7.2 to 6.4
-open your $TISDK/sources/meta-arago/meta-arago-distro/conf/distro/include/toolchain-linaro.inc :
-comment these lines :
-# TOOLCHAIN_BASE ?= "/opt"
-# TOOLCHAIN_PATH_ARMV5 ?= "${TOOLCHAIN_BASE}/gcc-linaro-7.2.1-ti2018.00-armv5-x86_64_${ELT_TARGET_SYS_ARMV5}"
-# TOOLCHAIN_PATH_ARMV7 ?= "${TOOLCHAIN_BASE}/gcc-linaro-7.2.1-2017.11-x86_64_${ELT_TARGET_SYS_ARMV7}"
-# TOOLCHAIN_PATH_ARMV8 ?= "${TOOLCHAIN_BASE}/gcc-linaro-7.2.1-2017.11-x86_64_${ELT_TARGET_SYS_ARMV8}"
-add these lines :
-TOOLCHAIN_BASE = "$HOME" or where you installed the GCC cross-compiler
-TOOLCHAIN_PATH_ARMV7 ?= "${TOOLCHAIN_BASE}/gcc-linaro-6.4.1-2017.08-x86_64_${ELT_TARGET_SYS_ARMV7}"
-TOOLCHAIN_PATH_ARMV8 ?= "${TOOLCHAIN_BASE}/gcc-linaro-6.4.1-2017.08-x86_64_${ELT_TARGET_SYS_ARMV8}"
+open your $TISDK/sources/meta-arago/meta-arago-distro/conf/distro/include/toolchain-linaro.inc, comment out these lines :
+
+	# TOOLCHAIN_BASE ?= "/opt"
+	# TOOLCHAIN_PATH_ARMV5 ?= "${TOOLCHAIN_BASE}/gcc-linaro-7.2.1-ti2018.00-armv5-x86_64_${ELT_TARGET_SYS_ARMV5}"
+	# TOOLCHAIN_PATH_ARMV7 ?= "${TOOLCHAIN_BASE}/gcc-linaro-7.2.1-2017.11-x86_64_${ELT_TARGET_SYS_ARMV7}"
+	# TOOLCHAIN_PATH_ARMV8 ?= "${TOOLCHAIN_BASE}/gcc-linaro-7.2.1-2017.11-x86_64_${ELT_TARGET_SYS_ARMV8}"
+	
+then, add these lines :
+
+	TOOLCHAIN_BASE = "$HOME" or where you installed the GCC cross-compiler
+	TOOLCHAIN_PATH_ARMV7 ?= "${TOOLCHAIN_BASE}/gcc-linaro-6.4.1-2017.08-x86_64_${ELT_TARGET_SYS_ARMV7}"
+	TOOLCHAIN_PATH_ARMV8 ?= "${TOOLCHAIN_BASE}/gcc-linaro-6.4.1-2017.08-x86_64_${ELT_TARGET_SYS_ARMV8}"
 		
 Now we're ready to go through bitbaking some Beagleboard-x15 core packages...
 
