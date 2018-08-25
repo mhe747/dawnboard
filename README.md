@@ -3,13 +3,13 @@
 
 ## AVR / FPGA / C2VERILOG / MATLAB SIMULINK / GNURADIO  --   ALL IN ONE
 
-Setup the standard ARM Cross-compiler Toolchain, since one may find some GCC7 compiler's issue with processor-sdk, I advise to use the version 6.4. ALL yocto arago project ipk packages sources for beagleboard-x15 based on processor-sdk-xx.xx.xx.xx-config
+ALL yocto arago project ipk packages sources for beagleboard-x15 based on processor-sdk-xx.xx.xx.xx-config
 
 	$ wget https://releases.linaro.org/components/toolchain/binaries/6.4-2017.08/arm-linux-gnueabihf/gcc-linaro-6.4.1-2017.08-x86_64_arm-linux-gnueabihf.tar.xz
 	$ tar -Jxvf gcc-linaro-6.4.1-2017.08-x86_64_arm-linux-gnueabihf.tar.xz -C $HOME
 	$ nano ~/.bashrc
 	add this line into .bashrc 
-	export PATH=$PATH:~/gcc-linaro-6.4.1-2017.08-x86_64_arm-linux-gnueabihf/bin
+	export PATH=$PATH:$HOME/gcc-linaro-6.4.1-2017.08-x86_64_arm-linux-gnueabihf/bin
 
 	After setting the cross-compiler in your environment PATH, now have a check with
 	$ . ~/.bashrc
@@ -48,12 +48,23 @@ Processor SDK uses the following oe-layersetup configs to configure the meta lay
 	"
 	EOF
 	$ . conf/setenv
-	$ export PATH=$HOME/gcc-linaro-6.2.1-2016.11-x86_64_arm-linux-gnueabihf/bin:$PATH
+	
 	$ MACHINE=am57xx-evm bitbake arago-core-tisdk-image
 	
-
-	
-Now we go through bitbaking some Beagleboard-x15 core packages...
+Very important :
+Setup the standard ARM Cross-compiler Toolchain, since one may find some GCC7 compiler's issue with processor-sdk, I advise to use the version 6.4.x, we have to change the default GCC cross-compiler version from 7.2 to 6.4
+open your $TISDK/sources/meta-arago/meta-arago-distro/conf/distro/include/toolchain-linaro.inc :
+comment these lines :
+# TOOLCHAIN_BASE ?= "/opt"
+# TOOLCHAIN_PATH_ARMV5 ?= "${TOOLCHAIN_BASE}/gcc-linaro-7.2.1-ti2018.00-armv5-x86_64_${ELT_TARGET_SYS_ARMV5}"
+# TOOLCHAIN_PATH_ARMV7 ?= "${TOOLCHAIN_BASE}/gcc-linaro-7.2.1-2017.11-x86_64_${ELT_TARGET_SYS_ARMV7}"
+# TOOLCHAIN_PATH_ARMV8 ?= "${TOOLCHAIN_BASE}/gcc-linaro-7.2.1-2017.11-x86_64_${ELT_TARGET_SYS_ARMV8}"
+add these lines :
+TOOLCHAIN_BASE = "$HOME" or where you installed the GCC cross-compiler
+TOOLCHAIN_PATH_ARMV7 ?= "${TOOLCHAIN_BASE}/gcc-linaro-6.4.1-2017.08-x86_64_${ELT_TARGET_SYS_ARMV7}"
+TOOLCHAIN_PATH_ARMV8 ?= "${TOOLCHAIN_BASE}/gcc-linaro-6.4.1-2017.08-x86_64_${ELT_TARGET_SYS_ARMV8}"
+		
+Now we're ready to go through bitbaking some Beagleboard-x15 core packages...
 
 	$ cd $TISDK/build/
 	$ . conf/setenv
@@ -61,7 +72,7 @@ Now we go through bitbaking some Beagleboard-x15 core packages...
 	
 You may need some tools too...
 
-	$ MACHINE=am57xx-evm bitbake netcat picocom spitools i2c-tools python-pyserial
+	$ MACHINE=am57xx-evm bitbake netcat picocom spitools i2c-tools python-pyserial uio
 	
 	Check package version and after re-generation, build the new package index in repository : 
 	$ MACHINE=am57xx-evm bitbake -s
