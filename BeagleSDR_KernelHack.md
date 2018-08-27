@@ -1,36 +1,37 @@
-# I personnaly recommand using Linux Kernel am57xx-evm 4.* in processor-sdk
+# I personnaly recommand using Linux Kernel am57xx-evm in Processor-sdk
  
-	Setup the standard ARM Cross-compiler Toolchain / which maybe different from the cross-compiler used to make userland's packages
+	Setup the standard ARM Cross-compiler Toolchain, you may use 6.4.x or 7.x which maybe different version from the cross-compiler used to make userland's packages in yocto by bitbake
+	
 	$ wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/arm-linux-gnueabihf/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz
 	$ tar -Jxvf gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz -C $HOME
 	$ nano ~/.bashrc
-	add this line into .bashrc 
+	add this line into .bashrc
 	export PATH=$PATH:~/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf/bin
 
 	After setting the cross-compiler in your environment PATH, now have a check with
 	$ . ~/.bashrc
 	$ which arm-linux-gnueabihf-gcc
-	  *** bash should say something like
+	  *** bash should say something like if you chose the version 7.2.1 of GCC
 	  /home/osboxes/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc
 
 	Fetch git repo in TI
 	$ git clone git://arago-project.org/git/projects/oe-layersetup.git tisdk
 	$ cd tisdk
 	$ export TISDK=`pwd`
-	$ ls $TISDK/configs/processor-sdk/processor-sdk-04.03.00.05-config.txt
+	$ ls $TISDK/configs/processor-sdk/processor-sdk-xx.xx.xx.xx-config.txt
 	  *** this file must exist because we will need to import the bitbake's layers.
 
 	Now optimization, change $TISDK/build/conf/local.conf to set the number of your CPU cores
-	PARALLEL_MAKE = "-j XX"  (eg. XX=8)
+	PARALLEL_MAKE = "-j XX"  (eg. XX=32)
 
-	$ ./oe-layertool-setup.sh -f configs/processor-sdk/processor-sdk-04.03.00.05-config.txt
+	$ ./oe-layertool-setup.sh -f configs/processor-sdk/processor-sdk-xx.xx.xx.xx-config.txt
 	$ cd build
 	$ . conf/setenv
-	$ MACHINE=am57xx-evm bitbake arago-core-tisdk-image
+	$ MACHINE=am57xx-evm bitbake core-image-minimal
 	
-	After several hours of compilation if errors occured you should manually fix them...
+	During several hours of compilation if errors occured you should manually fix them...
 	
-Check your kernel directory to find dts files in $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.*/git/arch/arm/boot/dts/
+OK. Now check your kernel directory to find dts files in $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.*/git/arch/arm/boot/dts/
 
 These are dts files related to the Beagleboard-X15 revC :
 
@@ -44,13 +45,13 @@ These are dts files related to the Beagleboard-X15 revC :
 
 Only edit the file "am57xx-beagle-x15-revc.dts" which contains our custom configurations.
 
-	gedit $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.*/git/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts
+	gedit $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.*/git/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts &
 
 The original Linux Kernel sources can be found inside $TISDK/build/arago-tmp-external-linaro-toolchain/work-shared/am57xx-evm/kernel-sources or same as am57xx-evm/git
 
-Now we are going to update the dts file to have BeagleSDR loaded with correct configurations.
+Now we are going to update this dts file to have BeagleSDR loaded with correct linux kernel configurations.
 
-in am57xx-beagle-x15-revc.dts, add following devices:
+in am57xx-beagle-x15-revc.dts, add following lines to enable devices:
 
 ------
 
@@ -93,7 +94,7 @@ in am57xx-beagle-x15-revc.dts, add following devices:
 ------
 
 according to am5728.pdf (page 105,106), in linux kernel dts 
-you can change SPI pin mux configuration here dra74x-mmc-iodelay.dtsi
+you may change SPI pin mux configuration here dra74x-mmc-iodelay.dtsi
 
 Ref.   https://groups.google.com/forum/#!topic/beagleboard-x15/OWHcEUoCzYo
 
@@ -164,11 +165,13 @@ Now come back to your bitbake's TI kernel directory to check the settings of the
 	$ cp arch/arm/boot/zImage /tftpboot/
 	$ cp arch/arm/boot/dts/am57xx-beagle-x15-revc.dtb /tftpboot/uImage-am57xx-beagle-x15-revc.dtb
 	
-Change uEnv.txt to set dtb to uImage-am57xx-beagle-x15-revc.dtb
-Then, boot to Beagleboard-x15, now you are inside of your target, dump the device tree
+Change uEnv.txt of your micro SDcard to rename dtb file to uImage-am57xx-beagle-x15-revc.dtb
+Then, boot to Beagleboard-x15, check the linux kernel version
 
 	$ uname -a
-	Linux am57xx-evm 4.9.59-ga75d8e9305 #4 SMP PREEMPT Sat Apr 14 09:35:10 CEST 2018 armv7l GNU/Linux
+	Linux am57xx-evm 4.x.xx-xxxxxxxxx #x SMP PREEMPT Sat Apr 14 09:35:10 CEST 2018 armv7l GNU/Linux
+
+You are inside of your target, dump the device tree too
 
 	$ dtc -I fs /proc/device-tree > mykerneldt.txt
 	
@@ -194,14 +197,14 @@ load the zImage and dtb file into /tftpboot (assume you are using tftpboot + nfs
 	$ cp arch/arm/boot/dts/am57xx-beagle-x15-revc.dtb /tftpboot/uImage-am57xx-beagle-x15-revc.dtb
 	$ cp arch/arm/boot/zImage /tftpboot
 
-this is my personal uEnv.txt, simple yet powerful, only one line makes you from MLO to bash.
+this is my personal uEnv.txt, simple yet powerful, only one line makes you from MLO to bash. Copy it to your micro SD card
 
 	# rename to /run/media/mmcblk0p1/uEnv.txt assumed that mount /dev/mmcblk0p1 on /run/media/mmcblk0p1 type vfat 
 	uenvcmd=setenv autoload no;dhcp;setenv bootfile zImage;setenv fdtfile uImage-am57xx-beagle-x15-revc.dtb;setenv serverip 192.168.1.17;setenv netloadfdt tftp ${fdtaddr} ${serverip}:${fdtfile};setenv netloadimage tftp ${loadaddr} ${serverip}:${bootfile};setenv rootpath /home/osboxes/ti-processor-sdk-linux-am57xx-evm-04.03.00.05/targetNFS;run netloadimage;run netloadfdt;run netargs;bootz ${loadaddr} - ${fdtaddr};
 
 
 ------
-after 15 seconds of reboot, now you have to do a check in target :
+after 25 seconds of reboot, now you have to do a check in target :
 
 	Before plugging your BeagleSDR, it would be advisable to have a check each port with your osciloscope.
 	Check the voltage, clock activites if that seems alright.
