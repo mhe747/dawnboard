@@ -442,7 +442,7 @@ You may need some tools too...
 	};
 
 Note : In the BEAGLEBOARD_X15_REV_B1.pdf, P17 connector, we notice the value of GPIO5_6 in front of pin 45
-The Linux GPIO pin number is computed as sub_port*32+sub_port_pin, here we have 5*32+6=166 as gpio166 (GPIO5_6)
+The Linux GPIO pin number is computed as (sub_port x 32 + sub_port_pin), here we have 5x32+6=166 as gpio166 (GPIO5_6)
 
 
 ------
