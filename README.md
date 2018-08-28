@@ -441,6 +441,10 @@ You may need some tools too...
 	166,164,231,168,210,211,208,165,167,169,222,225
 	};
 
+Note : In the BEAGLEBOARD_X15_REV_B1.pdf, P17 connector, we notice the value of GPIO5_6 in front of pin 45
+The Linux GPIO pin number is computed as sub_port*32+sub_port_pin, here we have 5*32+6=166 as gpio166 (GPIO5_6)
+
+
 ------
 
 	Great, all checks had been tested, if no error, you now are ready to make a complex project with the 
