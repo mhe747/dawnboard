@@ -441,12 +441,12 @@ You may need some tools too...
 	166,164,231,168,210,211,208,165,167,169,222,225
 	};
 
-Note : In the BEAGLEBOARD_X15_REV_B1.pdf, in P17 connector, we notice the value of GPIO5_6 (this is sub port 5, offset 6) corresponding to P17 / Pin 45.
+Note : In the BEAGLEBOARD_X15_REV_B1.pdf, in P17 connector, we notice the value of GPIO5_6 (this is sub port 5, offset 6) corresponding to P17-Pin45.
 
 In Linux the GPIO pin number matches (sub_port-1) x 32 + sub_port_pin, here we have (5-1)x32+6 = 134. The gpio134 for GPIO5_6.
 Use following script gpiotest.sh
 
-	# ./gpiotest 134
+	# ./gpiotest.sh 134
 
 	echo using gpio $1
 	echo "$1">/sys/class/gpio/export
