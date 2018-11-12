@@ -34,36 +34,34 @@
 	
 	I've craeted padconf.h :
 
-{MMC3_CMD, (M1 | PIN_OUTPUT)},	/* mmc3_cmd.spi3_sclk */
-{MMC3_DAT0, (M1 | PIN_OUTPUT)},	/* mmc3_dat0.spi3_d1 */
-{MMC3_DAT1, (M1 | PIN_INPUT)},	/* mmc3_dat1.spi3_d0 */
-{MMC3_DAT2, (M1 | PIN_OUTPUT_PULLUP)},	/* mmc3_dat2.spi3_cs0 */
-{MMC3_DAT4, (M1 | PIN_OUTPUT)},	/* mmc3_dat4.spi4_sclk */
-{MMC3_DAT5, (M1 | PIN_OUTPUT)},	/* mmc3_dat5.spi4_d1 */
-{MMC3_DAT6, (M1 | PIN_INPUT)},	/* mmc3_dat6.spi4_d0 */
-{MMC3_DAT7, (M1 | PIN_OUTPUT_PULLUP)},	/* mmc3_dat7.spi4_cs0 */
+	{MMC3_CMD, (M1 | PIN_OUTPUT)},	/* mmc3_cmd.spi3_sclk */
+	{MMC3_DAT0, (M1 | PIN_OUTPUT)},	/* mmc3_dat0.spi3_d1 */
+	{MMC3_DAT1, (M1 | PIN_INPUT)},	/* mmc3_dat1.spi3_d0 */
+	{MMC3_DAT2, (M1 | PIN_OUTPUT_PULLUP)},	/* mmc3_dat2.spi3_cs0 */
+	{MMC3_DAT4, (M1 | PIN_OUTPUT)},	/* mmc3_dat4.spi4_sclk */
+	{MMC3_DAT5, (M1 | PIN_OUTPUT)},	/* mmc3_dat5.spi4_d1 */
+	{MMC3_DAT6, (M1 | PIN_INPUT)},	/* mmc3_dat6.spi4_d0 */
+	{MMC3_DAT7, (M1 | PIN_OUTPUT_PULLUP)},	/* mmc3_dat7.spi4_cs0 */
 
 
-1) First modify u-boot's mux_data.h
-Open padconf.h and copy the contents of padconf.h to mux_data.h const struct pad_conf_entry
-The last part of core_padconf_array_essential_x15[] = {}.
-(Note: if it is not copied to the end of structure, it will be covered)
-Now that we have both spi configured, 
-in U-boot:
-~/u-boot
-Make ARCH=arm CROSS_COMPILE=${CC}
-This step regenerates the MLO and u-boot.img files.
+	1) First modify u-boot's mux_data.h
+	Open padconf.h and copy the contents of padconf.h to mux_data.h const struct pad_conf_entry
+	The last part of core_padconf_array_essential_x15[] = {}.
+	(Note: if it is not copied to the end of structure, it will be covered)
+	Now that we have both spi configured in U-boot:
+	~/u-boot
+	Make ARCH=arm CROSS_COMPILE=${CC}
+	This step regenerates the MLO and u-boot.img files.
 
-2) Register the spi node in linux kernel's am57xx-beagleboard-revc.dts
-Add the following code to OK at the end of dts, the main work is done here, then the compilation of dtb and u-boot.
-in linux:
-~/ti-linux-kernel-dev/KERNEL
-Make ARCH=arm CROSS_COMPILE=${CC} am57xx-beagle-x15-revc.dtb
-This step regenerates the am57xx-beagle-x15-revc.dtb device tree file.
-	
-OK. Now check your kernel directory to find dts files in $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.*/git/arch/arm/boot/dts/
+	2) Register the spi node in linux kernel's am57xx-beagleboard-revc.dts
+	Add the following code to OK at the end of dts, compilation of dtb in Linux:
+	~/ti-linux-kernel-dev/KERNEL
+	Make ARCH=arm CROSS_COMPILE=${CC} am57xx-beagle-x15-revc.dtb
+	This step regenerates the am57xx-beagle-x15-revc.dtb device tree file.
 
-These are dts files related to the Beagleboard-X15 revC :
+	OK. Now check your kernel directory to find dts files in $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.*/git/arch/arm/boot/dts/
+
+	For your knowledge, there are some remained dts files related to the Beagleboard-X15 revC :
 
 	am57xx-beagle-x15-revc.dts 
 	am57xx-beagle-x15-common.dtsi 
@@ -73,7 +71,7 @@ These are dts files related to the Beagleboard-X15 revC :
 	dra7.dtsi
 	dra7xx-clocks.dtsi
 
-Only edit the file "am57xx-beagle-x15-revc.dts" which contains our custom configurations.
+	Only edit the file "am57xx-beagle-x15-revc.dts" which contains our custom configurations.
 
 	gedit $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.*/git/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts &
 
