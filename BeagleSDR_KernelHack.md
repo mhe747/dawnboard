@@ -32,7 +32,7 @@
 	During several hours of compilation if errors occured you should manually fix them...
 	
 	
-	I've craeted padconf.h :
+	This is contents of padconf.h :
 
 	{MMC3_CMD, (M1 | PIN_OUTPUT)},	/* mmc3_cmd.spi3_sclk */
 	{MMC3_DAT0, (M1 | PIN_OUTPUT)},	/* mmc3_dat0.spi3_d1 */
@@ -48,7 +48,7 @@
 	Open padconf.h and copy the contents of padconf.h to mux_data.h const struct pad_conf_entry
 	The last part of core_padconf_array_essential_x15[] = {}.
 	(Note: if it is not copied to the end of structure, it will be covered)
-	Now that we have both spi configured in U-boot:
+	Now that we have the spi configured in U-boot:
 	~/u-boot
 	Make ARCH=arm CROSS_COMPILE=${CC}
 	This step regenerates the MLO and u-boot.img files.
