@@ -31,6 +31,36 @@
 	
 	During several hours of compilation if errors occured you should manually fix them...
 	
+	
+	I've craeted padconf.h :
+
+{MMC3_CMD, (M1 | PIN_OUTPUT)},	/* mmc3_cmd.spi3_sclk */
+{MMC3_DAT0, (M1 | PIN_OUTPUT)},	/* mmc3_dat0.spi3_d1 */
+{MMC3_DAT1, (M1 | PIN_INPUT)},	/* mmc3_dat1.spi3_d0 */
+{MMC3_DAT2, (M1 | PIN_OUTPUT_PULLUP)},	/* mmc3_dat2.spi3_cs0 */
+{MMC3_DAT4, (M1 | PIN_OUTPUT)},	/* mmc3_dat4.spi4_sclk */
+{MMC3_DAT5, (M1 | PIN_OUTPUT)},	/* mmc3_dat5.spi4_d1 */
+{MMC3_DAT6, (M1 | PIN_INPUT)},	/* mmc3_dat6.spi4_d0 */
+{MMC3_DAT7, (M1 | PIN_OUTPUT_PULLUP)},	/* mmc3_dat7.spi4_cs0 */
+
+
+1) First modify u-boot's mux_data.h
+Open padconf.h and copy the contents of padconf.h to mux_data.h const struct pad_conf_entry
+The last part of core_padconf_array_essential_x15[] = {}.
+(Note: if it is not copied to the end of structure, it will be covered)
+Now that we have both spi configured, 
+in U-boot:
+~/u-boot
+Make ARCH=arm CROSS_COMPILE=${CC}
+This step regenerates the MLO and u-boot.img files.
+
+2) Register the spi node in linux kernel's am57xx-beagleboard-revc.dts
+Add the following code to OK at the end of dts, the main work is done here, then the compilation of dtb and u-boot.
+in linux:
+~/ti-linux-kernel-dev/KERNEL
+Make ARCH=arm CROSS_COMPILE=${CC} am57xx-beagle-x15-revc.dtb
+This step regenerates the am57xx-beagle-x15-revc.dtb device tree file.
+	
 OK. Now check your kernel directory to find dts files in $TISDK/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/4.*/git/arch/arm/boot/dts/
 
 These are dts files related to the Beagleboard-X15 revC :
@@ -68,17 +98,18 @@ in am57xx-beagle-x15-revc.dts, add following lines to enable devices:
 		status = "okay";
 	};
 
-	&dra7_pmx_core {
-		mcspi4_pins: mcspi4_pins {
-			pinctrl-single,pins = <
-			       DRA7XX_CORE_IOPAD(0x3794, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat4 spi4_clk*/
-			       DRA7XX_CORE_IOPAD(0x3798, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat5 spi4_SOMI */
-			       DRA7XX_CORE_IOPAD(0x379C, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat6 spi4_MOSI */
-			       DRA7XX_CORE_IOPAD(0x37A0, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat7 spi4_cs0*/
-			>;
-		};
-	};
+	&mcspi3 { 
+	       status = "okay";
+	       pinctrl-names = "default";
 
+	       spidev@1 { 
+		      pinctrl-1 = <&mcspi3_pins>;
+		      spi-max-frequency = <48000000>;
+		      reg = <0>; 
+		      compatible = "rohm,dh2228fv";
+	       };
+	};
+	
 	&mcspi4 { 
 	       status = "okay";
 	       pinctrl-names = "default";
@@ -102,14 +133,14 @@ Ref.   https://groups.google.com/forum/#!topic/beagleboard-x15/OWHcEUoCzYo
 
 	/* This would configure the port P17, corresponding to the extension pins 17.4, 17.36, 17.7, 17.8 respectively as below 
 	   but also may in same time create pertubations to i2c4 */ 
-	//	mcspi3_pins: mcspi3_pins {
-	//		     pinctrl-single,pins = <
-	//		               DRA7XX_CORE_IOPAD(0x3780, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_cmd.spi3_clk*/
-	//			       DRA7XX_CORE_IOPAD(0x3788, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat1 MCSPI3_SOMI */
-	//		               DRA7XX_CORE_IOPAD(0x3784, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat0 MCSPI3_MOSI */
-	//			       DRA7XX_CORE_IOPAD(0x378C, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat2.spi3_cs0*/
-	//		>;
-	//	};
+		mcspi3_pins: mcspi3_pins {
+			     pinctrl-single,pins = <
+			               DRA7XX_CORE_IOPAD(0x3780, PIN_OUTPUT  | MUX_MODE1) /*mmc3_cmd.spi3_clk*/
+				       DRA7XX_CORE_IOPAD(0x3788, PIN_INPUT  | MUX_MODE1) /*mmc3_dat1 MCSPI3_SOMI */
+			               DRA7XX_CORE_IOPAD(0x3784, PIN_OUTPUT | MUX_MODE1) /*mmc3_dat0 MCSPI3_MOSI */
+				       DRA7XX_CORE_IOPAD(0x378C, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat2.spi3_cs0*/
+			>;
+		};
 
 
 	/*in case of configuration 1
@@ -118,26 +149,16 @@ Ref.   https://groups.google.com/forum/#!topic/beagleboard-x15/OWHcEUoCzYo
 	
 	/* mcspi4_pins: mcspi4_pins {
 		     pinctrl-single,pins = <
-		               DRA7XX_CORE_IOPAD(0x3794, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat4 spi4_clk*/
-		               DRA7XX_CORE_IOPAD(0x3798, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat5 spi4_SOMI */
-		               DRA7XX_CORE_IOPAD(0x379C, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat6 spi4_MOSI */
+		               DRA7XX_CORE_IOPAD(0x3794, PIN_OUTPUT  | MUX_MODE1) /*mmc3_dat4 spi4_clk*/
+		               DRA7XX_CORE_IOPAD(0x3798, PIN_OUTPUT  | MUX_MODE1) /*mmc3_dat5 spi4_MOSI */
+		               DRA7XX_CORE_IOPAD(0x379C, PIN_INPUT | MUX_MODE1) /*mmc3_dat6 spi4_SOMI */
 		               DRA7XX_CORE_IOPAD(0x37A0, PIN_OUTPUT_PULLUP | MUX_MODE1) /*mmc3_dat7 spi4_cs0*/
 		>;
 	};*/
 	
-	/* in case of configuration 2
-	   This would configure the port P17, corresponding to the extension pins 
-	17.37, 17.35, 17.09, and 17.10 respectively as below */
-	/*
-	mcspi4_pins: mcspi4_pins {
-	     pinctrl-single,pins = <
-	        DRA7XX_CORE_IOPAD(0x3794, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat4 spi4_clk*/
-	        DRA7XX_CORE_IOPAD(0x3798, PIN_INPUT_PULLUP  | MUX_MODE1) /*mmc3_dat5 spi4_SOMI */
-		DRA7XX_CORE_IOPAD(0x374c, PIN_OUTPUT_PULLUP | MUX_MODE2) /* UART9.TX */
-		DRA7XX_CORE_IOPAD(0x3750, PIN_OUTPUT_PULLUP | MUX_MODE2) /* UART9.RX */
-		>;
-	};*/
-
+	
+	Notice : to make a spi looping test, one may simply shortcut the connector P17 - pin 36 and pin 7 for spi3, then shortcut P17 - pin 35 and pin 38 for spi4.
+	
 ------
 
 	$ cd ../../../..
