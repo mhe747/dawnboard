@@ -1,6 +1,203 @@
+
 # I personnaly recommand using Linux Kernel am57xx-evm in Processor-sdk
- 
-	Setup the standard ARM Cross-compiler Toolchain, you may use 6.4.x or 7.x which maybe different version from the cross-compiler used to make userland's packages in yocto by bitbake
+
+ALL yocto arago project ipk packages sources for beagleboard-x15 based on processor-sdk-xx.xx.xx.xx-config
+
+	$ wget https://releases.linaro.org/components/toolchain/binaries/6.4-2017.08/arm-linux-gnueabihf/gcc-linaro-6.4.1-2017.08-x86_64_arm-linux-gnueabihf.tar.xz
+	$ tar -Jxvf gcc-linaro-6.4.1-2017.08-x86_64_arm-linux-gnueabihf.tar.xz -C $HOME
+	$ nano ~/.bashrc
+	add this line into .bashrc 
+	export PATH=$PATH:$HOME/gcc-linaro-6.4.1-2017.08-x86_64_arm-linux-gnueabihf/bin
+
+	After setting the cross-compiler in your environment PATH, now have a check with
+	$ . ~/.bashrc
+
+	$ which arm-linux-gnueabihf-gcc
+
+NOTE
+	One common location for hosting packages, gforge.ti.com, has recently been decommissioned. This will cause fetch failures for the current and past releases. Please follow this augmented procedure to configure the build to obtain these packages from the TI mirror.
+	
+	$ git clone git://arago-project.org/git/projects/oe-layersetup.git tisdk
+	$ cd tisdk
+	
+Processor SDK Build Reference
+The following sections provide information for configuration, build options, and supported platforms of the Processor SDK. 
+Layer Configuration
+Processor SDK uses the following oe-layersetup configs to configure the meta layers. These are the <config> used in the command: 
+	
+	$ ./oe-layersetup.sh -f configs/processor-sdk/processor-sdk-05.00.00.15-config.txt
+	
+	$ cd build
+	$ cat >> ./conf/local.conf << 'EOF'
+
+	TI_MIRROR = "http://software-dl.ti.com/processor-sdk-mirror/sources/"
+	MIRRORS += " \
+	bzr://.*/.*      ${TI_MIRROR} \n \
+	cvs://.*/.*      ${TI_MIRROR} \n \
+	git://.*/.*      ${TI_MIRROR} \n \
+	gitsm://.*/.*    ${TI_MIRROR} \n \
+	hg://.*/.*       ${TI_MIRROR} \n \
+	osc://.*/.*      ${TI_MIRROR} \n \
+	p4://.*/.*       ${TI_MIRROR} \n \
+	npm://.*/.*      ${TI_MIRROR} \n \
+	ftp://.*/.*      ${TI_MIRROR} \n \
+	https?$://.*/.*  ${TI_MIRROR} \n \
+	svn://.*/.*      ${TI_MIRROR} \n \
+	"
+	EOF
+
+Very important note :
+Setup the standard ARM Cross-compiler Toolchain, since one may find some GCC7 compiler's issues when trying to compile some packages like opencl within processor-sdk, I advise to use the version 6.4.x, we have to change the default GCC cross-compiler version from 7.2 to 6.4. Open your $TISDK/sources/meta-arago/meta-arago-distro/conf/distro/include/toolchain-linaro.inc, comment out these lines :
+
+	# TOOLCHAIN_BASE ?= "/opt"
+	# TOOLCHAIN_PATH_ARMV5 ?= "${TOOLCHAIN_BASE}/gcc-linaro-7.2.1-ti2018.00-armv5-x86_64_${ELT_TARGET_SYS_ARMV5}"
+	# TOOLCHAIN_PATH_ARMV7 ?= "${TOOLCHAIN_BASE}/gcc-linaro-7.2.1-2017.11-x86_64_${ELT_TARGET_SYS_ARMV7}"
+	# TOOLCHAIN_PATH_ARMV8 ?= "${TOOLCHAIN_BASE}/gcc-linaro-7.2.1-2017.11-x86_64_${ELT_TARGET_SYS_ARMV8}"
+	
+then, add these lines to use 6.4.1 in order to compile some packages in yocto :
+
+	TOOLCHAIN_BASE = "$HOME" or where you installed the GCC cross-compiler
+	TOOLCHAIN_PATH_ARMV7 ?= "${TOOLCHAIN_BASE}/gcc-linaro-6.4.1-2017.08-x86_64_${ELT_TARGET_SYS_ARMV7}"
+	TOOLCHAIN_PATH_ARMV8 ?= "${TOOLCHAIN_BASE}/gcc-linaro-6.4.1-2017.08-x86_64_${ELT_TARGET_SYS_ARMV8}"
+		
+Now we're ready to go through bitbaking some Beagleboard-x15 core packages...
+
+	$ cd $TISDK/build/
+	$ . conf/setenv
+	$ MACHINE=am57xx-evm bitbake arago-core-tisdk-image
+	
+You may need some tools too...
+
+	$ MACHINE=am57xx-evm bitbake netcat picocom spitools i2c-tools python-pyserial uio
+	
+	Check package version and after re-generation, build the new package index in repository : 
+	$ MACHINE=am57xx-evm bitbake -s
+	$ MACHINE=am57xx-evm bitbake package-index 
+
+	Ref. 	https://www.openembedded.org/wiki/Bitbake_cheat_sheet 
+		http://wiki.kaeilos.com/index.php/Bitbake_options
+
+
+	in PC, build the netcat package for your remote target :
+	$ MACHINE=am57xx-evm bitbake netcat	
+	install the netcat package into the target (copy to the target ipk package through NFS or microSD) 
+        
+	Now do a test of file transfer over LAN between your PC and Beagleboard-x15
+	
+	in Target :
+	$ opkg install netcat_0.7.1-r3_armv7ahf-neon.ipk
+	    or
+	$ opkg install netcat
+	Target should at first wait for incoming connection
+	$ netcat -l -p 6600 > test_nc.txt
+
+	in PC :
+	$ echo "abc123" | nc 192.168.1.16 6600
+
+--------
+--------
+## SETUP the environment
+
+	in PC :
+	install nfs and tftp server to host target kernel, dtb and rootfs.
+	edit /etc/exports to allow nfs server directory access
+	copy kernel and dtb to /tftp as the directory used by tftp server
+	
+	$ cd /home/osboxes/bbx15/tisdk/build/arago-tmp-external-linaro-toolchain/work/am57xx_evm-linux-gnueabi/linux-ti-staging/*/build/
+	$ cp arch/arm/boot/zImage /tftpboot/ && cp arch/arm/boot/dts/am57xx-beagle-x15-revc.dtb /tftpboot/uImage-am57xx-beagle-x15-revc.dtb
+
+	edit /etc/xinetd.d/tftp, add these lines into it :
+		service tftp
+		{
+		protocol        = udp
+		port            = 69
+		socket_type     = dgram
+		wait            = yes
+		user            = nobody
+		server          = /usr/sbin/in.tftpd
+		server_args     = /tftp
+		disable         = no
+		}
+	$ sudo mkdir /tftpboot
+	$ sudo chmod -R 777 /tftpboot
+	$ sudo chown -R nobody /tftpboot
+	$ sudo /etc/init.d/xinetd start
+	$ sudo /etc/init.d/xinetd restart
+	$ tftp -i 127.0.0.1 put test.txt
+	$ ls -l /tftp
+
+	check presence of test.txt
+	
+ 	install lighttpd server as an open embedded ipk packages server with Ubuntu
+	$ sudo apt-get install lighttpd
+        all yocto arago packages found inside $TISDK/build/arago-tmp-external-linaro-toolchain/deploy/ipk
+	
+	this is how I configured my lighttpd server :
+	add these following lines in $TISDK/build/arago-tmp-external-linaro-toolchain/deploy/lighttpd.conf
+	in lighttpd.conf, maybe it has to use absolute path, so just replace $TISDK with right path
+	be sure the port 8000 is available too.
+	------
+
+	server.document-root = "$TISDK/build/arago-tmp-external-linaro-toolchain/deploy/"
+
+	server.port = 8000
+
+	server.username = "www-data"
+	server.groupname = "www-data"
+
+	mimetype.assign = (
+	  ".html" => "text/html",
+	  ".txt" => "text/plain",
+	  ".jpg" => "image/jpeg",
+	  ".png" => "image/png"
+	)
+
+	$HTTP["url"] =~ "^/ipk" {
+	    dir-listing.activate = "enable"
+	}
+
+	static-file.exclude-extensions = ( ".fcgi", ".php", ".rb", "~", ".inc" )
+	index-file.names = ( "index.html" )
+
+	------
+
+	start the http server with this command in your PC server :
+	$ lighttpd -D -f $TISDK/build/arago-tmp-external-linaro-toolchain/deploy/lighttpd.conf
+	then, assuming server ip 192.168.1.17 
+	
+	browse http://192.168.1.17:8000/ipk/
+
+	you should see something like : 
+
+	Index of /ipk/
+	Name	        Last Modified	    Size	
+	all/	        2018-Apr-07 23:26:36  -
+	am57xx_evm/	2018-Apr-08 00:18:40  -
+	armv7ahf-neon/	2018-Apr-13 22:16:16  -
+	x86_64-nativesdk/ 2018-Apr-07 23:26:37 -
+	Packages	2018-Apr-01 22:05:36  0.0K
+
+
+	in Target :
+ 	add into beagleboard-x15 open embedded packages manager's configuration file 
+	the remote LAN http server links at address of 192.168.1.17:8000/ipk
+
+	$ vi /etc/opkg/base-feeds.conf
+	src/gz all http://192.168.1.17:8000/ipk/all
+	src/gz am57xx_evm http://192.168.1.17:8000/ipk/am57xx_evm
+	src/gz armv7ahf-neon http://192.168.1.17:8000/ipk/armv7ahf-neon
+
+	$ opkg update
+	Downloading http://192.168.1.17:8000/ipk/all/Packages.gz.
+	Updated source 'all'.
+	Downloading http://192.168.1.17:8000/ipk/am57xx_evm/Packages.gz.
+	Updated source 'am57xx_evm'.
+	Downloading http://192.168.1.17:8000/ipk/armv7ahf-neon/Packages.gz.
+	Updated source 'armv7ahf-neon'.
+
+------
+
+	The kernel can be compiled by gcc-linaro 6.4.x or 7.x, here we'll setup version 7.2.1 to compile the linux kernel
 	
 	$ wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/arm-linux-gnueabihf/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz
 	$ tar -Jxvf gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz -C $HOME
